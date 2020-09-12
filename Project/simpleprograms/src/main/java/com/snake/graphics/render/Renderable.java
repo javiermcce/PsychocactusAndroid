@@ -1,8 +1,12 @@
 package com.snake.graphics.render;
 
-import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 
 public interface Renderable {
 
-    public void drawOnImage(Graphics2D canvas);
+    public BufferedImage getRenderedImage();
+
+    public int getImageWSize();
+
+    public int getImageHSize();
 }

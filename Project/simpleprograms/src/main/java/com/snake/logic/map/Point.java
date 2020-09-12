@@ -1,4 +1,4 @@
-package com.snake.logic.stats;
+package com.snake.logic.map;
 
 public class Point {
 
