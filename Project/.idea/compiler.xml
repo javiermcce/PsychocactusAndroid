@@ -3,6 +3,7 @@
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
       <module name="simpleprograms" target="1.7" />
+      <module name="tests" target="1.7" />
     </bytecodeTargetLevel>
   </component>
 </project>

@@ -5,4 +5,10 @@
     <string name="quitButtonTag">Quit</string>
     <string name="playButtonTag">Play</string>
     <string name="mainImageDescTag">Main Image</string>
+    <string name="equalSign">=</string>
+    <string name="zero_number">0</string>
+    <string name="operator">*</string>
+    <string name="text_score">Score: 0</string>
+    <string name="text_level">Level: 1</string>
+    <string name="title_activity_game">Multiply Level</string>
 </resources>
