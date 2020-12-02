@@ -18,25 +18,24 @@
         android:textSize="30sp" />
 
     <ImageView
+        android:id="@+id/imageView"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:id="@+id/imageView"
-        android:src="@drawable/simbolos_mates"
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="38dp" />
+        android:layout_marginTop="38dp"
+        android:src="@mipmap/simbolos_mates_layer" />
 
     <Button
+        android:id="@+id/buttonPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Play"
-        android:id="@+id/buttonPlay"
-        android:layout_marginTop="28dp"
         android:layout_below="@+id/imageView"
-        android:layout_alignRight="@+id/buttonHighScores"
-        android:layout_alignEnd="@+id/buttonHighScores"
+        android:layout_alignStart="@+id/buttonHighScores"
         android:layout_alignLeft="@+id/buttonHighScores"
-        android:layout_alignStart="@+id/buttonHighScores" />
+        android:layout_alignEnd="@+id/buttonHighScores"
+        android:layout_alignRight="@+id/buttonHighScores"
+        android:text="Play" />
 
     <Button
         android:layout_width="wrap_content"
