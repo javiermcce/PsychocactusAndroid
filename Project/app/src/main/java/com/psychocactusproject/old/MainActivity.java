@@ -1,4 +1,4 @@
-package com.psychocactusproject.logic.manager;
+package com.psychocactusproject.old;
 
 import android.app.Activity;
 import android.content.Intent;

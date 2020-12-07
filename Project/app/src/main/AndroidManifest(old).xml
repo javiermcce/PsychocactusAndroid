@@ -4,21 +4,21 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@aux-images/icono bateria xiquito.png"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/icon_drummer_round"
+        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".manager.GameActivity"
+            android:name=".logic.manager.GameActivity"
             android:label="@string/title_activity_game"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen"
             android:screenOrientation="portrait" />
-        <activity android:name=".manager.CanvasActivity"
+        <activity android:name=".logic.manager.CanvasActivity"
             android:label="@string/title_activity_game"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen"
             android:screenOrientation="landscape" />
-        <activity android:name=".manager.MainActivity"
+        <activity android:name=".logic.manager.MainActivity"
             android:screenOrientation="portrait"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar.Fullscreen">

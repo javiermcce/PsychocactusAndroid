@@ -1,7 +1,6 @@
-package com.psychocactusproject.logic.manager;
+package com.psychocactusproject.manager;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -10,22 +9,15 @@ import android.graphics.Point;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 
 import com.psychocactusproject.R;
 
 import java.util.LinkedList;
-
-import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
-import static android.view.View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-import static android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-import static java.security.AccessController.getContext;
 
 public class CanvasActivity extends Activity implements View.OnClickListener {
 

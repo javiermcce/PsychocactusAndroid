@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Psychocactus</string>
+    <string name="app_name">Psycho Cactus</string>
     <string name="mainTitleTag">My Math Game</string>
     <string name="highScoresButtonTag">High Scores</string>
     <string name="quitButtonTag">Quit</string>

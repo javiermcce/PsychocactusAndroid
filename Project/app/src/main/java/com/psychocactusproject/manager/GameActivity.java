@@ -1,6 +1,4 @@
-package com.psychocactusproject.logic.manager;
-
-import androidx.appcompat.app.AppCompatActivity;
+package com.psychocactusproject.manager;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -12,7 +10,6 @@ import android.widget.Toast;
 import com.psychocactusproject.R;
 
 import java.util.Locale;
-import java.util.Random;
 
 public class GameActivity extends Activity implements View.OnClickListener {
 
