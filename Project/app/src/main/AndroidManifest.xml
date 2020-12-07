@@ -4,9 +4,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@aux-images/icono bateria xiquito.png"
+        android:icon="@drawable/icono_barry_cerca_grande"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/icon_drummer_round"
+        android:roundIcon="@drawable/icono_barry_cerca_grande"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
