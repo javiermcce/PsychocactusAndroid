@@ -4,9 +4,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/icono_barry_cerca_grande"
+        android:icon="@mipmap/icon_barry"
         android:label="@string/app_name"
-        android:roundIcon="@drawable/icono_barry_cerca_grande"
+        android:roundIcon="@mipmap/icon_barry_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
