@@ -10,7 +10,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="My Math Game"
+        android:text="Main Menu"
         android:id="@+id/textView"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
@@ -24,13 +24,14 @@
         android:layout_below="@+id/textView"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="38dp"
-        android:src="@mipmap/simbolos_mates_layer" />
+        android:src="@mipmap/icon_barry_round" />
 
     <Button
         android:id="@+id/buttonPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageView"
+        android:layout_marginTop="20dp"
         android:layout_alignStart="@+id/buttonHighScores"
         android:layout_alignLeft="@+id/buttonHighScores"
         android:layout_alignEnd="@+id/buttonHighScores"
