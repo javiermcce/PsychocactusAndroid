@@ -5,7 +5,7 @@ import android.media.Image;
 import com.psychocactusproject.engine.GameClock;
 import com.psychocactusproject.engine.GameEntity;
 
-public abstract class AnimatedEntity extends GameEntity {
+public abstract class AnimatedEntity implements GameEntity {
 
 
     public abstract GameClock getClock();

@@ -2,6 +2,7 @@ package com.psychocactusproject.engine;
 
 import android.app.Activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GameEngine {
@@ -16,6 +17,10 @@ public class GameEngine {
 
     public GameEngine(Activity activity) {
         this.activity = activity;
+        this.gameEntities = new ArrayList();
+        this.entities = new ArrayList();
+        this.entitiesToAdd = new ArrayList();
+        this.entitiesToRemove = new ArrayList();
     }
 
     public void startGame() {

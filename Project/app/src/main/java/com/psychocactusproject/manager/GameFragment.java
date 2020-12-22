@@ -30,7 +30,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         gameEngine = new GameEngine(getActivity());
-        // gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
+        gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
         view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
         gameEngine.startGame();
     }

@@ -40,7 +40,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.buttonHighScores:
                 System.out.println("HOLAAA");
-                i = new Intent(this, CanvasActivity.class);
+                // i = new Intent(this, CanvasActivity.class);
                 break;
             case R.id.buttonQuit:
                 System.exit(0);

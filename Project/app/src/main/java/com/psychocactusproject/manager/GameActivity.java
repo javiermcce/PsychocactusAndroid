@@ -42,15 +42,6 @@ public class GameActivity extends Activity {
                 .commit();
     }
 
-//    public void navigateToFragment(Fragment newFragment) {
-//        // Set it and do the transaction
-//        FragmentTransaction ft = getFragmentManager().beginTransaction();
-////        ft.setCustomAnimations(R.animator.fragment_return_enter, R.animator.fragment_return_exit, R.animator.fragment_enter, R.animator.fragment_exit);
-//        ft.replace(R.id.container, newFragment, TAG_FRAGMENT);
-//        ft.addToBackStack(null);
-//        ft.commit();
-//    }
-
     @Override
     public void onBackPressed() {
         final GameBaseFragment fragment = (GameBaseFragment) getFragmentManager().findFragmentByTag(TAG_FRAGMENT);
