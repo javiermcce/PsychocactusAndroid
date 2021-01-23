@@ -10,7 +10,7 @@ public interface GameView {
 
     public void draw();
 
-    public void setGameObjects(List<GameEntity> gameEntities);
+    public void setGameEntities(List<GameEntity> gameEntities);
 
     int getWidth();
 

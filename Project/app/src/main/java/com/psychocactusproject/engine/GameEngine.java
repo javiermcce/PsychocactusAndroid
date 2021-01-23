@@ -2,6 +2,8 @@ package com.psychocactusproject.engine;
 
 import android.app.Activity;
 
+import com.psychocactusproject.graphics.views.GameView;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +16,10 @@ public class GameEngine {
     private List<GameEntity> entitiesToAdd;
     private List<GameEntity> entitiesToRemove;
     private Activity activity;
+    private GameView gameView;
+    private int width;
+    private int height;
+    private double pixelFactor;
 
     public GameEngine(Activity activity) {
         this.activity = activity;
@@ -21,6 +27,15 @@ public class GameEngine {
         this.entities = new ArrayList();
         this.entitiesToAdd = new ArrayList();
         this.entitiesToRemove = new ArrayList();
+    }
+
+    public GameEngine(Activity activity, GameView gameView) {
+        this.activity = activity;
+        this.gameView = gameView;
+        this.gameView.setGameEntities(this.gameEntities);
+        this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
+        this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
+        this.pixelFactor = this.height / 400d;
     }
 
     public void startGame() {
@@ -93,8 +108,8 @@ public class GameEngine {
         }
     }
 
-    public void drawGame(long ellapsedTime) {
-        // this.activity.runOnUiThread(drawRunnable);
+    public void drawGame() {
+        this.gameView.draw();
     }
 
     public boolean isRunning() {

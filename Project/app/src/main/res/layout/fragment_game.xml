@@ -10,20 +10,20 @@
     android:paddingEnd="@dimen/activity_horizontal_margin"
     tools:context=".manager.GameFragment">
 
-    <TextView
-        android:id="@+id/txt_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world"
-        android:layout_gravity="center_horizontal"
-        />
+    <com.psychocactusproject.graphics.views.SurfaceGameView
+        android:id="@+id/gameView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <Button
-        android:id="@+id/btn_play_pause"
+        android:id="@+id/button_play_pause"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:onClick="onClick"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:layout_gravity="top|right"
         android:text="@string/pause" />
+
+    <!--<include layout="@layout/view_vjoystick" />-->
 
 </FrameLayout>

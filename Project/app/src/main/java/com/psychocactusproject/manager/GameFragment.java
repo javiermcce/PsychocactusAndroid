@@ -11,6 +11,7 @@ import android.widget.Button;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.graphics.views.GameView;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
@@ -29,15 +30,16 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        gameEngine = new GameEngine(getActivity());
-        gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
-        view.findViewById(R.id.btn_play_pause).setOnClickListener(this);
+        GameView gameView = getView().findViewById(R.id.gameView);
+        gameEngine = new GameEngine(getActivity(), gameView);
+        //gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
+        view.findViewById(R.id.button_play_pause).setOnClickListener(this);
         gameEngine.startGame();
     }
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.btn_play_pause) {
+        if (v.getId() == R.id.button_play_pause) {
             pauseGameAndShowPauseDialog();
         }
     }
@@ -97,7 +99,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     }
 
     private void playOrPause() {
-        Button button = (Button) getView().findViewById(R.id.btn_play_pause);
+        Button button = (Button) getView().findViewById(R.id.button_play_pause);
         if (gameEngine.isPaused()) {
             gameEngine.resumeGame();
             button.setText(R.string.pause);

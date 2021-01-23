@@ -20,10 +20,9 @@ public class DrawThread extends Thread {
 
     @Override
     public void run() {
-        long previousTime;
         long currentTime;
         long ellapsedTime;
-        previousTime = System.currentTimeMillis();
+        long previousTime = System.currentTimeMillis();
         while (this.isDrawRunning()) {
             currentTime = System.currentTimeMillis();
             ellapsedTime = currentTime - previousTime;
@@ -39,12 +38,18 @@ public class DrawThread extends Thread {
                 }
                 currentTime = System.currentTimeMillis();
             }
-
+            if (ellapsedTime < 15) { // Mayor a 60 fps
+                try {
+                    Thread.sleep(15 - ellapsedTime);
+                } catch (InterruptedException e) {
+                    System.err.println("Thread sleep interrupted unexpectedly");
+                }
+            }
             // long timeToSleep = DRAW_PERIODS - ellapsedTime;
             // revisar
             // drawGame puede costar tiempo, no tiene sentido esperar antes
             // esperaremos dentro de drawGame justo antes de mostrar el bitmap construido
-            this.gameEngine.drawGame(ellapsedTime);
+            this.gameEngine.drawGame();
             previousTime = currentTime;
         }
     }

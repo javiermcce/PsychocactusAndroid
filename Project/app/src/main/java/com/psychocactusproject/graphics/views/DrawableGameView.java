@@ -31,9 +31,8 @@ public class DrawableGameView extends View implements GameView {
         postInvalidate();
     }
 
-    @SuppressLint({"MissingSuperCall", "WrongCall"})
     @Override
-    public void onDraw(Canvas canvas) {
+    protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         synchronized (this.gameEntities) {
             for (int i = 0; i < this.gameEntities.size(); i++) {
@@ -44,7 +43,7 @@ public class DrawableGameView extends View implements GameView {
 
 
     @Override
-    public void setGameObjects(List<GameEntity> gameEntities) {
+    public void setGameEntities(List<GameEntity> gameEntities) {
         this.gameEntities = gameEntities;
     }
 }
