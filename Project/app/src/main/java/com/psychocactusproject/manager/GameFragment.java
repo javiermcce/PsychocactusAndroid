@@ -12,6 +12,7 @@ import android.widget.Button;
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
+import com.psychocactusproject.input.InputController;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
@@ -31,10 +32,15 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         GameView gameView = getView().findViewById(R.id.gameView);
-        gameEngine = new GameEngine(getActivity(), gameView);
+        this.gameEngine = new GameEngine(getActivity(), gameView);
         //gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
         view.findViewById(R.id.button_play_pause).setOnClickListener(this);
-        gameEngine.startGame();
+        this.gameEngine.setInputController(new InputController());
+        /*
+        * Este es el lugar en que meter los músicos, en lugar de new Player añadir a los 4
+        * */
+        //this.gameEngine.addGameEntity(new Player(getView()));
+        this.gameEngine.startGame();
     }
 
     @Override

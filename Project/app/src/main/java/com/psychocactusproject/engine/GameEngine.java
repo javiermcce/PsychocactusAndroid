@@ -1,8 +1,10 @@
 package com.psychocactusproject.engine;
 
 import android.app.Activity;
+import android.content.Context;
 
 import com.psychocactusproject.graphics.views.GameView;
+import com.psychocactusproject.input.InputController;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +17,13 @@ public class GameEngine {
     private List<GameEntity> entities;
     private List<GameEntity> entitiesToAdd;
     private List<GameEntity> entitiesToRemove;
+    private InputController inputController;
     private Activity activity;
     private GameView gameView;
     private int width;
     private int height;
     private double pixelFactor;
+    private GameClock engineClock;
 
     public GameEngine(Activity activity) {
         this.activity = activity;
@@ -36,6 +40,7 @@ public class GameEngine {
         this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
         this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
         this.pixelFactor = this.height / 400d;
+        this.engineClock = new GameClock(1, 1000);
     }
 
     public void startGame() {
@@ -51,6 +56,8 @@ public class GameEngine {
         // Starting drawing thread
         this.drawThread = new DrawThread(this);
         this.drawThread.start();
+        // Manage controller
+        this.inputController.onStart();
     }
 
     public void stopGame() {
@@ -60,6 +67,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.stopDrawing();
         }
+        // Manage controller
+        this.inputController.onStop();
     }
 
     public void pauseGame() {
@@ -69,6 +78,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.pauseDraw();
         }
+        // Manage controller
+        this.inputController.onPause();
     }
 
     public void resumeGame() {
@@ -78,6 +89,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.resumeDraw();
         }
+        // Manage controller
+        this.inputController.onResume();
     }
 
     public void addGameEntity(GameEntity gameEntity) {
@@ -118,5 +131,21 @@ public class GameEngine {
 
     public boolean isPaused() {
         return this.updateThread != null && this.updateThread.isUpdatePaused();
+    }
+
+    public Context getContext() {
+        return gameView.getContext();
+    }
+
+    public InputController getInputController() {
+        return this.inputController;
+    }
+
+    public void setInputController(InputController inputController) {
+        this.inputController = inputController;
+    }
+
+    public double getPixelFactor() {
+        return this.pixelFactor;
     }
 }

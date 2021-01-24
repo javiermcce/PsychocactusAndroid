@@ -41,7 +41,6 @@ public class DrawableGameView extends View implements GameView {
         }
     }
 
-
     @Override
     public void setGameEntities(List<GameEntity> gameEntities) {
         this.gameEntities = gameEntities;
