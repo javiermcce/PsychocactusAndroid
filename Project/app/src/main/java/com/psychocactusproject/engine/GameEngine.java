@@ -3,6 +3,7 @@ package com.psychocactusproject.engine;
 import android.app.Activity;
 import android.content.Context;
 
+import com.psychocactusproject.characters.band.Bass;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.input.InputController;
 
@@ -11,10 +12,9 @@ import java.util.List;
 
 public class GameEngine {
 
-    private List<GameEntity> gameEntities;
     private UpdateThread updateThread;
     private DrawThread drawThread;
-    private List<GameEntity> entities;
+    private List<GameEntity> gameEntities;
     private List<GameEntity> entitiesToAdd;
     private List<GameEntity> entitiesToRemove;
     private InputController inputController;
@@ -25,17 +25,12 @@ public class GameEngine {
     private double pixelFactor;
     private GameClock engineClock;
 
-    public GameEngine(Activity activity) {
-        this.activity = activity;
-        this.gameEntities = new ArrayList();
-        this.entities = new ArrayList();
-        this.entitiesToAdd = new ArrayList();
-        this.entitiesToRemove = new ArrayList();
-    }
-
     public GameEngine(Activity activity, GameView gameView) {
         this.activity = activity;
         this.gameView = gameView;
+        this.gameEntities = new ArrayList();
+        this.entitiesToAdd = new ArrayList();
+        this.entitiesToRemove = new ArrayList();
         this.gameView.setGameEntities(this.gameEntities);
         this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
         this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
@@ -97,7 +92,7 @@ public class GameEngine {
         if (this.isRunning()) {
             this.entitiesToAdd.add(gameEntity);
         } else {
-            this.entities.add(gameEntity);
+            this.gameEntities.add(gameEntity);
         }
         // Falta revisar
     }
@@ -109,7 +104,7 @@ public class GameEngine {
 
     public void updateGame(long ellapsedTime) {
         for (int i = 0; i < this.gameEntities.size(); i++) {
-            this.gameEntities.get(i).initialize();
+            this.gameEntities.get(i).update(ellapsedTime, this);
         }
         synchronized (gameEntities) {
             while (!entitiesToRemove.isEmpty()) {

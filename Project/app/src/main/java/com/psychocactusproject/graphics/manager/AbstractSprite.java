@@ -1,5 +1,7 @@
 package com.psychocactusproject.graphics.manager;
 
+import android.graphics.Matrix;
+
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Point;
@@ -9,9 +11,12 @@ public abstract class AbstractSprite extends GameEntity {
     private int positionX;
     private int positionY;
     private final double pixelFactor;
+    private final Matrix matrix = new Matrix();
 
     public AbstractSprite(GameEngine gameEngine) {
         this.pixelFactor = gameEngine.getPixelFactor();
+        this.positionX = 0;
+        this.positionY = 0;
     }
 
     protected int getPositionX() {
@@ -41,5 +46,9 @@ public abstract class AbstractSprite extends GameEntity {
     protected void setPosition(Point position) {
         this.positionX = position.getX();
         this.positionY = position.getY();
+    }
+
+    protected Matrix getMatrix() {
+        return this.matrix;
     }
 }

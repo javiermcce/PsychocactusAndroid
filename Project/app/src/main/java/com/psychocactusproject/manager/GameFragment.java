@@ -7,11 +7,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.characters.band.Bass;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
+import com.psychocactusproject.input.BasicInputController;
 import com.psychocactusproject.input.InputController;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
@@ -31,16 +34,29 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        GameView gameView = getView().findViewById(R.id.gameView);
-        this.gameEngine = new GameEngine(getActivity(), gameView);
-        //gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
         view.findViewById(R.id.button_play_pause).setOnClickListener(this);
-        this.gameEngine.setInputController(new InputController());
+        final ViewTreeObserver observer = view.getViewTreeObserver();
+        observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                observer.removeOnGlobalLayoutListener(this);
+                GameView gameView = (GameView) getView().findViewById(R.id.gameView);
+                gameEngine = new GameEngine(getActivity(), gameView);
+                gameEngine.setInputController(new BasicInputController(getView()));
+                gameEngine.addGameEntity(new Bass(gameEngine, getView().findViewById(R.id.gameView)));
+                gameEngine.startGame();
+            }
+        });
+
+        //GameView gameView = getView().findViewById(R.id.gameView);
+        //this.gameEngine = new GameEngine(getActivity(), gameView);
+        //gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
+        //this.gameEngine.setInputController(new InputController());
         /*
         * Este es el lugar en que meter los músicos, en lugar de new Player añadir a los 4
         * */
         //this.gameEngine.addGameEntity(new Player(getView()));
-        this.gameEngine.startGame();
+        //this.gameEngine.startGame();
     }
 
     @Override

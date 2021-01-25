@@ -6,6 +6,8 @@ public class UpdateThread extends Thread {
     private boolean updateRunning;
     private boolean updatePaused;
 
+    private Object lock = new Object();
+
     public UpdateThread(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
         this.updateRunning = true;
@@ -24,8 +26,8 @@ public class UpdateThread extends Thread {
             if (this.isUpdatePaused()) {
                 while (this.isUpdatePaused()) {
                     try {
-                        synchronized (this) {
-                            this.wait();
+                        synchronized (this.lock) {
+                            this.lock.wait();
                         }
                     } catch (InterruptedException e) {
                         System.err.println("Thread wait interrupted unexpectedly");
@@ -58,8 +60,8 @@ public class UpdateThread extends Thread {
     public void resumeUpdate() {
         if (this.isUpdatePaused()) {
             this.updatePaused = false;
-            synchronized (this) {
-                this.notify();
+            synchronized (this.lock) {
+                this.lock.notify();
             }
         }
     }

@@ -12,6 +12,8 @@ public class DrawThread extends Thread {
     private boolean drawRunning;
     private boolean drawPaused;
 
+    private Object lock = new Object();
+
     public DrawThread(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
         this.drawRunning = true;
@@ -29,8 +31,8 @@ public class DrawThread extends Thread {
             if (this.isDrawPaused()) {
                 while (this.isDrawPaused()) {
                     try {
-                        synchronized (this) {
-                            this.wait();
+                        synchronized (this.lock) {
+                            this.lock.wait();
                         }
                     } catch (InterruptedException e) {
                         System.err.println("Thread wait interrupted unexpectedly");
@@ -74,8 +76,8 @@ public class DrawThread extends Thread {
     public void resumeDraw() {
         if (this.isDrawPaused()) {
             this.drawPaused = false;
-            synchronized (this) {
-                this.notify();
+            synchronized (this.lock) {
+                this.lock.notify();
             }
         }
     }

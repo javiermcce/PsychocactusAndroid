@@ -1,6 +1,8 @@
 package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
+import android.view.View;
+import android.widget.TextView;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
@@ -9,20 +11,16 @@ import com.psychocactusproject.input.InputController;
 
 public abstract class Musician extends AnimationController {
 
-    protected Musician(GameEngine gameEngine) {
+    TextView textView;
+    View test;
+
+    protected Musician(GameEngine gameEngine, View view) {
         super(gameEngine);
+        test = view;
+        this.textView = test.findViewById(R.id.txt_score);
     }
 
     // Equivalente a Player según la guía
-
-    @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
-        InputController inputController = gameEngine.getInputController();
-        // aquí debería tener un gestor de movimiento que funcione como un script en un
-        // hilo independiente, input controller tiene poco que ver en esto, pero lo voy a
-        // mantener hasta implementar mi propio código
-        //this.setPositionX();
-    }
 
     @Override
     public void initialize() {
@@ -30,7 +28,32 @@ public abstract class Musician extends AnimationController {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void update(long elapsedMillis, GameEngine gameEngine) {
+        InputController inputController = gameEngine.getInputController();
+        // aquí debería tener un gestor de movimiento que funcione como un script en un
+        // hilo independiente, input controller tiene poco que ver en esto, pero lo voy a
+        // mantener hasta implementar mi propio código
+        // this.setPositionX();
+        // this.setPositionX(this.getPositionX() + 1);
+        // this.setPositionY(this.getPositionY() + 1);
+    }
 
+    @Override
+    public void draw(Canvas canvas) {
+        this.getMatrix().reset();
+        this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
+        canvas.drawBitmap(this.getAnimationImage(), this.getMatrix(), null);
+        if (this.getPositionX() < 500) {
+            this.setPositionX(this.getPositionX() + 1);
+        }
+        if (this.getPositionY() < 200) {
+            this.setPositionY(this.getPositionY() + 1);
+        }
+        /*
+        if (textView == null) {
+            this.textView = test.findViewById(R.id.txt_score);
+        } else {
+            this.textView.setText("[" + getPositionX() + ", " + getPositionY() + "]");
+        }*/
     }
 }

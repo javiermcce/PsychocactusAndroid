@@ -36,6 +36,7 @@ public abstract class AnimationController extends AbstractSprite {
         Resources resources = gameEngine.getContext().getResources();
         Drawable drawableSprite;
         for (int i = 0 ; i < bitmapCodes.size(); i++) {
+            Bitmap[] bitmaps = new Bitmap[bitmapCodes.get(i).length];
             for (int j = 0; j < bitmapCodes.get(i).length; j++) {
                 drawableSprite = resources.getDrawable(bitmapCodes.get(i)[j]);
                 if (j == 0) {
@@ -45,9 +46,16 @@ public abstract class AnimationController extends AbstractSprite {
                             (int) (drawableSprite.getIntrinsicHeight() * this.getPixelFactor());
                     this.spritesNum[i] = bitmapCodes.get(i).length;
                 }
-                this.animationImages.get(i)[j] = ((BitmapDrawable) drawableSprite).getBitmap();
+                bitmaps[j] = ((BitmapDrawable) drawableSprite).getBitmap();
             }
+            this.animationImages.add(bitmaps);
         }
+        this.animationTimer = new GameClock(8, 1);
+
+    }
+
+    protected Bitmap getAnimationImage() {
+        return animationImages.get(0)[animationTimer.getTimestamp()];
     }
 
     protected abstract List<int[]> obtainBitmapCodes();

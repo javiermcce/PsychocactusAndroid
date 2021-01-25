@@ -1,6 +1,7 @@
 package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
+import android.view.View;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
@@ -9,8 +10,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class Bass extends Musician {
-    protected Bass(GameEngine gameEngine) {
-        super(gameEngine);
+
+    public Bass(GameEngine gameEngine, View view) {
+        super(gameEngine, view);
     }
 
     @Override

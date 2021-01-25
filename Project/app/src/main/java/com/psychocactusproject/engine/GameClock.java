@@ -30,13 +30,18 @@ public class GameClock {
     }
 
     private void updateTask() {
-        this.timer.cancel();
+        // Tengo que revisar la implementación del timer, porque parece ser que no puedo
+        // asignar una nueva tarea sin destrozar por completo el objeto
+
+        //this.timer.cancel();
+        //this.timer.purge();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
                 timestamp = (timestamp + 1) % totalFrames;
             }
         };
-        this.timer.scheduleAtFixedRate(task, 0, (long)(this.period * 1000 / totalFrames));
+        long periodArgument = (long)(this.period * 1000 / totalFrames);
+        this.timer.scheduleAtFixedRate(task, 0, periodArgument);
     }
 }

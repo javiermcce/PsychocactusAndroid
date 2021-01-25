@@ -3,7 +3,6 @@ package com.psychocactusproject.graphics.manager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 
@@ -14,7 +13,6 @@ public abstract class SpriteController extends AbstractSprite {
     private final Bitmap bitmap;
     private final int imageWidth;
     private final int imageHeight;
-    private final Matrix matrix = new Matrix();
 
     protected SpriteController(GameEngine gameEngine, int drawableResource) {
         super(gameEngine);
@@ -27,10 +25,10 @@ public abstract class SpriteController extends AbstractSprite {
 
     @Override
     public void draw(Canvas canvas) {
-        this.matrix.reset();
-        this.matrix.postScale((float) this.getPixelFactor(), (float) this.getPixelFactor());
-        this.matrix.postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        canvas.drawBitmap(this.bitmap, this.matrix, null);
+        this.getMatrix().reset();
+        this.getMatrix().postScale((float) this.getPixelFactor(), (float) this.getPixelFactor());
+        this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
+        canvas.drawBitmap(this.bitmap, this.getMatrix(), null);
     }
 
     protected int getImageWidth() {
