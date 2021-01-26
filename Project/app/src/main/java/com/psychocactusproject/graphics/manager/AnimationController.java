@@ -25,6 +25,7 @@ public abstract class AnimationController extends AbstractSprite {
 
     protected AnimationController(GameEngine gameEngine) {
         super(gameEngine);
+        this.action = 0;
         List<int[]> bitmapCodes = this.obtainBitmapCodes();
         this.actionNames = this.obtainActionNames();
         this.entityName = this.obtainEntityRole();
@@ -55,7 +56,8 @@ public abstract class AnimationController extends AbstractSprite {
     }
 
     protected Bitmap getAnimationImage() {
-        return animationImages.get(0)[animationTimer.getTimestamp()];
+        // provisional, falta parametrizar correctamente
+        return animationImages.get(action)[animationTimer.getTimestamp()];
     }
 
     protected abstract List<int[]> obtainBitmapCodes();

@@ -12,6 +12,8 @@ import java.util.List;
 
 public class GameEngine {
 
+    public final static int RESOLUTION_X = 1280;
+    public final static int RESOLUTION_Y = 720;
     private UpdateThread updateThread;
     private DrawThread drawThread;
     private List<GameEntity> gameEntities;
@@ -143,4 +145,5 @@ public class GameEngine {
     public double getPixelFactor() {
         return this.pixelFactor;
     }
+
 }

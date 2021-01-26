@@ -26,8 +26,8 @@ public class UpdateThread extends Thread {
             if (this.isUpdatePaused()) {
                 while (this.isUpdatePaused()) {
                     try {
-                        synchronized (this.lock) {
-                            this.lock.wait();
+                        synchronized (this) {
+                            this.wait();
                         }
                     } catch (InterruptedException e) {
                         System.err.println("Thread wait interrupted unexpectedly");
@@ -60,8 +60,8 @@ public class UpdateThread extends Thread {
     public void resumeUpdate() {
         if (this.isUpdatePaused()) {
             this.updatePaused = false;
-            synchronized (this.lock) {
-                this.lock.notify();
+            synchronized (this) {
+                this.notify();
             }
         }
     }

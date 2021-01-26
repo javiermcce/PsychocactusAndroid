@@ -31,8 +31,8 @@ public class DrawThread extends Thread {
             if (this.isDrawPaused()) {
                 while (this.isDrawPaused()) {
                     try {
-                        synchronized (this.lock) {
-                            this.lock.wait();
+                        synchronized (this) {
+                            this.wait();
                         }
                     } catch (InterruptedException e) {
                         System.err.println("Thread wait interrupted unexpectedly");
@@ -76,8 +76,8 @@ public class DrawThread extends Thread {
     public void resumeDraw() {
         if (this.isDrawPaused()) {
             this.drawPaused = false;
-            synchronized (this.lock) {
-                this.lock.notify();
+            synchronized (this) {
+                this.notify();
             }
         }
     }
