@@ -14,8 +14,11 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.characters.band.Bass;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
+import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.BasicInputController;
 import com.psychocactusproject.input.InputController;
+
+import java.util.concurrent.BrokenBarrierException;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
@@ -41,7 +44,8 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
             public void onGlobalLayout() {
                 observer.removeOnGlobalLayoutListener(this);
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
-                gameEngine = new GameEngine(getActivity(), gameView);
+                gameEngine = GameEngine.getInstance(getActivity(), gameView);
+                gameEngine.adjustScreenAspectRatio(gameView.getWidth(), gameView.getHeight());
                 gameEngine.setInputController(new BasicInputController(getView()));
                 gameEngine.addGameEntity(new Bass(gameEngine, getView().findViewById(R.id.gameView)));
                 gameEngine.startGame();

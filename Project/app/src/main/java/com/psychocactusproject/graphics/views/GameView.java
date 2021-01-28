@@ -12,19 +12,19 @@ public interface GameView {
 
     public void setGameEntities(List<GameEntity> gameEntities);
 
-    int getWidth();
+    public int getWidth();
 
-    int getHeight();
+    public int getHeight();
 
-    int getPaddingLeft();
+    public int getPaddingLeft();
 
-    int getPaddingRight();
+    public int getPaddingRight();
 
-    int getPaddingTop();
+    public int getPaddingTop();
 
-    int getPaddingBottom();
+    public int getPaddingBottom();
 
-    Context getContext();
+    public Context getContext();
 
-    void postInvalidate();
+    public void postInvalidate();
 }

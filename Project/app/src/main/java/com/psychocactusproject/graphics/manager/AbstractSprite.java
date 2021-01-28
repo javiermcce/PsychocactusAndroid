@@ -10,11 +10,9 @@ public abstract class AbstractSprite extends GameEntity {
 
     private int positionX;
     private int positionY;
-    private final double pixelFactor;
     private final Matrix matrix = new Matrix();
 
     public AbstractSprite(GameEngine gameEngine) {
-        this.pixelFactor = gameEngine.getPixelFactor();
         this.positionX = 0;
         this.positionY = 0;
     }
@@ -29,10 +27,6 @@ public abstract class AbstractSprite extends GameEntity {
 
     protected Point getPosition() {
         return new Point(this.positionX, this.positionY);
-    }
-
-    protected double getPixelFactor() {
-        return pixelFactor;
     }
 
     protected void setPositionX(int positionX) {
