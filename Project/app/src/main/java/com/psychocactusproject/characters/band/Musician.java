@@ -50,12 +50,8 @@ public abstract class Musician extends AnimationController {
             this.setPositionY(this.getPositionY() + 1);
         }
         if (textView != null) {
-            this.gameEngine.getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    textView.setText("[" + getPositionX() + ", " + getPositionY() + "]");
-                }
-            });
+            this.gameEngine.getActivity().runOnUiThread(() ->
+                    textView.setText("[" + getPositionX() + ", " + getPositionY() + "]"));
 
         }
     }

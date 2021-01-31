@@ -2,12 +2,10 @@ package com.psychocactusproject.graphics.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -64,7 +62,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.adaptedWidth = gameEngine.getAdaptedWidth();
         this.adaptedHeight = gameEngine.getAdaptedHeight();
         // Se da de alta el sprite para el fondo de pantalla
-        this.backgroundSprite = new Sprite(gameEngine, R.drawable.background, "Background Image");
+        this.backgroundSprite = new Sprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
         if (gameEngine.hasBlackStripes() != FALSE) {
             int backgroundX = deviceWidth;
