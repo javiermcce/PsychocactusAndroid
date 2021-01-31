@@ -18,7 +18,6 @@ import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.graphics.manager.Sprite;
 
 import java.util.List;
-import java.util.concurrent.BrokenBarrierException;
 
 import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.FALSE;
 import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
@@ -28,51 +27,61 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     private List<GameEntity> gameEntities;
     private boolean ready;
-    private Canvas frameCanvas;
-    private Paint basicPaint;
-    private Bitmap frameBitmap;
-    private Matrix backgroundMatrix;
-    private static Matrix basicMatrix;
-    private static int deviceWidth;
-    private static int deviceHeight;
-    private static int adaptedWidth;
-    private static int adaptedHeight;
-    private static Sprite backgroundSprite;
+    private final Canvas frameCanvas;
+    private final Paint basicPaint;
+    private final Bitmap frameBitmap;
+    private final Matrix basicMatrix;
+    // Medidas de la pantalla física adaptadas a las medidas del videojuego
+    private int adaptedWidth;
+    private int adaptedHeight;
+    // Medidas naturales de la pantalla física
+    private int deviceWidth;
+    private int deviceHeight;
+    // Sprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
+    private Sprite backgroundSprite;
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        getHolder().addCallback(this);
+        // Permite conocer el estado del surface creado en fragment_game
+        this.getHolder().addCallback(this);
+        // Las llamadas de dibujado requieren la información que contienen Paint, Canvas y Matrix
         this.frameCanvas = new Canvas();
         this.basicPaint = new Paint();
-        this.backgroundMatrix = new Matrix();
+        this.basicMatrix = new Matrix();
+        // Sobre este canvas y bitmap se dibujará en su totalidad el juego, a una resolución fija
         this.frameBitmap = Bitmap.createBitmap(
                 GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y,
                 Bitmap.Config.ARGB_8888
         );
         this.frameCanvas.setBitmap(this.frameBitmap);
-        basicMatrix = new Matrix();
-        deviceWidth = this.getWidth();
-        deviceHeight = this.getHeight();
     }
 
-    public static void setAspectRatio(int deviceWidth, int deviceHeight) {
-        GameEngine gameEngine = GameEngine.getInstance();
-        adaptedWidth = gameEngine.getAdaptedWidth();
-        adaptedHeight = gameEngine.getAdaptedHeight();
-        backgroundSprite = new Sprite(gameEngine, R.drawable.background);
+    public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
+        // Se informan a la clase los parámetros de tamaño natural de la pantalla
+        this.deviceWidth = deviceWidth;
+        this.deviceHeight = deviceHeight;
+        // Se obtiene el tamaño adaptado de la pantalla calculado por el motor
+        this.adaptedWidth = gameEngine.getAdaptedWidth();
+        this.adaptedHeight = gameEngine.getAdaptedHeight();
+        // Se da de alta el sprite para el fondo de pantalla
+        this.backgroundSprite = new Sprite(gameEngine, R.drawable.background, "Background Image");
+        // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
         if (gameEngine.hasBlackStripes() != FALSE) {
             int backgroundX = deviceWidth;
             int backgroundY = deviceHeight;
+            // Si las bandas negras están arriba y abajo
             if (gameEngine.hasBlackStripes() == TOP_BOTTOM) {
-                basicMatrix.postTranslate(0, gameEngine.getAspectRatioMargin());
-                backgroundX = (int) (((double) deviceHeight / adaptedHeight) * adaptedWidth);
+                this.basicMatrix.postTranslate(0, gameEngine.getAspectRatioMargin());
+                backgroundX = (int) (((double) deviceHeight / this.adaptedHeight) * this.adaptedWidth);
                 backgroundY = deviceHeight;
+            // Si las bandas negras están a los laterales
             } else if (gameEngine.hasBlackStripes() == LEFT_RIGHT) {
-                basicMatrix.postTranslate(gameEngine.getAspectRatioMargin(), 0);
+                this.basicMatrix.postTranslate(gameEngine.getAspectRatioMargin(), 0);
                 backgroundX = deviceWidth;
-                backgroundY = (int) (((double) deviceWidth / adaptedWidth) * adaptedHeight);
+                backgroundY = (int) (((double) deviceWidth / this.adaptedWidth) * this.adaptedHeight);
             }
-            backgroundSprite.resizeBitmap(backgroundX, backgroundY);
+            // Si la pantalla va a mostrar el fondo se debe ajustar a su tamaño
+            this.backgroundSprite.resizeBitmap(backgroundX, backgroundY);
         }
     }
 
@@ -105,9 +114,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         if (screen == null) {
             return;
         }
-        backgroundSprite.draw(screen);
+        this.backgroundSprite.draw(screen);
         this.frameCanvas.drawRGB(0, 0, 0);
-        // this.frameDrawTest();
+        this.frameDrawTest();
         synchronized (this.gameEntities) {
             int numEntities = this.gameEntities.size();
             for (int i = 0; i < numEntities; i++) {
@@ -115,7 +124,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
             }
         }
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
-                adaptedWidth, adaptedHeight, false);
+                this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
         getHolder().unlockCanvasAndPost(screen);
     }
@@ -134,9 +143,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         frameCanvas.drawRect(0, 0, 500, 500, this.basicPaint);
         this.basicPaint.setColor(Color.GREEN);
         frameCanvas.drawRect(0, 0, 400, 400, this.basicPaint);
-        this.basicPaint.setColor(Color.BLUE);
-        frameCanvas.drawRect(0, 0, 300, 300, this.basicPaint);
         this.basicPaint.setColor(Color.YELLOW);
+        frameCanvas.drawRect(0, 0, 300, 300, this.basicPaint);
+        this.basicPaint.setColor(Color.BLUE);
         frameCanvas.drawRect(0, 0, 200, 200, this.basicPaint);
         this.basicPaint.setColor(Color.BLACK);
         frameCanvas.drawRect(0, 0, 100, 100, this.basicPaint);

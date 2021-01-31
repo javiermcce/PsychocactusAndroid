@@ -9,7 +9,6 @@ import com.psychocactusproject.input.InputController;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CyclicBarrier;
 
 public class GameEngine {
 
@@ -32,20 +31,7 @@ public class GameEngine {
     private BlackStripesTypes hasBlackStripes;
     public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
 
-    private static GameEngine instance;
-    public static GameEngine getInstance(Activity activity, GameView gameView) {
-        instance = new GameEngine(activity, gameView);
-        return instance;
-    }
-    public static GameEngine getInstance() {
-        if (instance == null) {
-            throw new IllegalStateException("Se intenta obtener instancia de GameEngine, pero " +
-                    "no ha sido inicializada y no se indican parámetros.");
-        }
-        return instance;
-    }
-
-    private GameEngine(Activity activity, GameView gameView) {
+    public GameEngine(Activity activity, GameView gameView) {
         this.activity = activity;
         this.gameView = gameView;
         this.gameEntities = new ArrayList();
@@ -54,7 +40,7 @@ public class GameEngine {
         this.gameView.setGameEntities(this.gameEntities);
         this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
         this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
-        this.engineClock = new GameClock(1, 1000);
+        this.engineClock = new GameClock(1, 1);
     }
 
     public void adjustScreenAspectRatio(int deviceWidth, int deviceHeight) {
@@ -73,12 +59,14 @@ public class GameEngine {
                 this.hasBlackStripes = BlackStripesTypes.LEFT_RIGHT;
             }
         } else {
+            // Si la relación de pantalla es de 16/9, las medidas utilizadas son las naturales
             this.adaptedWidth = deviceWidth;
             this.adaptedHeight = deviceHeight;
             this.aspectRatioMargin = 0;
             this.hasBlackStripes = BlackStripesTypes.FALSE;
         }
-        SurfaceGameView.setAspectRatio(deviceWidth, deviceHeight);
+        // Después de calcular las medidas, se ajustan los parámetros de dibujado
+        ((SurfaceGameView) (this.gameView)).setAspectRatio(deviceWidth, deviceHeight, this);
     }
 
     public boolean equalDoubleDivisions(double a, double b, double c, double d) {
@@ -102,23 +90,20 @@ public class GameEngine {
     }
 
     public void startGame() {
-        // If game is running, then stop it
+        // Si el juego está en marcha, se detiene
         this.stopGame();
-        // Setting up game objects
+        // Se ajustan los objetos por primera vez
         for (int i = 0; i < this.gameEntities.size(); i++) {
             this.gameEntities.get(i).initialize();
         }
-        // Starting update thread
+        // Se inicia el thread de actualización de estado
         this.updateThread = new UpdateThread(this);
         this.updateThread.start();
-        // Starting drawing thread
+        // Se inicia el thread de dibujado
         this.drawThread = new DrawThread(this);
         this.drawThread.start();
-        // Manage controller
-        this.inputController.onStart();
-        //
-        /*this.adjustScreenAspectRatio(
-                SurfaceGameView.getDeviceWidth(), SurfaceGameView.getDeviceHeight());*/
+        // Se inicia el gestor de controles
+        this.inputController.start();
     }
 
     public void stopGame() {
@@ -128,8 +113,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.stopDrawing();
         }
-        // Manage controller
-        this.inputController.onStop();
+        // Se detiene el gestor de controles
+        this.inputController.stop();
     }
 
     public void pauseGame() {
@@ -139,8 +124,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.pauseDraw();
         }
-        // Manage controller
-        this.inputController.onPause();
+        // Se pausa el gestor de controles
+        this.inputController.pause();
     }
 
     public void resumeGame() {
@@ -150,8 +135,8 @@ public class GameEngine {
         if (this.drawThread != null) {
             this.drawThread.resumeDraw();
         }
-        // Manage controller
-        this.inputController.onResume();
+        // Se reanuda el gestor de controles
+        this.inputController.resume();
     }
 
     public void addGameEntity(GameEntity gameEntity) {
@@ -196,6 +181,14 @@ public class GameEngine {
 
     public Context getContext() {
         return gameView.getContext();
+    }
+
+    public Activity getActivity() {
+        return this.activity;
+    }
+
+    public GameView getGameView() {
+        return this.gameView;
     }
 
     public InputController getInputController() {

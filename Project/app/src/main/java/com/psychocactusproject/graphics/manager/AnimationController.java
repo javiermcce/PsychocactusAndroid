@@ -1,61 +1,81 @@
 package com.psychocactusproject.graphics.manager;
 
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 
-import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameClock;
 import com.psychocactusproject.engine.GameEngine;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 public abstract class AnimationController extends AbstractSprite {
 
     private int action;
     private final int totalActions;
     private final String[] actionNames;
-    private final String entityName;
+    private final String characterName;
     private final List<Bitmap[]> animationImages;
     private final int[] animationWidths;
     private final int[] animationHeights;
-    private final int[] spritesNum;
+    private final int[] totalframesPerAction;
     private GameClock animationTimer;
 
     protected AnimationController(GameEngine gameEngine) {
         super(gameEngine);
         this.action = 0;
-        List<int[]> bitmapCodes = this.obtainBitmapCodes();
-        this.actionNames = this.obtainActionNames();
-        this.entityName = this.obtainEntityRole();
+        // Recursos informados por las clases descendientes
+        AnimationResources resources = this.obtainAnimationResources();
+        // Nombre del personaje de la animación
+        this.characterName = resources.characterName;
+        // HashMap con el nombre y contenido de cada animación
+        this.totalActions = resources.animations.size();
+        this.actionNames = new String[totalActions];
+        this.totalframesPerAction = new int[totalActions];
         this.animationImages = new ArrayList();
-        this.animationWidths = new int[bitmapCodes.size()];
-        this.animationHeights = new int[bitmapCodes.size()];
-        this.spritesNum = new int[bitmapCodes.size()];
-        this.totalActions = bitmapCodes.size();
+        this.animationWidths = new int[totalActions];
+        this.animationHeights = new int[totalActions];
+        // Fuerza la obtención de la imagen en tamaño natural
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        for (int i = 0 ; i < bitmapCodes.size(); i++) {
-            Bitmap[] bitmaps = new Bitmap[bitmapCodes.get(i).length];
-            for (int j = 0; j < bitmapCodes.get(i).length; j++) {
+        // La API en uso, la 21, no permite la estructura foreach
+        Set<String> keySet = resources.animations.keySet();
+        Iterator keys = keySet.iterator();
+        // Iteración sobre las animaciones
+        for (int i = 0; keys.hasNext(); i++) {
+            Object key = keys.next();
+            this.actionNames[i] = (String) key;
+            int[] animationCodes = resources.animations.get(key);
+            Bitmap[] bitmaps = new Bitmap[animationCodes.length];
+            // Iteración sobre las imágenes que componen cada animación
+            for (int j = 0; j < bitmaps.length; j++) {
                 bitmaps[j] = BitmapFactory.decodeResource(
                         gameEngine.getContext().getResources(),
-                        bitmapCodes.get(i)[j],
+                        animationCodes[j],
                         options);
-                if (j == 0) {
-                    this.animationWidths[i] = bitmaps[j].getWidth();
-                    this.animationHeights[i] = bitmaps[j].getHeight();
-                    this.spritesNum[i] = bitmapCodes.get(i).length;
-                }
             }
             this.animationImages.add(bitmaps);
+            if (bitmaps.length < 1) {
+                throw new IllegalStateException("Una animación debe estar compuesta " +
+                        "por al menos una imagen.");
+            }
+            this.animationWidths[i] = bitmaps[1].getWidth();
+            this.animationHeights[i] = bitmaps[1].getHeight();
+            this.totalframesPerAction[i] = bitmaps.length;
         }
+        if (keySet.size() < 1) {
+            throw new IllegalStateException("Una animación debe estar compuesta " +
+                    "por al menos una acción.");
+        }
+        // Tener en cuenta para el futuro: el primer número siempre será el número de frames
+        // que componen la primera animación, pero el segundo es un pelín más complicado: se trata
+        // del tiempo que tarda en repetirse un beat, una nota negra en un compás a un ritmo
+        // determinado. Por lo tanto, dentro de GameClock debe programarse una función que
+        // transforme BPM en periodos de tiempo, que son los periodos de cada animación
         this.animationTimer = new GameClock(8, 1);
     }
 
@@ -64,17 +84,39 @@ public abstract class AnimationController extends AbstractSprite {
         return animationImages.get(action)[animationTimer.getTimestamp()];
     }
 
-    protected int getAnimationWidth() {
+    @Override
+    public int getSpriteWidth() {
         return this.animationWidths[action];
     }
 
-    protected int getAnimationHeight() {
+    @Override
+    public int getSpriteHeight() {
         return this.animationHeights[action];
-
     }
 
-    protected abstract List<int[]> obtainBitmapCodes();
-    protected abstract String[] obtainActionNames();
-    protected abstract String obtainEntityRole();
+    public String getCharacterName() {
+        return this.characterName;
+    }
+
+    public int getCurrentAction() {
+        return this.action;
+    }
+
+    public int getTotalActions() {
+        return this.totalActions;
+    }
+
+    protected abstract AnimationResources obtainAnimationResources();
+
+    public class AnimationResources {
+
+        private final String characterName;
+        private final HashMap<String, int[]> animations;
+
+        public AnimationResources(String characterName, HashMap<String, int[]> animations) {
+               this.characterName = characterName;
+               this.animations = animations;
+        }
+    }
 
 }

@@ -3,7 +3,6 @@ package com.psychocactusproject.manager;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,11 +13,7 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.characters.band.Bass;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
-import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.BasicInputController;
-import com.psychocactusproject.input.InputController;
-
-import java.util.concurrent.BrokenBarrierException;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
@@ -37,30 +32,29 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        // El código a ejecutar por el botón de pausa es el ubicado en esta clase
         view.findViewById(R.id.button_play_pause).setOnClickListener(this);
+        // Arranca el motor de juego a través de un listener cuando la vista ya haya sido creada
         final ViewTreeObserver observer = view.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
+                // Tan pronto como se acceda al código del listener, se borra la escucha
                 observer.removeOnGlobalLayoutListener(this);
+                // Interfaz GameView implementada por la clase que extiende SurfaceView
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
-                gameEngine = GameEngine.getInstance(getActivity(), gameView);
+                // El motor es creado con la actividad y la vista
+                gameEngine = new GameEngine(getActivity(), gameView);
+                // Se calculan los tamaños de la pantalla
                 gameEngine.adjustScreenAspectRatio(gameView.getWidth(), gameView.getHeight());
+                // El gestor de controles es vinculado al motor
                 gameEngine.setInputController(new BasicInputController(getView()));
-                gameEngine.addGameEntity(new Bass(gameEngine, getView().findViewById(R.id.gameView)));
+                // TEST
+                gameEngine.addGameEntity(new Bass(gameEngine, getView()));
+                // Arranca el juego
                 gameEngine.startGame();
             }
         });
-
-        //GameView gameView = getView().findViewById(R.id.gameView);
-        //this.gameEngine = new GameEngine(getActivity(), gameView);
-        //gameEngine.addGameEntity(new ScoreGameObject(view, R.id.txt_score));
-        //this.gameEngine.setInputController(new InputController());
-        /*
-        * Este es el lugar en que meter los músicos, en lugar de new Player añadir a los 4
-        * */
-        //this.gameEngine.addGameEntity(new Player(getView()));
-        //this.gameEngine.startGame();
     }
 
     @Override

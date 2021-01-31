@@ -12,12 +12,12 @@ import com.psychocactusproject.input.InputController;
 public abstract class Musician extends AnimationController {
 
     TextView textView;
-    View test;
+    GameEngine gameEngine;
 
     protected Musician(GameEngine gameEngine, View view) {
         super(gameEngine);
-        test = view;
-        this.textView = test.findViewById(R.id.txt_score);
+        this.gameEngine = gameEngine;
+        this.textView = view.findViewById(R.id.txt_score);
     }
 
     // Equivalente a Player según la guía
@@ -49,11 +49,14 @@ public abstract class Musician extends AnimationController {
         if (this.getPositionY() < 200) {
             this.setPositionY(this.getPositionY() + 1);
         }
-        /*
-        if (textView == null) {
-            this.textView = test.findViewById(R.id.txt_score);
-        } else {
-            this.textView.setText("[" + getPositionX() + ", " + getPositionY() + "]");
-        }*/
+        if (textView != null) {
+            this.gameEngine.getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    textView.setText("[" + getPositionX() + ", " + getPositionY() + "]");
+                }
+            });
+
+        }
     }
 }

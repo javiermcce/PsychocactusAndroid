@@ -7,7 +7,7 @@ import android.widget.TextView;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 
-public class ScoreGameObject extends GameEntity {
+public class ScoreGameObject /* extends GameEntity */ {
 
     private final TextView mText;
     private long mTotalMilis;
@@ -15,7 +15,7 @@ public class ScoreGameObject extends GameEntity {
     public ScoreGameObject(View view, int viewResId) {
         mText = (TextView) view.findViewById(viewResId);
     }
-
+    /*
     @Override
     public void initialize() {
         mTotalMilis = 0;
@@ -31,8 +31,10 @@ public class ScoreGameObject extends GameEntity {
         mText.setText(String.valueOf(mTotalMilis));
     }
 
+
     @Override
     public String obtainCharacterName() {
         return "Score Table";
-    }
+    } */
+
 }

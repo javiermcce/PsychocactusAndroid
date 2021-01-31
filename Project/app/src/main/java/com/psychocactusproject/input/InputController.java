@@ -5,19 +5,19 @@ public class InputController {
     public double horizontalFactor;
     public double verticalFactor;
 
-    public void onStart() {
+    public void start() {
 
     }
 
-    public void onStop() {
+    public void stop() {
 
     }
 
-    public void onPause() {
+    public void pause() {
 
     }
 
-    public void onResume() {
+    public void resume() {
 
     }
 }

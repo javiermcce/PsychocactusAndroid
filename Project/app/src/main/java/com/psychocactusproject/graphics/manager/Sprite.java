@@ -14,8 +14,9 @@ public class Sprite extends AbstractSprite {
     private Bitmap bitmap;
     private final int imageWidth;
     private final int imageHeight;
+    private final String roleName;
 
-    public Sprite(GameEngine gameEngine, int drawableResource) {
+    public Sprite(GameEngine gameEngine, int drawableResource, String roleName) {
         super(gameEngine);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
@@ -25,6 +26,7 @@ public class Sprite extends AbstractSprite {
                 options);
         this.imageWidth = bitmap.getWidth();
         this.imageHeight = bitmap.getHeight();
+        this.roleName = roleName;
     }
 
     @Override
@@ -45,15 +47,17 @@ public class Sprite extends AbstractSprite {
     }
 
     @Override
-    public String obtainCharacterName() {
-        return null;
+    public String getRoleName() {
+        return this.roleName;
     }
 
-    protected int getImageWidth() {
+    @Override
+    public int getSpriteWidth() {
         return this.imageWidth;
     }
 
-    protected int getImageHeight() {
+    @Override
+    public int getSpriteHeight() {
         return this.imageHeight;
     }
 

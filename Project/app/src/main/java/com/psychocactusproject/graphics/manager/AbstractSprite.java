@@ -29,6 +29,10 @@ public abstract class AbstractSprite extends GameEntity {
         return new Point(this.positionX, this.positionY);
     }
 
+    public abstract int getSpriteWidth();
+
+    public abstract int getSpriteHeight();
+
     protected void setPositionX(int positionX) {
         this.positionX = positionX;
     }
