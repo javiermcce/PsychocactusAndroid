@@ -1,23 +1,18 @@
 package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
-import android.view.View;
-import android.widget.TextView;
 
-import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.graphics.manager.AnimationController;
+import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.graphics.controllers.AnimationController;
 import com.psychocactusproject.input.InputController;
 
-public abstract class Musician extends AnimationController {
+public abstract class Musician extends AnimationController /*implements MenuInterface*/ {
 
-    TextView textView;
     GameEngine gameEngine;
 
-    protected Musician(GameEngine gameEngine, View view) {
+    protected Musician(GameEngine gameEngine) {
         super(gameEngine);
         this.gameEngine = gameEngine;
-        this.textView = view.findViewById(R.id.txt_score);
     }
 
     // Equivalente a Player según la guía
@@ -43,16 +38,5 @@ public abstract class Musician extends AnimationController {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
         canvas.drawBitmap(this.getAnimationImage(), this.getMatrix(), null);
-        if (this.getPositionX() < 500) {
-            this.setPositionX(this.getPositionX() + 1);
-        }
-        if (this.getPositionY() < 200) {
-            this.setPositionY(this.getPositionY() + 1);
-        }
-        if (textView != null) {
-            this.gameEngine.getActivity().runOnUiThread(() ->
-                    textView.setText("[" + getPositionX() + ", " + getPositionY() + "]"));
-
-        }
     }
 }

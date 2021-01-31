@@ -11,15 +11,15 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
-import com.psychocactusproject.graphics.manager.Sprite;
+import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.graphics.controllers.Sprite;
 
 import java.util.List;
 
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.FALSE;
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
+import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.FALSE;
+import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
+import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 

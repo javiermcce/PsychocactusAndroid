@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
 
-    tools:context=".manager.GameFragment">
+    tools:context=".manager.android.GameFragment">
     <!--
     ESTO IBA EN FRAME LAYOUT
     android:paddingTop="@dimen/activity_vertical_margin"

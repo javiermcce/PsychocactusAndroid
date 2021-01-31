@@ -1,7 +1,4 @@
-package com.psychocactusproject.engine;
-
-import java.util.Timer;
-import java.util.TimerTask;
+package com.psychocactusproject.manager.engine;
 
 public class DrawThread extends Thread {
 

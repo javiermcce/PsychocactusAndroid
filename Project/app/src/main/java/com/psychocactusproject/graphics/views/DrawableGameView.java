@@ -1,12 +1,11 @@
 package com.psychocactusproject.graphics.views;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.manager.engine.GameEntity;
 
 import java.util.List;
 

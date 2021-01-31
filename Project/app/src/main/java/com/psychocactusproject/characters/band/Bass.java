@@ -3,14 +3,16 @@ package com.psychocactusproject.characters.band;
 import android.view.View;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.Point;
 
 import java.util.HashMap;
 
 public class Bass extends Musician {
 
-    public Bass(GameEngine gameEngine, View view) {
-        super(gameEngine, view);
+    public Bass(GameEngine gameEngine) {
+        super(gameEngine);
+        this.setPosition(new Point(765, 133));
     }
 
     @Override

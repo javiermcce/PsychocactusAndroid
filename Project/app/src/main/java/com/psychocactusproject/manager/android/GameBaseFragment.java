@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager;
+package com.psychocactusproject.manager.android;
 
 import android.app.Fragment;
 

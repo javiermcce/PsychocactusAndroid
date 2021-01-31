@@ -2,7 +2,7 @@ package com.psychocactusproject.graphics.views;
 
 import android.content.Context;
 
-import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.manager.engine.GameEntity;
 
 import java.util.List;
 

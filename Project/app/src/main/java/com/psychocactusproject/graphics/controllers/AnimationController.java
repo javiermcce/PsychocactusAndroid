@@ -1,15 +1,14 @@
-package com.psychocactusproject.graphics.manager;
+package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameClock;
+import com.psychocactusproject.manager.engine.GameEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -63,8 +62,8 @@ public abstract class AnimationController extends AbstractSprite {
                 throw new IllegalStateException("Una animación debe estar compuesta " +
                         "por al menos una imagen.");
             }
-            this.animationWidths[i] = bitmaps[1].getWidth();
-            this.animationHeights[i] = bitmaps[1].getHeight();
+            this.animationWidths[i] = bitmaps[0].getWidth();
+            this.animationHeights[i] = bitmaps[0].getHeight();
             this.totalframesPerAction[i] = bitmaps.length;
         }
         if (keySet.size() < 1) {
@@ -76,7 +75,7 @@ public abstract class AnimationController extends AbstractSprite {
         // del tiempo que tarda en repetirse un beat, una nota negra en un compás a un ritmo
         // determinado. Por lo tanto, dentro de GameClock debe programarse una función que
         // transforme BPM en periodos de tiempo, que son los periodos de cada animación
-        this.animationTimer = new GameClock(8, 1);
+        this.animationTimer = new GameClock(this.totalframesPerAction[0], 1);
     }
 
     protected Bitmap getAnimationImage() {

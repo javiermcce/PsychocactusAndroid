@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.manager.engine;
 
 public class UpdateThread extends Thread {
 

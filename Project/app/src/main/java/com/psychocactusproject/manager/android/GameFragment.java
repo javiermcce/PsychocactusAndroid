@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager;
+package com.psychocactusproject.manager.android;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -11,7 +11,7 @@ import android.widget.Button;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.characters.band.Bass;
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.input.BasicInputController;
 
@@ -49,8 +49,6 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 gameEngine.adjustScreenAspectRatio(gameView.getWidth(), gameView.getHeight());
                 // El gestor de controles es vinculado al motor
                 gameEngine.setInputController(new BasicInputController(getView()));
-                // TEST
-                gameEngine.addGameEntity(new Bass(gameEngine, getView()));
                 // Arranca el juego
                 gameEngine.startGame();
             }

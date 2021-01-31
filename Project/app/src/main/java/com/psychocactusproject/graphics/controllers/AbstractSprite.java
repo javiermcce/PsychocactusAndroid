@@ -1,10 +1,10 @@
-package com.psychocactusproject.graphics.manager;
+package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Matrix;
 
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.manager.engine.Point;
 
 public abstract class AbstractSprite extends GameEntity {
 

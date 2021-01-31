@@ -1,9 +1,9 @@
-package com.psychocactusproject.graphics.manager;
+package com.psychocactusproject.graphics.controllers;
 
 import android.media.Image;
 
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.manager.engine.GameClock;
+import com.psychocactusproject.manager.engine.GameEntity;
 
 public abstract class AnimatedEntity extends GameEntity {
 

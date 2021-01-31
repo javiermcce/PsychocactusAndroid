@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.manager.engine;
 
 import android.app.Activity;
 import android.content.Context;
@@ -28,6 +28,7 @@ public class GameEngine {
     private int adaptedWidth;
     private int adaptedHeight;
     private int aspectRatioMargin;
+    private GameEntityManager entityManager;
     private BlackStripesTypes hasBlackStripes;
     public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
 
@@ -41,6 +42,7 @@ public class GameEngine {
         this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
         this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
         this.engineClock = new GameClock(1, 1);
+        this.entityManager = new GameEntityManager();
     }
 
     public void adjustScreenAspectRatio(int deviceWidth, int deviceHeight) {
@@ -92,6 +94,8 @@ public class GameEngine {
     public void startGame() {
         // Si el juego está en marcha, se detiene
         this.stopGame();
+        // Se crean e insertan los objetos en el motor
+        this.entityManager.populate(this);
         // Se ajustan los objetos por primera vez
         for (int i = 0; i < this.gameEntities.size(); i++) {
             this.gameEntities.get(i).initialize();
