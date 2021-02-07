@@ -2,13 +2,19 @@ package com.psychocactusproject.interaction.menu;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Typeface;
+import android.text.TextPaint;
 
+import androidx.core.content.res.ResourcesCompat;
+
+import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.Sprite;
 import com.psychocactusproject.manager.engine.GameEngine;
 
-public final class ContextMenu extends Sprite {
+public class ContextMenu extends Sprite {
 
     private MenuFlyweight pieces;
     private MenuDisplay father;
@@ -16,15 +22,26 @@ public final class ContextMenu extends Sprite {
     private Canvas menuCanvas;
     private Matrix menuMatrix;
     private Paint menuPaint;
+    private TextPaint textPaint;
 
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName());
         this.father = father;
-        this.setBitmap(this.buildMenuBitmap(father.getMenuOptions()));
         this.pieces = MenuFlyweight.getInstance(gameEngine);
         this.menuCanvas = new Canvas();
         this.menuMatrix = new Matrix();
         this.menuPaint = new Paint();
+
+        this.textPaint = new TextPaint();
+        this.textPaint.setTextSize(42);
+        this.textPaint.setColor(Color.WHITE);
+
+        // res/font/truetypefont.ttf
+        Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
+        // textPaint.setTypeface(Typeface.create("Arial", Typeface.BOLD));
+        this.textPaint.setTypeface(typeface);
+
+        this.setBitmap(this.buildMenuBitmap(father.getMenuOptions()));
     }
 
     public void onUpdate() {
@@ -44,6 +61,8 @@ public final class ContextMenu extends Sprite {
                 maximumOptionLength = option.optionName.length();
             }
         }
+        // Sumamos el margen derecho
+        maximumOptionLength += 3;
         // Calculamos el tamaño que tendrá el eje horizontal del menú
         int computedWidth = this.pieces.getTopLeftPiece().getWidth() +
                 this.pieces.getTopRightPiece().getWidth() +
@@ -57,15 +76,60 @@ public final class ContextMenu extends Sprite {
         // Dibujado del menú
         this.menuMatrix.reset();
         Bitmap nextPiece;
+        // Arriba izquierda
         nextPiece = this.pieces.getTopLeftPiece();
         this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
         this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
+        // Arriba centro
         nextPiece = this.pieces.getTopPiece();
+        for (int i = 0; i < maximumOptionLength; i++) {
+            this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+            this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
+        }
+        // Arriba derecha
+        nextPiece = this.pieces.getTopRightPiece();
+        this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+        this.menuMatrix.reset();
+        this.menuMatrix.postTranslate(0, nextPiece.getHeight());
+        // Espacio para opciones
+        for (int i = 0; i < options.length; i++) {
+            // Centro izquierda
+            nextPiece = this.pieces.getLeftPiece();
+            this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+            this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
+            // Imprime nombre de opción
+            float[] values = new float[9];
+            this.menuMatrix.getValues(values);
+            int xCoord = (int) values[Matrix.MTRANS_X];
+            int yCoord = (int) values[Matrix.MTRANS_Y];
+            this.menuCanvas.drawText(options[i].optionName, xCoord, yCoord, this.textPaint);
+            // Centro
+            nextPiece = this.pieces.getCenterPiece();
+            for (int j = 0; j < maximumOptionLength; j++) {
+                this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+                this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
+            }
+            // Centro derecha
+            nextPiece = this.pieces.getRightPiece();
+            this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+            this.menuMatrix.reset();
+            this.menuMatrix.postTranslate(0, yCoord + nextPiece.getHeight());
+        }
+        // Arriba izquierda
+        nextPiece = this.pieces.getBottomLeftPiece();
         this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
         this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
-        // {...}
-        // String a dibujar en cada altura...
-        // {...}
+        // Arriba centro
+        nextPiece = this.pieces.getBottomPiece();
+        for (int i = 0; i < maximumOptionLength; i++) {
+            this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+            this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
+        }
+        // Arriba derecha
+        nextPiece = this.pieces.getBottomRightPiece();
+        this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
+        this.menuMatrix.reset();
+        // Devuelve imagen finalizada y la almacena para posteriores usos
         return menuBitmap;
     }
 
@@ -73,12 +137,17 @@ public final class ContextMenu extends Sprite {
         return this.menuIsAvailable;
     }
 
-    public class MenuOption {
+    public static class MenuOption {
 
         public boolean available;
         public String optionName;
 
-        public MenuOption(boolean available, String option) {
+        public MenuOption(String option) {
+            this.available = true;
+            this.optionName = option;
+        }
+
+        public MenuOption(String option, boolean available) {
             this.available = available;
             this.optionName = option;
         }
