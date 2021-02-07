@@ -2,9 +2,14 @@ package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.engine.GameClock;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.Hitbox;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,7 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AnimationController extends AbstractSprite {
+public abstract class AnimationController extends AbstractSprite implements MenuDisplay {
 
     private int action;
     private final int totalActions;
@@ -70,6 +75,7 @@ public abstract class AnimationController extends AbstractSprite {
             throw new IllegalStateException("Una animación debe estar compuesta " +
                     "por al menos una acción.");
         }
+        this.setHitboxes(resources.hitboxes);
         // Tener en cuenta para el futuro: el primer número siempre será el número de frames
         // que componen la primera animación, pero el segundo es un pelín más complicado: se trata
         // del tiempo que tarda en repetirse un beat, una nota negra en un compás a un ritmo
@@ -93,6 +99,11 @@ public abstract class AnimationController extends AbstractSprite {
         return this.animationHeights[action];
     }
 
+    @Override
+    public Hitbox[] getHitboxes() {
+        return this.getAllHitboxes()[this.action];
+    }
+
     public String getCharacterName() {
         return this.characterName;
     }
@@ -111,10 +122,13 @@ public abstract class AnimationController extends AbstractSprite {
 
         private final String characterName;
         private final HashMap<String, int[]> animations;
+        private final Hitbox[][] hitboxes;
 
-        public AnimationResources(String characterName, HashMap<String, int[]> animations) {
-               this.characterName = characterName;
-               this.animations = animations;
+        public AnimationResources(String characterName, HashMap<String, int[]> animations,
+                Hitbox[][] hitboxes) {
+            this.characterName = characterName;
+            this.animations = animations;
+            this.hitboxes = hitboxes;
         }
     }
 

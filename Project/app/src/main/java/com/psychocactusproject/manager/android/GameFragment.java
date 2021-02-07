@@ -10,10 +10,9 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.characters.band.Bass;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
-import com.psychocactusproject.input.BasicInputController;
+import com.psychocactusproject.input.TouchInputController;
 
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
@@ -45,10 +44,8 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
                 // El motor es creado con la actividad y la vista
                 gameEngine = new GameEngine(getActivity(), gameView);
-                // Se calculan los tamaños de la pantalla
-                gameEngine.adjustScreenAspectRatio(gameView.getWidth(), gameView.getHeight());
                 // El gestor de controles es vinculado al motor
-                gameEngine.setInputController(new BasicInputController(getView()));
+                gameEngine.setInputController(new TouchInputController(gameEngine, getView()));
                 // Arranca el juego
                 gameEngine.startGame();
             }
@@ -127,21 +124,4 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
             button.setText(R.string.resume);
         }
     }
-
-//    private void startOrStop() {
-//        Button button = (Button) getView().findViewById(R.id.btn_start_stop);
-//        Button playPauseButton = (Button) getView().findViewById(R.id.btn_play_pause);
-//        if (mGameEngine.isRunning()) {
-//            mGameEngine.stopGame();
-//            button.setText(R.string.start);
-//            playPauseButton.setEnabled(false);
-//        }
-//        else {
-//            mGameEngine.startGame();
-//            button.setText(R.string.stop);
-//            playPauseButton.setEnabled(true);
-//            playPauseButton.setText(R.string.pause);
-//        }
-//    }
-
 }

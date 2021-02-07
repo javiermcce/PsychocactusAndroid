@@ -6,15 +6,20 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.graphics.controllers.Sprite;
+import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.manager.engine.Point;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.FALSE;
@@ -23,7 +28,7 @@ import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesType
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
-    private List<GameEntity> gameEntities;
+    private List<AbstractSprite> gameEntities;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -35,8 +40,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // Medidas naturales de la pantalla física
     private int deviceWidth;
     private int deviceHeight;
-    // Sprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
-    private Sprite backgroundSprite;
+    // InanimateSprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
+    private InanimateSprite backgroundSprite;
+
+    //
+    public static List<Point> puntos = new LinkedList();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -62,7 +70,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.adaptedWidth = gameEngine.getAdaptedWidth();
         this.adaptedHeight = gameEngine.getAdaptedHeight();
         // Se da de alta el sprite para el fondo de pantalla
-        this.backgroundSprite = new Sprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
+        this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image", null);
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
         if (gameEngine.hasBlackStripes() != FALSE) {
             int backgroundX = deviceWidth;
@@ -99,7 +107,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<GameEntity> gameEntities) {
+    public void setGameEntities(List<AbstractSprite> gameEntities) {
         this.gameEntities = gameEntities;
     }
 
@@ -119,11 +127,22 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
             int numEntities = this.gameEntities.size();
             for (int i = 0; i < numEntities; i++) {
                 this.gameEntities.get(i).draw(this.frameCanvas);
+                this.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
             }
         }
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
+        Paint basicPaint2 = new Paint();
+        basicPaint2.setColor(Color.WHITE);
+        // TEST
+        synchronized (puntos) {
+            for (Point punto : puntos) {
+                Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
+                screen.drawRect(rect, basicPaint2);
+            }
+        }
+        //
         getHolder().unlockCanvasAndPost(screen);
     }
 
@@ -147,5 +166,24 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         frameCanvas.drawRect(0, 0, 200, 200, this.basicPaint);
         this.basicPaint.setColor(Color.BLACK);
         frameCanvas.drawRect(0, 0, 100, 100, this.basicPaint);
+    }
+
+
+    protected void drawHitboxes(Hitbox[] hitboxes,Canvas canvas) {
+        Paint hitboxPaint = new Paint();
+        hitboxPaint.setColor(Color.RED);
+        hitboxPaint.setStyle(Paint.Style.STROKE);
+        hitboxPaint.setStrokeWidth(2);
+        if (hitboxes != null) {
+            for (Hitbox hitbox : hitboxes) {
+                if (hitbox != null) {
+                    canvas.drawRect(hitbox.getUpLeftX(), hitbox.getUpLeftY(),
+                            hitbox.getDownRightX(),
+                            hitbox.getDownRightY(),
+                            hitboxPaint
+                    );
+                }
+            }
+        }
     }
 }

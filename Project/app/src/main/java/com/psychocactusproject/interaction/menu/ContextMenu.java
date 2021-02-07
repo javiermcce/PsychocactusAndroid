@@ -11,10 +11,11 @@ import android.text.TextPaint;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.graphics.controllers.Sprite;
+import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.Hitbox;
 
-public class ContextMenu extends Sprite {
+public class ContextMenu extends InanimateSprite {
 
     private MenuFlyweight pieces;
     private MenuDisplay father;
@@ -137,10 +138,20 @@ public class ContextMenu extends Sprite {
         return this.menuIsAvailable;
     }
 
+    public void openMenu() {
+        this.menuIsAvailable = true;
+    }
+
+    public void closeMenu() {
+        this.menuIsAvailable = false;
+    }
+
     public static class MenuOption {
 
         public boolean available;
         public String optionName;
+        // Revisar la forma de implementar algo así
+        public Hitbox optionHitbox;
 
         public MenuOption(String option) {
             this.available = true;

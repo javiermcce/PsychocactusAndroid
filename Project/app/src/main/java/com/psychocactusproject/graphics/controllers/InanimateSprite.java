@@ -4,17 +4,20 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
+import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.manager.engine.Hitbox;
 
-public class Sprite extends AbstractSprite {
+public class InanimateSprite extends AbstractSprite {
 
     private Bitmap bitmap;
     private int imageWidth;
     private int imageHeight;
     private final String roleName;
+    private ContextMenu menu;
 
-    public Sprite(GameEngine gameEngine, int drawableResource, String roleName) {
+    public InanimateSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes) {
         super(gameEngine);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
@@ -25,9 +28,10 @@ public class Sprite extends AbstractSprite {
         this.imageWidth = bitmap.getWidth();
         this.imageHeight = bitmap.getHeight();
         this.roleName = roleName;
+        this.setHitboxes(new Hitbox[][] {hitboxes});
     }
 
-    public Sprite(GameEngine gameEngine, String roleName) {
+    public InanimateSprite(GameEngine gameEngine, String roleName) {
         super(gameEngine);
         this.roleName = roleName;
     }
@@ -64,6 +68,13 @@ public class Sprite extends AbstractSprite {
         return this.imageHeight;
     }
 
+    @Override
+    public Hitbox[] getHitboxes() {
+        //return this.getAllHitboxes()[0];
+        // temporalmente
+        return new Hitbox[0];
+    }
+
     protected void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
         if (bitmap != null) {
@@ -84,5 +95,10 @@ public class Sprite extends AbstractSprite {
                 sizeX, sizeY, false);
         this.imageWidth = bitmap.getWidth();
         this.imageHeight = bitmap.getHeight();
+    }
+
+    @Override
+    public void executeClick(int index) {
+
     }
 }

@@ -1,6 +1,8 @@
 package com.psychocactusproject.input;
 
-public class InputController {
+import android.view.View;
+
+public abstract class InputController implements View.OnTouchListener {
 
     public double horizontalFactor;
     public double verticalFactor;
@@ -18,6 +20,10 @@ public class InputController {
     }
 
     public void resume() {
+
+    }
+
+    public void update() {
 
     }
 }

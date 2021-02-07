@@ -8,7 +8,7 @@ import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.graphics.controllers.AnimationController;
 import com.psychocactusproject.input.InputController;
 
-public abstract class Musician extends AnimationController implements MenuDisplay {
+public abstract class Musician extends AnimationController {
 
     private GameEngine gameEngine;
     private ContextMenu musicianMenu;
@@ -45,22 +45,32 @@ public abstract class Musician extends AnimationController implements MenuDispla
     }
 
     @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
-        options[0] = new ContextMenu.MenuOption("Una prueba");
-        options[1] = new ContextMenu.MenuOption("Mas pruebas");
-        options[2] = new ContextMenu.MenuOption("JajajajJJJJAJjajajaj");
-        options[3] = new ContextMenu.MenuOption("heeey");
-        return options;
+    public boolean hasMenuOpen() {
+        return this.musicianMenu.isAvailable();
     }
 
     @Override
-    public void onOptionSelected(ContextMenu.MenuOption option) {
-        /*
-        switch (option) {
+    public void openMenu() {
+        this.musicianMenu.openMenu();
+    }
 
+    @Override
+    public void closeMenu() {
+        this.musicianMenu.closeMenu();
+    }
 
-        }
-        */
+    @Override
+    public ContextMenu getMenu() {
+        return this.musicianMenu;
+    }
+
+    @Override
+    public void executeClick(int index) {
+        this.openMenu();
+    }
+
+    @Override
+    public void renderMenu(Canvas canvas) {
+        this.musicianMenu.draw(canvas);
     }
 }
