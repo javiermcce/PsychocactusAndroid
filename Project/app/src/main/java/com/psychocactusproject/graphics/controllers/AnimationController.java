@@ -10,6 +10,7 @@ import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.engine.GameClock;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.manager.engine.Point;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -102,6 +103,11 @@ public abstract class AnimationController extends AbstractSprite implements Menu
     @Override
     public Hitbox[] getHitboxes() {
         return this.getAllHitboxes()[this.action];
+    }
+
+    @Override
+    public Point getFatherPosition() {
+        return this.getPosition();
     }
 
     public String getCharacterName() {

@@ -46,7 +46,7 @@ public abstract class Musician extends AnimationController {
 
     @Override
     public boolean hasMenuOpen() {
-        return this.musicianMenu.isAvailable();
+        return this.musicianMenu.isShown();
     }
 
     @Override
@@ -72,5 +72,15 @@ public abstract class Musician extends AnimationController {
     @Override
     public void renderMenu(Canvas canvas) {
         this.musicianMenu.draw(canvas);
+    }
+
+    @Override
+    public int getFatherWidth() {
+        return this.getSpriteWidth();
+    }
+
+    @Override
+    public int getFatherHeight() {
+        return this.getSpriteHeight();
     }
 }

@@ -155,8 +155,9 @@ public class TouchInputController extends InputController {
         // Prioridad nivel 2: menús
         for (AbstractSprite entity : this.gameEntities) {
             if (entity instanceof MenuDisplay) {
-                for (Hitbox hitbox : ((MenuDisplay) entity).getMenu().getHitboxes()) {
-                    if (((MenuDisplay) entity).hasMenuOpen()) {
+                MenuDisplay menuHolder = ((MenuDisplay) entity);
+                if (menuHolder.hasMenuOpen()) {
+                    for (Hitbox hitbox : menuHolder.getMenu().getHitboxes()) {
                         if (hitbox != null && hitboxCollision(xTouch, yTouch,
                                 hitbox.getUpLeftPoint(),
                                 hitbox.getDownRightPoint())) {

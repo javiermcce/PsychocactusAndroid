@@ -12,45 +12,47 @@ import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.manager.engine.Point;
 
 public class ContextMenu extends InanimateSprite {
 
     private MenuFlyweight pieces;
     private MenuDisplay father;
     private boolean menuIsAvailable;
+    private boolean menuIsShown;
     private Canvas menuCanvas;
     private Matrix menuMatrix;
     private Paint menuPaint;
     private TextPaint textPaint;
+    private Hitbox[] menuHitboxes;
+    private MenuOption[] lastMenuOptions;
 
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
-        super(gameEngine, father.getRoleName());
+        super(gameEngine, father.getRoleName() + " menu");
         this.father = father;
         this.pieces = MenuFlyweight.getInstance(gameEngine);
         this.menuCanvas = new Canvas();
         this.menuMatrix = new Matrix();
         this.menuPaint = new Paint();
-
+        this.menuIsAvailable = false;
+        this.menuIsShown = false;
         this.textPaint = new TextPaint();
         this.textPaint.setTextSize(42);
         this.textPaint.setColor(Color.WHITE);
-
-        // res/font/truetypefont.ttf
         Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
-        // textPaint.setTypeface(Typeface.create("Arial", Typeface.BOLD));
         this.textPaint.setTypeface(typeface);
-
-        this.setBitmap(this.buildMenuBitmap(father.getMenuOptions()));
+        this.setBitmap(this.buildMenu(father.getMenuOptions()));
     }
 
     public void onUpdate() {
-        this.setBitmap(this.buildMenuBitmap(father.getMenuOptions()));
+        this.setBitmap(this.buildMenu(father.getMenuOptions()));
     }
 
     // Construye una nueva versión del menú y actualiza los parámetros de la instancia
-    public Bitmap buildMenuBitmap(MenuOption[] options) {
+    public Bitmap buildMenu(MenuOption[] options) {
         if (options == null || options.length == 0) {
             this.menuIsAvailable = false;
             return null;
@@ -62,8 +64,7 @@ public class ContextMenu extends InanimateSprite {
                 maximumOptionLength = option.optionName.length();
             }
         }
-        // Sumamos el margen derecho
-        maximumOptionLength += 3;
+        this.lastMenuOptions = options;
         // Calculamos el tamaño que tendrá el eje horizontal del menú
         int computedWidth = this.pieces.getTopLeftPiece().getWidth() +
                 this.pieces.getTopRightPiece().getWidth() +
@@ -98,23 +99,33 @@ public class ContextMenu extends InanimateSprite {
             nextPiece = this.pieces.getLeftPiece();
             this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
             this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
-            // Imprime nombre de opción
+            // Cálculo de la posición de las opciones
             float[] values = new float[9];
             this.menuMatrix.getValues(values);
             int xCoord = (int) values[Matrix.MTRANS_X];
             int yCoord = (int) values[Matrix.MTRANS_Y];
-            this.menuCanvas.drawText(options[i].optionName, xCoord, yCoord, this.textPaint);
             // Centro
             nextPiece = this.pieces.getCenterPiece();
             for (int j = 0; j < maximumOptionLength; j++) {
                 this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
                 this.menuMatrix.postTranslate(nextPiece.getWidth(), 0);
             }
+            // Imprime nombre de opción
+            this.menuCanvas.drawText(options[i].optionName, xCoord, yCoord + 40, this.textPaint);
             // Centro derecha
             nextPiece = this.pieces.getRightPiece();
             this.menuCanvas.drawBitmap(nextPiece, this.menuMatrix, this.menuPaint);
             this.menuMatrix.reset();
             this.menuMatrix.postTranslate(0, yCoord + nextPiece.getHeight());
+            // Línea separadora horizontal
+            if (i != 0) {
+                this.menuCanvas.drawLine(xCoord, yCoord,
+                        xCoord + computedWidth -
+                                this.pieces.getRightPiece().getWidth() -
+                                this.pieces.getLeftPiece().getWidth(),
+                        yCoord,
+                        this.textPaint);
+            }
         }
         // Arriba izquierda
         nextPiece = this.pieces.getBottomLeftPiece();
@@ -138,20 +149,66 @@ public class ContextMenu extends InanimateSprite {
         return this.menuIsAvailable;
     }
 
+    public boolean isShown() {
+        return this.menuIsShown;
+    }
+
     public void openMenu() {
-        this.menuIsAvailable = true;
+        this.menuIsShown = true;
     }
 
     public void closeMenu() {
-        this.menuIsAvailable = false;
+        this.menuIsShown = false;
+        this.menuHitboxes = null;
+    }
+
+    @Override
+    public Hitbox[] getHitboxes() {
+        return this.menuHitboxes;
+    }
+
+    @Override
+    public void draw(Canvas canvas) {
+        if (this.isAvailable() && this.isShown()) {
+            this.updateByFatherPosition();
+            super.draw(canvas);
+        }
+    }
+
+    private void updateByFatherPosition() {
+        // Coloca la imagen del menú
+        Point menuPosition = this.father.getFatherPosition();
+        menuPosition.set(
+                menuPosition.getX() + this.father.getFatherWidth() + 20,
+                menuPosition.getY() - 20);
+        this.setPosition(menuPosition);
+        // Coloca las hitboxes en relación a la posición ajustada
+        this.menuHitboxes = new Hitbox[this.lastMenuOptions.length];
+        int xMarginPerc = (int)((float) this.pieces.getLeftPiece().getWidth() /
+                this.getSpriteWidth() * 100);
+        int yMarginPerc = (int)((float) this.pieces.getTopPiece().getHeight() /
+                this.getSpriteHeight() * 100);
+        int yFragmentPerc = (100 - (yMarginPerc * 2)) / this.lastMenuOptions.length;
+        for (int i = 0; i  < this.lastMenuOptions.length; i++) {
+            int xPercUpLeft = xMarginPerc;
+            int xPercDownRight = 100 - xMarginPerc;
+            int yPercUpLeft = yMarginPerc + i * yFragmentPerc;
+            int yPercDownRight = yMarginPerc + (i + 1) * yFragmentPerc;
+            this.menuHitboxes[i] = new Hitbox(xPercUpLeft, yPercUpLeft,
+                    xPercDownRight, yPercDownRight,
+                    this, i);
+        }
+    }
+
+    @Override
+    public void executeClick(int index) {
+        System.out.println(this.getRoleName() + ": " + index);
     }
 
     public static class MenuOption {
 
         public boolean available;
         public String optionName;
-        // Revisar la forma de implementar algo así
-        public Hitbox optionHitbox;
 
         public MenuOption(String option) {
             this.available = true;

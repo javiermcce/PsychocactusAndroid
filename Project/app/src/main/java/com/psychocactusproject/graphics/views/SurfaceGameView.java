@@ -15,6 +15,8 @@ import android.view.SurfaceView;
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.interaction.menu.ContextMenu;
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
@@ -123,13 +125,26 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.backgroundSprite.draw(screen);
         this.frameCanvas.drawRGB(0, 0, 0);
         this.frameDrawTest();
+        // Prioridad 3: Personajes
         synchronized (this.gameEntities) {
-            int numEntities = this.gameEntities.size();
-            for (int i = 0; i < numEntities; i++) {
+            for (int i = 0; i < this.gameEntities.size(); i++) {
                 this.gameEntities.get(i).draw(this.frameCanvas);
-                this.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
+                Hitbox.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
             }
         }
+        // Prioridad 2: Menús
+        synchronized (this.gameEntities) {
+            for (int i = 0; i < this.gameEntities.size(); i++) {
+                if (this.gameEntities.get(i) instanceof MenuDisplay) {
+                    MenuDisplay menu = ((MenuDisplay) this.gameEntities.get(i));
+                    menu.renderMenu(frameCanvas);
+                    Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
+                }
+            }
+        }
+        // Prioridad 1: Interfaz de usuario
+
+        //
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
@@ -166,24 +181,5 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         frameCanvas.drawRect(0, 0, 200, 200, this.basicPaint);
         this.basicPaint.setColor(Color.BLACK);
         frameCanvas.drawRect(0, 0, 100, 100, this.basicPaint);
-    }
-
-
-    protected void drawHitboxes(Hitbox[] hitboxes,Canvas canvas) {
-        Paint hitboxPaint = new Paint();
-        hitboxPaint.setColor(Color.RED);
-        hitboxPaint.setStyle(Paint.Style.STROKE);
-        hitboxPaint.setStrokeWidth(2);
-        if (hitboxes != null) {
-            for (Hitbox hitbox : hitboxes) {
-                if (hitbox != null) {
-                    canvas.drawRect(hitbox.getUpLeftX(), hitbox.getUpLeftY(),
-                            hitbox.getDownRightX(),
-                            hitbox.getDownRightY(),
-                            hitboxPaint
-                    );
-                }
-            }
-        }
     }
 }
