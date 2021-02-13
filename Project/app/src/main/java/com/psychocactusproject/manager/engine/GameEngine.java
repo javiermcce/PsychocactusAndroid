@@ -38,9 +38,9 @@ public class GameEngine {
     public GameEngine(Activity activity, GameView gameView) {
         this.activity = activity;
         this.gameView = gameView;
-        this.gameEntities = new ArrayList();
-        this.entitiesToAdd = new ArrayList();
-        this.entitiesToRemove = new ArrayList();
+        this.gameEntities = new ArrayList<>();
+        this.entitiesToAdd = new ArrayList<>();
+        this.entitiesToRemove = new ArrayList<>();
         this.gameView.setGameEntities(this.gameEntities);
         this.deviceWidth = gameView.getWidth();
         this.deviceHeight = gameView.getHeight();

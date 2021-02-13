@@ -16,7 +16,7 @@ public class GameEntityManager {
     List<AbstractSprite> entityList;
 
     public GameEntityManager() {
-        this.entityList = new LinkedList();
+        this.entityList = new LinkedList<>();
     }
 
     public void populate(GameEngine gameEngine) {

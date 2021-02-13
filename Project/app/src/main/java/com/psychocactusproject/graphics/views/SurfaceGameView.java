@@ -44,7 +44,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private InanimateSprite backgroundSprite;
 
     // DEBUG
-    public static List<Point> inputMovePoints = new LinkedList();
+    public static List<Point> inputMovePoints = new LinkedList<>();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);

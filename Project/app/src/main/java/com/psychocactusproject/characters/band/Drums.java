@@ -25,7 +25,7 @@ public class Drums extends Musician {
     @Override
     protected AnimationResources obtainAnimationResources() {
         String characterName = "Charlie";
-        HashMap<String, int[]> animations = new HashMap();
+        HashMap<String, int[]> animations = new HashMap<>();
         // Imágenes de animación de batería por defecto
         int[] idleAnimation = new int[1];
         idleAnimation[0] = R.drawable.drums_idle_1;/*

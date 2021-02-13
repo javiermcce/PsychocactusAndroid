@@ -41,7 +41,7 @@ public abstract class AnimatedEntity extends AbstractSprite {
         this.totalActions = resources.animations.size();
         this.actionNames = new String[totalActions];
         this.totalframesPerAction = new int[totalActions];
-        this.animationImages = new ArrayList();
+        this.animationImages = new ArrayList<>();
         this.animationWidths = new int[totalActions];
         this.animationHeights = new int[totalActions];
         // Fuerza la obtención de la imagen en tamaño natural

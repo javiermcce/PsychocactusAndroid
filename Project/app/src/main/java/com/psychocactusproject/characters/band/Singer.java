@@ -25,7 +25,7 @@ public class Singer extends Musician {
     @Override
     protected AnimationResources obtainAnimationResources() {
         String characterName = "Thomasa";
-        HashMap<String, int[]> animations = new HashMap();
+        HashMap<String, int[]> animations = new HashMap<>();
         // Imágenes de animación de cantante por defecto
         int[] idleAnimation = new int[8];
         idleAnimation[0] = R.drawable.singer_idle_1;

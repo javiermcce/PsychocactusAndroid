@@ -25,7 +25,7 @@ public class Guitar extends Musician {
     @Override
     protected AnimationResources obtainAnimationResources() {
         String characterName = "Björk";
-        HashMap<String, int[]> animations = new HashMap();
+        HashMap<String, int[]> animations = new HashMap<>();
         // Imágenes de animación de guitarrista por defecto
         int[] idleAnimation = new int[8];
         idleAnimation[0] = R.drawable.guitar_idle_1;

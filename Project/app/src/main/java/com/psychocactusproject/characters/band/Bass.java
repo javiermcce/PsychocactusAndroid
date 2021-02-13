@@ -49,7 +49,7 @@ public class Bass extends Musician {
     @Override
     protected AnimationResources obtainAnimationResources() {
         String characterName = "Ronaldo";
-        HashMap<String, int[]> animations = new HashMap();
+        HashMap<String, int[]> animations = new HashMap<>();
         // Imágenes de animación de bajista por defecto
         int[] idleAnimation = new int[8];
         idleAnimation[0] = R.drawable.bass_idle_1;
