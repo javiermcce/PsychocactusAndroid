@@ -1,15 +1,14 @@
 package com.psychocactusproject.graphics.controllers;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
-import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Point;
 import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.manager.engine.Point;
 
-public abstract class AbstractSprite extends GameEntity implements Clickable {
+public abstract class AbstractSprite extends GameEntity implements Dimensions {
 
     private int positionX;
     private int positionY;
@@ -21,27 +20,29 @@ public abstract class AbstractSprite extends GameEntity implements Clickable {
         this.positionY = 0;
     }
 
+    @Override
     public int getPositionX() {
         return positionX;
     }
 
+    @Override
     public int getPositionY() {
         return positionY;
     }
 
+    @Override
     public Point getPosition() {
         return new Point(this.positionX, this.positionY);
     }
-
-    public abstract int getSpriteWidth();
-
-    public abstract int getSpriteHeight();
 
     public abstract Hitbox[] getHitboxes();
 
     protected Hitbox[][] getAllHitboxes() {
         return this.hitboxes;
     }
+
+    // Imagen que muestra el estado actual del sprite
+    protected abstract Bitmap getSpriteImage();
 
     protected void setPositionX(int positionX) {
         this.positionX = positionX;

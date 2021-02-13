@@ -2,9 +2,10 @@ package com.psychocactusproject.interaction.menu;
 
 import android.graphics.Canvas;
 
+import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.manager.engine.Point;
 
-public interface MenuDisplay {
+public interface MenuDisplay extends Clickable {
 
     public String getRoleName();
 
@@ -21,11 +22,5 @@ public interface MenuDisplay {
     public void closeMenu();
 
     public void renderMenu(Canvas canvas);
-
-    public Point getFatherPosition();
-
-    public int getFatherWidth();
-
-    public int getFatherHeight();
 
 }

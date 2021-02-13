@@ -1,5 +1,7 @@
 package com.psychocactusproject.manager.engine;
 
+import androidx.annotation.Nullable;
+
 public class Point {
 
     private int x;
@@ -34,5 +36,15 @@ public class Point {
     public void set(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object instanceof Point) {
+            Point point = (Point) object;
+            return this.getX() == point.getX() && this.getY() == point.getY();
+        } else {
+            return false;
+        }
     }
 }

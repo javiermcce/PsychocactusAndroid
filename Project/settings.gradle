@@ -1,4 +1,2 @@
-include ':tests'
-include ':simpleprograms'
 rootProject.name='PsychocactusProject'
 include ':app'

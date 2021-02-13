@@ -42,7 +42,7 @@ public class Drums extends Musician {
         Hitbox[] anotherHitbox = new Hitbox[3];
 
         Hitbox[][] hitboxes = new Hitbox[][] {idleHitbox, anotherHitbox};
-        // Se devuelve la información para que AnimationController la almacene e interprete
+        // Se devuelve la información para que AnimatedEntity la almacene e interprete
         return new AnimationResources(characterName, animations, hitboxes);
     }
 

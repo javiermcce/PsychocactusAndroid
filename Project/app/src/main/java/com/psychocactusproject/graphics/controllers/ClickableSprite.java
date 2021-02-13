@@ -4,12 +4,12 @@ import android.graphics.Canvas;
 
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.interaction.scripts.Clickable;
+import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
-public class ClickableSprite extends InanimateSprite implements MenuDisplay, Clickable {
+public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     private ContextMenu spriteMenu;
 
@@ -19,6 +19,14 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay, Cli
 
     public ClickableSprite(GameEngine gameEngine, String roleName) {
         super(gameEngine, roleName);
+    }
+
+    @Override
+    public void executeClick(int index) {
+        this.spriteMenu.openMenu();
+        if (GameEngine.DEBUGGING) {
+            GameFragment.setDebugText(this.getRoleName());
+        }
     }
 
     @Override
@@ -54,20 +62,5 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay, Cli
     @Override
     public void renderMenu(Canvas canvas) {
 
-    }
-
-    @Override
-    public Point getFatherPosition() {
-        return getPosition();
-    }
-
-    @Override
-    public int getFatherWidth() {
-        return this.getSpriteWidth();
-    }
-
-    @Override
-    public int getFatherHeight() {
-        return this.getSpriteHeight();
     }
 }

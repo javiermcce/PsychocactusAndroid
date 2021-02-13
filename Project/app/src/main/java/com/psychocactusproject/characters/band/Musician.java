@@ -2,21 +2,17 @@ package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
 
-import com.psychocactusproject.interaction.menu.ContextMenu;
-import com.psychocactusproject.interaction.menu.MenuDisplay;
+import com.psychocactusproject.graphics.controllers.ClickableAnimation;
 import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.graphics.controllers.AnimationController;
 import com.psychocactusproject.input.InputController;
 
-public abstract class Musician extends AnimationController {
+public abstract class Musician extends ClickableAnimation {
 
     private GameEngine gameEngine;
-    private ContextMenu musicianMenu;
 
     protected Musician(GameEngine gameEngine) {
         super(gameEngine);
         this.gameEngine = gameEngine;
-        this.musicianMenu = new ContextMenu(gameEngine, this);
     }
 
     // Equivalente a Player según la guía
@@ -41,46 +37,6 @@ public abstract class Musician extends AnimationController {
     public void draw(Canvas canvas) {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        canvas.drawBitmap(this.getAnimationImage(), this.getMatrix(), null);
-    }
-
-    @Override
-    public boolean hasMenuOpen() {
-        return this.musicianMenu.isShown();
-    }
-
-    @Override
-    public void openMenu() {
-        this.musicianMenu.openMenu();
-    }
-
-    @Override
-    public void closeMenu() {
-        this.musicianMenu.closeMenu();
-    }
-
-    @Override
-    public ContextMenu getMenu() {
-        return this.musicianMenu;
-    }
-
-    @Override
-    public void executeClick(int index) {
-        this.openMenu();
-    }
-
-    @Override
-    public void renderMenu(Canvas canvas) {
-        this.musicianMenu.draw(canvas);
-    }
-
-    @Override
-    public int getFatherWidth() {
-        return this.getSpriteWidth();
-    }
-
-    @Override
-    public int getFatherHeight() {
-        return this.getSpriteHeight();
+        canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), null);
     }
 }

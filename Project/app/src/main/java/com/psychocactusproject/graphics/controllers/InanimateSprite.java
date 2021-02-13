@@ -15,7 +15,6 @@ public class InanimateSprite extends AbstractSprite {
     private int imageWidth;
     private int imageHeight;
     private final String roleName;
-    private ContextMenu menu;
 
     public InanimateSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes) {
         super(gameEngine);
@@ -75,6 +74,11 @@ public class InanimateSprite extends AbstractSprite {
         return new Hitbox[0];
     }
 
+    @Override
+    public Bitmap getSpriteImage() {
+        return this.bitmap;
+    }
+
     protected void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
         if (bitmap != null) {
@@ -95,10 +99,5 @@ public class InanimateSprite extends AbstractSprite {
                 sizeX, sizeY, false);
         this.imageWidth = bitmap.getWidth();
         this.imageHeight = bitmap.getHeight();
-    }
-
-    @Override
-    public void executeClick(int index) {
-
     }
 }

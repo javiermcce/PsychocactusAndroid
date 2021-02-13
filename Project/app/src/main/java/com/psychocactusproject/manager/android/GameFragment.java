@@ -1,5 +1,6 @@
 package com.psychocactusproject.manager.android;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.manager.engine.GameEngine;
@@ -17,6 +19,12 @@ import com.psychocactusproject.input.TouchInputController;
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
     private GameEngine gameEngine;
+    private static TextView debugTextView;
+    private static Activity activity;
+
+    public static void setDebugText(String text){
+        activity.runOnUiThread(() -> { debugTextView.setText(text); });
+    }
 
     public GameFragment() {
     }
@@ -42,6 +50,12 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 observer.removeOnGlobalLayoutListener(this);
                 // Interfaz GameView implementada por la clase que extiende SurfaceView
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
+                if (GameEngine.DEBUGGING) {
+                    GameFragment.debugTextView = getView().findViewById(R.id.txt_debug);
+                    activity = getActivity();
+                } else {
+                    ((TextView) getView().findViewById(R.id.txt_debug)).setText("");
+                }
                 // El motor es creado con la actividad y la vista
                 gameEngine = new GameEngine(getActivity(), gameView);
                 // El gestor de controles es vinculado al motor

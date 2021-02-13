@@ -8,14 +8,12 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
-import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
@@ -45,8 +43,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // InanimateSprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
     private InanimateSprite backgroundSprite;
 
-    //
-    public static List<Point> puntos = new LinkedList();
+    // DEBUG
+    public static List<Point> inputMovePoints = new LinkedList();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -122,14 +120,21 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         if (screen == null) {
             return;
         }
+        // Dibuja el fondo y sobrescribe el anterior frame
         this.backgroundSprite.draw(screen);
-        this.frameCanvas.drawRGB(0, 0, 0);
-        this.frameDrawTest();
+        // DEBUG: dibuja en el frame de juego unas figuras equivalentes en todos los dispositivos
+        if (GameEngine.DEBUGGING) {
+            this.frameCanvas.drawRGB(0, 0, 0);
+            this.frameDrawTest();
+        }
+        // Dibuja todos los elementos del juego por capas de prioridades
         // Prioridad 3: Personajes
         synchronized (this.gameEntities) {
             for (int i = 0; i < this.gameEntities.size(); i++) {
                 this.gameEntities.get(i).draw(this.frameCanvas);
-                Hitbox.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
+                if (GameEngine.DEBUGGING) {
+                    Hitbox.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
+                }
             }
         }
         // Prioridad 2: Menús
@@ -138,26 +143,30 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                 if (this.gameEntities.get(i) instanceof MenuDisplay) {
                     MenuDisplay menu = ((MenuDisplay) this.gameEntities.get(i));
                     menu.renderMenu(frameCanvas);
-                    Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
+                    if (GameEngine.DEBUGGING) {
+                        Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
+                    }
                 }
             }
         }
         // Prioridad 1: Interfaz de usuario
 
-        //
+        // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
-        Paint basicPaint2 = new Paint();
-        basicPaint2.setColor(Color.WHITE);
-        // TEST
-        synchronized (puntos) {
-            for (Point punto : puntos) {
-                Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
-                screen.drawRect(rect, basicPaint2);
+        // DEBUG: Dibuja los puntos recorridos por la acción táctil de arrastrar
+        if (GameEngine.DEBUGGING) {
+            Paint basicPaint2 = new Paint();
+            basicPaint2.setColor(Color.WHITE);
+            synchronized (inputMovePoints) {
+                for (Point punto : inputMovePoints) {
+                    Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
+                    screen.drawRect(rect, basicPaint2);
+                }
             }
         }
-        //
+        // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
     }
 

@@ -4,7 +4,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.interaction.scripts.Clickable;
 
 public class Hitbox {
 
@@ -14,7 +14,7 @@ public class Hitbox {
     private final int xDownRight;
     private final int yDownRight;
     // Referencia al padre en posesión de la hitbox
-    private final AbstractSprite father;
+    private final Clickable father;
     // Índice de la acción a realizar
     private final int index;
     // Referencia a paint para el dibujado de hitboxes
@@ -22,7 +22,7 @@ public class Hitbox {
 
     public Hitbox(int xPercUpLeft, int yPercUpLeft,
                   int xPercDownRight, int yPercDownRight,
-                  AbstractSprite father, int index){
+                  Clickable father, int index){
         if((xPercUpLeft < 0 || xPercUpLeft > 100)
                 || yPercUpLeft < 0 || yPercUpLeft > 100
                 || xPercDownRight < 0 || xPercDownRight > 100
@@ -39,23 +39,23 @@ public class Hitbox {
     }
 
     public int getUpLeftX(){
-        return father.getPositionX() +
-                father.getSpriteWidth() * xUpLeft / 100;
+        return this.father.getPositionX() +
+                this.father.getSpriteWidth() * xUpLeft / 100;
     }
 
     public int getUpLeftY(){
-        return father.getPositionY() +
-                father.getSpriteHeight() * yUpLeft / 100;
+        return this.father.getPositionY() +
+                this.father.getSpriteHeight() * yUpLeft / 100;
     }
 
     public int getDownRightX(){
-        return father.getPositionX() +
-                father.getSpriteWidth() * xDownRight / 100;
+        return this.father.getPositionX() +
+                this.father.getSpriteWidth() * xDownRight / 100;
     }
 
     public int getDownRightY(){
-        return father.getPositionY() +
-                father.getSpriteHeight() * yDownRight / 100;
+        return this.father.getPositionY() +
+                this.father.getSpriteHeight() * yDownRight / 100;
     }
 
     public Point getUpLeftPoint(){
@@ -66,16 +66,13 @@ public class Hitbox {
         return new Point(getDownRightX(), getDownRightY());
     }
 
-    public AbstractSprite getFather() {
+    public Clickable getFather() {
         return this.father;
     }
 
     public int getIndex() {
         return this.index;
     }
-
-
-
 
     public static void drawHitboxes(Hitbox[] hitboxes, Canvas canvas) {
         hitboxPaint.setColor(Color.RED);

@@ -8,6 +8,8 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
+import com.psychocactusproject.interaction.scripts.Clickable;
+import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
@@ -20,7 +22,7 @@ public class TouchInputController extends InputController {
     private int xCoordinate;
     private int yCoordinate;
     private boolean pressing;
-    private int moveCount;
+    private int moveCountdown;
     private boolean moving;
     private boolean clickPending;
     private int deviceWidth;
@@ -29,10 +31,12 @@ public class TouchInputController extends InputController {
     private BlackStripesTypes hasBlackStripes;
     private List<AbstractSprite> gameEntities;
     private TextView textView;
+    // DEBUG
+    private boolean drawingPoints;
 
     public TouchInputController(GameEngine gameEngine, View view) {
         view.findViewById(R.id.gameView).setOnTouchListener(this);
-        this.textView = view.findViewById(R.id.txt_score);
+        this.textView = view.findViewById(R.id.txt_debug);
         this.xCoordinate = 0;
         this.yCoordinate = 0;
         this.pressing = false;
@@ -43,6 +47,7 @@ public class TouchInputController extends InputController {
         this.aspectRatioMargin = gameEngine.getAspectRatioMargin();
         this.hasBlackStripes = gameEngine.hasBlackStripes();
         this.gameEntities = gameEngine.getGameEntities();
+        this.drawingPoints = false;
     }
 
     public int getX() {
@@ -70,18 +75,20 @@ public class TouchInputController extends InputController {
             case MotionEvent.ACTION_DOWN:
                 this.pressing = true;
                 this.clickPending = false;
-                this.moveCount = 2;
+                this.moveCountdown = 2;
                 // La acción continúa
                 return true;
             case MotionEvent.ACTION_MOVE:
-                if (moveCount <= 0) {
+                if (moveCountdown <= 0) {
                     this.moving = true;
-                    // TEST
-                    synchronized (SurfaceGameView.puntos) {
-                        SurfaceGameView.puntos.add(new Point((int) event.getX(), (int) event.getY()));
+                    // DEBUG: dibuja puntos en pantalla cuando un deslizamiento es detectado
+                    if (GameEngine.DEBUGGING && this.drawingPoints) {
+                        synchronized (SurfaceGameView.inputMovePoints) {
+                            SurfaceGameView.inputMovePoints.add(new Point((int) event.getX(), (int) event.getY()));
+                        }
                     }
                 }
-                this.moveCount--;
+                this.moveCountdown--;
                 // La acción continúa
                 return true;
             case MotionEvent.ACTION_UP:
@@ -102,15 +109,21 @@ public class TouchInputController extends InputController {
     public void update() {
         Point click = getPendingClick();
         if (click != null) {
+            // Comprueba si hay una colisión con alguna hitbox
+            Hitbox selected = this.checkHitboxes(click.getX(), click.getY());
+            // Cierra los menús
             for (AbstractSprite entity : this.gameEntities) {
                 // Los que tienen menu, los cierran
                 if (entity instanceof MenuDisplay) {
                     ((MenuDisplay) entity).closeMenu();
                 }
             }
-            Hitbox selected = this.checkHitboxes(click.getX(), click.getY());
+            if (GameEngine.DEBUGGING) {
+                GameFragment.setDebugText("nada");
+            }
+            // Si ha habido colisión, ejecuta su acción asignada
             if (selected != null) {
-                AbstractSprite sprite = selected.getFather();
+                Clickable sprite = selected.getFather();
                 sprite.executeClick(selected.getIndex());
             }
         }

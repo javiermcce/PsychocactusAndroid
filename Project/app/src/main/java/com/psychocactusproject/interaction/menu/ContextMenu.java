@@ -13,11 +13,12 @@ import androidx.core.content.res.ResourcesCompat;
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.scripts.Clickable;
+import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
-public class ContextMenu extends InanimateSprite {
+public class ContextMenu extends InanimateSprite implements Clickable {
 
     private MenuFlyweight pieces;
     private MenuDisplay father;
@@ -29,6 +30,7 @@ public class ContextMenu extends InanimateSprite {
     private TextPaint textPaint;
     private Hitbox[] menuHitboxes;
     private MenuOption[] lastMenuOptions;
+    private Point lastPosition;
 
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName() + " menu");
@@ -170,16 +172,32 @@ public class ContextMenu extends InanimateSprite {
     @Override
     public void draw(Canvas canvas) {
         if (this.isAvailable() && this.isShown()) {
-            this.updateByFatherPosition();
+            if (this.hasMoved() || this.menuHitboxes == null) {
+                this.updateByFatherPosition();
+            }
             super.draw(canvas);
+        }
+    }
+
+    private boolean hasMoved() {
+        if (this.lastPosition == null) {
+            this.lastPosition = this.father.getPosition();
+            return true;
+        } else {
+            if (!this.lastPosition.equals(this.father.getPosition())) {
+                this.lastPosition = this.father.getPosition();
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 
     private void updateByFatherPosition() {
         // Coloca la imagen del menú
-        Point menuPosition = this.father.getFatherPosition();
+        Point menuPosition = this.father.getPosition();
         menuPosition.set(
-                menuPosition.getX() + this.father.getFatherWidth() + 20,
+                menuPosition.getX() + this.father.getSpriteWidth() + 20,
                 menuPosition.getY() - 20);
         this.setPosition(menuPosition);
         // Coloca las hitboxes en relación a la posición ajustada
@@ -203,6 +221,9 @@ public class ContextMenu extends InanimateSprite {
     @Override
     public void executeClick(int index) {
         System.out.println(this.getRoleName() + ": " + index);
+        if (GameEngine.DEBUGGING) {
+            GameFragment.setDebugText(this.getRoleName() + ": " + this.lastMenuOptions[index].optionName);
+        }
     }
 
     public static class MenuOption {

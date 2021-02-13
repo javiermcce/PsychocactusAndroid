@@ -1,6 +1,8 @@
 package com.psychocactusproject.interaction.scripts;
 
-public interface Clickable {
+import com.psychocactusproject.graphics.controllers.Dimensions;
+
+public interface Clickable extends Dimensions {
 
     public void executeClick(int index);
 
