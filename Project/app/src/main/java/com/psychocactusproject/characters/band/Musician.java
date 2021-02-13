@@ -2,13 +2,13 @@ package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
 
+import com.psychocactusproject.graphics.controllers.ClickableAnimation;
 import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.graphics.controllers.AnimationController;
 import com.psychocactusproject.input.InputController;
 
-public abstract class Musician extends AnimationController /*implements MenuInterface*/ {
+public abstract class Musician extends ClickableAnimation {
 
-    GameEngine gameEngine;
+    private GameEngine gameEngine;
 
     protected Musician(GameEngine gameEngine) {
         super(gameEngine);
@@ -37,6 +37,6 @@ public abstract class Musician extends AnimationController /*implements MenuInte
     public void draw(Canvas canvas) {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        canvas.drawBitmap(this.getAnimationImage(), this.getMatrix(), null);
+        canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), null);
     }
 }

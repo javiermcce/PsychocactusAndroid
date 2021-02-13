@@ -1,37 +1,48 @@
 package com.psychocactusproject.graphics.controllers;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
-public abstract class AbstractSprite extends GameEntity {
+public abstract class AbstractSprite extends GameEntity implements Dimensions {
 
     private int positionX;
     private int positionY;
     private final Matrix matrix = new Matrix();
+    private Hitbox[][] hitboxes;
 
     public AbstractSprite(GameEngine gameEngine) {
         this.positionX = 0;
         this.positionY = 0;
     }
 
-    protected int getPositionX() {
+    @Override
+    public int getPositionX() {
         return positionX;
     }
 
-    protected int getPositionY() {
+    @Override
+    public int getPositionY() {
         return positionY;
     }
 
-    protected Point getPosition() {
+    @Override
+    public Point getPosition() {
         return new Point(this.positionX, this.positionY);
     }
 
-    public abstract int getSpriteWidth();
+    public abstract Hitbox[] getHitboxes();
 
-    public abstract int getSpriteHeight();
+    protected Hitbox[][] getAllHitboxes() {
+        return this.hitboxes;
+    }
+
+    // Imagen que muestra el estado actual del sprite
+    protected abstract Bitmap getSpriteImage();
 
     protected void setPositionX(int positionX) {
         this.positionX = positionX;
@@ -44,6 +55,10 @@ public abstract class AbstractSprite extends GameEntity {
     protected void setPosition(Point position) {
         this.positionX = position.getX();
         this.positionY = position.getY();
+    }
+
+    protected void setHitboxes(Hitbox[][] hitboxes) {
+        this.hitboxes = hitboxes;
     }
 
     protected Matrix getMatrix() {

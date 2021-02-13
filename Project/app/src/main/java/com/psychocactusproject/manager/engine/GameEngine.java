@@ -3,27 +3,30 @@ package com.psychocactusproject.manager.engine;
 import android.app.Activity;
 import android.content.Context;
 
+import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class GameEngine {
 
+    public final static boolean DEBUGGING = true;
     public final static int RESOLUTION_X = 1280;
     public final static int RESOLUTION_Y = 720;
     private UpdateThread updateThread;
     private DrawThread drawThread;
-    private List<GameEntity> gameEntities;
-    private List<GameEntity> entitiesToAdd;
-    private List<GameEntity> entitiesToRemove;
+    private List<AbstractSprite> gameEntities;
+    private List<AbstractSprite> entitiesToAdd;
+    private List<AbstractSprite> entitiesToRemove;
     private InputController inputController;
     private Activity activity;
     private GameView gameView;
-    private int width;
-    private int height;
+    private int deviceWidth;
+    private int deviceHeight;
     private GameClock engineClock;
     private int adaptedWidth;
     private int adaptedHeight;
@@ -39,36 +42,38 @@ public class GameEngine {
         this.entitiesToAdd = new ArrayList();
         this.entitiesToRemove = new ArrayList();
         this.gameView.setGameEntities(this.gameEntities);
-        this.width = gameView.getWidth() - gameView.getPaddingLeft() - gameView.getPaddingRight();
-        this.height = gameView.getHeight() - gameView.getPaddingTop() - gameView.getPaddingBottom();
+        this.deviceWidth = gameView.getWidth();
+        this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
         this.entityManager = new GameEntityManager();
+        // Se calculan los tamaños de la pantalla
+        this.adjustScreenAspectRatio();
     }
 
-    public void adjustScreenAspectRatio(int deviceWidth, int deviceHeight) {
-        if (!equalDoubleDivisions(deviceWidth, deviceHeight, 16, 9)) {
-            if ((float) deviceWidth / deviceHeight < 16 / 9.) {
+    public void adjustScreenAspectRatio() {
+        if (!equalDoubleDivisions(this.deviceWidth, this.deviceHeight, 16, 9)) {
+            if ((float) this.deviceWidth / this.deviceHeight < 16 / 9.) {
                 // Si la relación es menor, tenemos bandas negras arriba y abajo
-                this.adaptedWidth = deviceWidth;
-                this.adaptedHeight = deviceWidth * 9 / 16;
-                this.aspectRatioMargin = (deviceHeight - this.adaptedHeight) / 2;
+                this.adaptedWidth = this.deviceWidth;
+                this.adaptedHeight = this.deviceWidth * 9 / 16;
+                this.aspectRatioMargin = (this.deviceHeight - this.adaptedHeight) / 2;
                 this.hasBlackStripes = BlackStripesTypes.TOP_BOTTOM;
             } else {
                 // Si la relación es mayor, tenemos bandas negras a derecha e izquierda
-                this.adaptedHeight = deviceHeight;
-                this.adaptedWidth = deviceHeight * 16 / 9;
-                this.aspectRatioMargin = (deviceWidth - this.adaptedWidth) / 2;
+                this.adaptedHeight = this.deviceHeight;
+                this.adaptedWidth = this.deviceHeight * 16 / 9;
+                this.aspectRatioMargin = (this.deviceWidth - this.adaptedWidth) / 2;
                 this.hasBlackStripes = BlackStripesTypes.LEFT_RIGHT;
             }
         } else {
             // Si la relación de pantalla es de 16/9, las medidas utilizadas son las naturales
-            this.adaptedWidth = deviceWidth;
-            this.adaptedHeight = deviceHeight;
+            this.adaptedWidth = this.deviceWidth;
+            this.adaptedHeight = this.deviceHeight;
             this.aspectRatioMargin = 0;
             this.hasBlackStripes = BlackStripesTypes.FALSE;
         }
         // Después de calcular las medidas, se ajustan los parámetros de dibujado
-        ((SurfaceGameView) (this.gameView)).setAspectRatio(deviceWidth, deviceHeight, this);
+        ((SurfaceGameView) (this.gameView)).setAspectRatio(this.deviceWidth, this.deviceHeight, this);
     }
 
     public boolean equalDoubleDivisions(double a, double b, double c, double d) {
@@ -81,6 +86,18 @@ public class GameEngine {
 
     public int getAdaptedHeight() {
         return this.adaptedHeight;
+    }
+
+    public int getDeviceWidth() {
+        return deviceWidth;
+    }
+
+    public int getDeviceHeight() {
+        return deviceHeight;
+    }
+
+    public List<AbstractSprite> getGameEntities() {
+        return this.gameEntities;
     }
 
     public int getAspectRatioMargin() {
@@ -143,7 +160,7 @@ public class GameEngine {
         this.inputController.resume();
     }
 
-    public void addGameEntity(GameEntity gameEntity) {
+    public void addGameEntity(AbstractSprite gameEntity) {
         if (this.isRunning()) {
             this.entitiesToAdd.add(gameEntity);
         } else {
@@ -152,12 +169,13 @@ public class GameEngine {
         // Falta revisar
     }
 
-    public void removeGameEntity(GameEntity gameEntity) {
+    public void removeGameEntity(AbstractSprite gameEntity) {
         this.entitiesToRemove.add(gameEntity);
         // Falta revisar
     }
 
     public void updateGame(long ellapsedTime) {
+        this.inputController.update();
         for (int i = 0; i < this.gameEntities.size(); i++) {
             this.gameEntities.get(i).update(ellapsedTime, this);
         }

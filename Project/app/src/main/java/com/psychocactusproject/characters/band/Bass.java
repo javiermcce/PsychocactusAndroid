@@ -3,7 +3,9 @@ package com.psychocactusproject.characters.band;
 import android.view.View;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
 import java.util.HashMap;
@@ -18,6 +20,30 @@ public class Bass extends Musician {
     @Override
     public String getRoleName() {
         return "Bass";
+    }
+
+    @Override
+    public ContextMenu.MenuOption[] getMenuOptions() {
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
+        options[0] = new ContextMenu.MenuOption("Puke");
+        options[1] = new ContextMenu.MenuOption("Taunt");
+        options[2] = new ContextMenu.MenuOption("Dose");
+        options[3] = new ContextMenu.MenuOption("Solo");
+        return options;
+    }
+
+    @Override
+    public void onOptionSelected(ContextMenu.MenuOption option) {
+        ContextMenu.MenuOption[] options = this.getMenuOptions();
+        if (option.optionName.equals(options[0].optionName)) {
+
+        } else if (option.optionName.equals(options[1].optionName)) {
+
+        } else if (option.optionName.equals(options[2].optionName)) {
+
+        } else if (option.optionName.equals(options[3].optionName)) {
+
+        }
     }
 
     @Override
@@ -47,7 +73,15 @@ public class Bass extends Musician {
         list[7] = R.drawable.bass_idle_8;
         animations.put("action", list);
         * */
-        // Se devuelve la información para que AnimationController la almacene e interprete
-        return new AnimationResources(characterName, animations);
+
+        Hitbox[] idleHitbox = new Hitbox[3];
+        idleHitbox[0] = new Hitbox(57, 0, 100, 24, this, 0);
+        idleHitbox[1] = new Hitbox(0, 24, 100, 50, this, 0);
+        idleHitbox[2] = new Hitbox(57, 50, 100, 100, this, 0);
+        Hitbox[] anotherHitbox = new Hitbox[3];
+
+        Hitbox[][] hitboxes = new Hitbox[][] {idleHitbox, anotherHitbox};
+        // Se devuelve la información para que AnimatedEntity la almacene e interprete
+        return new AnimationResources(characterName, animations, hitboxes);
     }
 }

@@ -6,15 +6,20 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.graphics.controllers.Sprite;
+import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.manager.engine.Point;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.FALSE;
@@ -23,7 +28,7 @@ import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesType
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
-    private List<GameEntity> gameEntities;
+    private List<AbstractSprite> gameEntities;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -35,8 +40,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // Medidas naturales de la pantalla física
     private int deviceWidth;
     private int deviceHeight;
-    // Sprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
-    private Sprite backgroundSprite;
+    // InanimateSprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
+    private InanimateSprite backgroundSprite;
+
+    // DEBUG
+    public static List<Point> inputMovePoints = new LinkedList();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -62,7 +70,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.adaptedWidth = gameEngine.getAdaptedWidth();
         this.adaptedHeight = gameEngine.getAdaptedHeight();
         // Se da de alta el sprite para el fondo de pantalla
-        this.backgroundSprite = new Sprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
+        this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image", null);
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
         if (gameEngine.hasBlackStripes() != FALSE) {
             int backgroundX = deviceWidth;
@@ -99,7 +107,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<GameEntity> gameEntities) {
+    public void setGameEntities(List<AbstractSprite> gameEntities) {
         this.gameEntities = gameEntities;
     }
 
@@ -112,18 +120,53 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         if (screen == null) {
             return;
         }
+        // Dibuja el fondo y sobrescribe el anterior frame
         this.backgroundSprite.draw(screen);
-        this.frameCanvas.drawRGB(0, 0, 0);
-        this.frameDrawTest();
+        // DEBUG: dibuja en el frame de juego unas figuras equivalentes en todos los dispositivos
+        if (GameEngine.DEBUGGING) {
+            this.frameCanvas.drawRGB(0, 0, 0);
+            this.frameDrawTest();
+        }
+        // Dibuja todos los elementos del juego por capas de prioridades
+        // Prioridad 3: Personajes
         synchronized (this.gameEntities) {
-            int numEntities = this.gameEntities.size();
-            for (int i = 0; i < numEntities; i++) {
+            for (int i = 0; i < this.gameEntities.size(); i++) {
                 this.gameEntities.get(i).draw(this.frameCanvas);
+                if (GameEngine.DEBUGGING) {
+                    Hitbox.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
+                }
             }
         }
+        // Prioridad 2: Menús
+        synchronized (this.gameEntities) {
+            for (int i = 0; i < this.gameEntities.size(); i++) {
+                if (this.gameEntities.get(i) instanceof MenuDisplay) {
+                    MenuDisplay menu = ((MenuDisplay) this.gameEntities.get(i));
+                    menu.renderMenu(frameCanvas);
+                    if (GameEngine.DEBUGGING) {
+                        Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
+                    }
+                }
+            }
+        }
+        // Prioridad 1: Interfaz de usuario
+
+        // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
+        // DEBUG: Dibuja los puntos recorridos por la acción táctil de arrastrar
+        if (GameEngine.DEBUGGING) {
+            Paint basicPaint2 = new Paint();
+            basicPaint2.setColor(Color.WHITE);
+            synchronized (inputMovePoints) {
+                for (Point punto : inputMovePoints) {
+                    Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
+                    screen.drawRect(rect, basicPaint2);
+                }
+            }
+        }
+        // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
     }
 

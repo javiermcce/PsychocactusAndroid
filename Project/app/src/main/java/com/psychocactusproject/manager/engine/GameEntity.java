@@ -4,9 +4,6 @@ import android.graphics.Canvas;
 
 public abstract class GameEntity {
 
-    public GameEntity() {
-    }
-
     public abstract void initialize();
 
     public abstract void update(long elapsedMillis, GameEngine gameEngine);
