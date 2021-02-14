@@ -6,6 +6,8 @@ import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Drums extends Musician {
 
@@ -34,11 +36,15 @@ public class Drums extends Musician {
         idleAnimation[6] = R.drawable.drums_idle_7;
         idleAnimation[7] = R.drawable.drums_idle_8;*/
         animations.put("Idle", idleAnimation);
-
-        Hitbox[] idleHitbox = new Hitbox[3];
-        Hitbox[] anotherHitbox = new Hitbox[3];
-
-        Hitbox[][] hitboxes = new Hitbox[][] {idleHitbox, anotherHitbox};
+        //
+        List<Hitbox> idleHitboxesList = new LinkedList<>();
+        idleHitboxesList.add(new Hitbox(5, 0, 96, 51, this, 0));
+        idleHitboxesList.add(new Hitbox(0, 51, 100, 100, this, 0));
+        Hitbox[] idleHitbox = idleHitboxesList.toArray(new Hitbox[] {});
+        List<Hitbox> anotherHitboxesList = new LinkedList<>();
+        //
+        Hitbox[] anotherHitbox = anotherHitboxesList.toArray(new Hitbox[] {});
+        Hitbox[][] hitboxes = new Hitbox[][] {idleHitbox/*, anotherHitbox*/};
         // Se devuelve la información para que AnimatedEntity la almacene e interprete
         return new AnimationResources(characterName, animations, hitboxes);
     }

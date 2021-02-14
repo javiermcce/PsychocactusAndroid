@@ -16,8 +16,8 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
 
     public ClickableAnimation(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine);
-        this.animationMenu = new ContextMenu(gameEngine, this);
         this.optionNames = optionNames;
+        this.animationMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = this.obtainAnimationResources().hitboxes;
     }
 

@@ -66,6 +66,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
                 maximumOptionLength = option.optionName.length();
             }
         }
+        // maximumOptionLength += 3;
         this.lastMenuOptions = options;
         // Calculamos el tamaño que tendrá el eje horizontal del menú
         int computedWidth = this.pieces.getTopLeftPiece().getWidth() +
