@@ -14,6 +14,7 @@ public class Bass extends Musician {
     public Bass(GameEngine gameEngine) {
         super(gameEngine, new String[] { "Puke", "Taunt", "Dose", "Solo" });
         this.setPosition(new Point(765, 133));
+        this.enableMusician();
     }
 
     @Override

@@ -9,4 +9,6 @@ public interface Clickable extends Dimensions {
 
     public Hitbox[] getHitboxes();
 
+    public boolean isAvailable();
+
 }

@@ -10,9 +10,11 @@ public class GameClock {
     private int timestamp;
     private double period;
 
-    public GameClock(int initFrames, int period) {
+    // totalFrames -> número total de ciclos
+    // period -> expresado en segundos
+    public GameClock(int totalFrames, double period) {
         this.timer = new Timer();
-        this.totalFrames = initFrames;
+        this.totalFrames = totalFrames;
         this.timestamp = 0;
         this.period = period;
         this.updateTask();

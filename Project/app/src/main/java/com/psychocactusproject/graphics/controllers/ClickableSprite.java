@@ -15,11 +15,13 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     private ContextMenu spriteMenu;
     private String[] optionNames;
     private Hitbox[] hitboxes;
+    private boolean available;
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
         super(gameEngine, drawableResource, roleName);
         this.optionNames = optionNames;
         this.hitboxes = hitboxes;
+        this.available = false;
     }
 
     public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
@@ -28,16 +30,21 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     @Override
-    public Hitbox[] getHitboxes() {
-        return this.hitboxes;
-    }
-
-    @Override
     public void executeClick(int index) {
         this.spriteMenu.openMenu();
         if (GameEngine.DEBUGGING) {
             GameFragment.setDebugText(this.getRoleName());
         }
+    }
+
+    @Override
+    public Hitbox[] getHitboxes() {
+        return this.hitboxes;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return this.available;
     }
 
     @Override

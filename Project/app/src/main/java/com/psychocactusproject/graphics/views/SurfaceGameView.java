@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
@@ -15,6 +17,7 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
+import com.psychocactusproject.manager.engine.GameClock;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.GameEntity;
 import com.psychocactusproject.manager.engine.Hitbox;
@@ -28,6 +31,9 @@ import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesType
 import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
+
+    // Si quisiera hacer bien esto de poder utilizar ambas views, deberían
+    // implementar una interfaz común hecha expresamente a propósito
 
     private List<GameEntity> gameEntities;
     private boolean ready;
@@ -43,7 +49,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private int deviceHeight;
     // InanimateSprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
     private InanimateSprite backgroundSprite;
-
+    // Efectos de imagen
+    private static int filterLevels = 20;
+    private static Paint[] colorFilters;
+    private static GameClock filterClock;
     // DEBUG
     public static List<Point> inputMovePoints = new LinkedList<>();
 
@@ -61,6 +70,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                 Bitmap.Config.ARGB_8888
         );
         this.frameCanvas.setBitmap(this.frameBitmap);
+        filterLevels = 20;
+        colorFilters = generateColorFilters();
+        filterClock = new GameClock(filterLevels, 2);
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
@@ -191,5 +203,36 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         frameCanvas.drawRect(0, 0, 200, 200, this.basicPaint);
         this.basicPaint.setColor(Color.BLACK);
         frameCanvas.drawRect(0, 0, 100, 100, this.basicPaint);
+    }
+
+    private static Paint generateColorFilter(float contrast, float brightness) {
+        Paint paint = new Paint();
+        ColorMatrix colorMatrix = new ColorMatrix(new float[]
+                {
+                        contrast, 0, 0, 0, brightness,
+                        0, contrast, 0, 0, brightness,
+                        0, 0, contrast, 0, brightness,
+                        0, 0, 0, 1, 0
+                });
+        paint.setColorFilter(new ColorMatrixColorFilter(colorMatrix));
+        return paint;
+    }
+
+    private static Paint[] generateColorFilters() {
+        int minContrast = 0, maxContrast = 10;
+        int minBrigtness = -255, maxBrightness = 255;
+        Paint[] filters = new Paint[filterLevels];
+        float contrastSlope = (float) (maxContrast - minContrast) / filterLevels;
+        float brightnessSlope = (float) (maxBrightness - minBrigtness) / filterLevels;
+        for (int i = 0; i < filterLevels; i++) {
+            float contrastLevelValue = (contrastSlope * i) + minContrast;
+            float brightnessLevelValue = (brightnessSlope * i) + minBrigtness;
+            filters[i] = generateColorFilter(contrastLevelValue, brightnessLevelValue);
+        }
+        return filters;
+    }
+
+    public static Paint getColorFilter() {
+        return colorFilters[filterClock.getTimestamp()];
     }
 }

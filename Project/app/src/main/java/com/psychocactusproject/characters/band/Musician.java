@@ -1,19 +1,24 @@
 package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
+import android.graphics.Paint;
 
 import com.psychocactusproject.graphics.controllers.ClickableAnimation;
+import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.ContextMenu;
+import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.input.InputController;
 
 public abstract class Musician extends ClickableAnimation {
 
     private GameEngine gameEngine;
+    private boolean available;
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine, optionNames);
         this.gameEngine = gameEngine;
+        this.available = false;
     }
 
     // Equivalente a Player según la guía
@@ -35,10 +40,16 @@ public abstract class Musician extends ClickableAnimation {
     }
 
     @Override
+    public boolean isAvailable() {
+        return this.available;
+    }
+
+    @Override
     public void draw(Canvas canvas) {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), null);
+        Paint usedPaint = this.available ? SurfaceGameView.getColorFilter() : null;
+        canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), usedPaint);
     }
 
     @Override
@@ -48,5 +59,13 @@ public abstract class Musician extends ClickableAnimation {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
         }
         return options;
+    }
+
+    protected void enableMusician() {
+        this.available = true;
+    }
+
+    protected void disableMusician() {
+        this.available = false;
     }
 }
