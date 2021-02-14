@@ -1,13 +1,14 @@
 package com.psychocactusproject.manager.android;
 
-import android.app.Activity;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.psychocactusproject.R;
 
-public class GameActivity extends Activity {
+public class GameActivity extends AppCompatActivity {
 
     private static final String TAG_FRAGMENT = "content";
 
@@ -16,7 +17,7 @@ public class GameActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
                     .commit();
         }
@@ -28,7 +29,7 @@ public class GameActivity extends Activity {
     }
 
     private void navigateToFragment(GameBaseFragment dst) {
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.container, dst, TAG_FRAGMENT)
                 .addToBackStack(null)
@@ -37,7 +38,7 @@ public class GameActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        final GameBaseFragment fragment = (GameBaseFragment) getFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+        final GameBaseFragment fragment = (GameBaseFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
         if (fragment == null || !fragment.onBackPressed()) {
             super.onBackPressed();
         }
