@@ -13,17 +13,23 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     private ContextMenu animationMenu;
     private final String[] optionNames;
     private final Hitbox[][] hitboxes;
+    private boolean available;
 
     public ClickableAnimation(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine);
         this.optionNames = optionNames;
         this.animationMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = this.obtainAnimationResources().hitboxes;
+        this.available = false;
     }
 
     @Override
     public Hitbox[] getHitboxes() {
-        return this.getAllHitboxes()[this.getCurrentAction()];
+        if (this.isAvailable(0)) {
+            return this.getAllHitboxes()[this.getCurrentAction()];
+        } else {
+            return null;
+        }
     }
 
     protected Hitbox[][] getAllHitboxes() {
@@ -36,6 +42,11 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
         if (GameEngine.DEBUGGING) {
             GameFragment.setDebugText(this.getRoleName());
         }
+    }
+
+    @Override
+    public boolean isAvailable(int index) {
+        return this.available;
     }
 
     @Override
@@ -66,5 +77,15 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     @Override
     public void renderMenu(Canvas canvas) {
         this.animationMenu.draw(canvas);
+    }
+
+    @Override
+    public void enableClickable(int index) {
+        this.available = true;
+    }
+
+    @Override
+    public void disableClickable(int index) {
+        this.available = false;
     }
 }

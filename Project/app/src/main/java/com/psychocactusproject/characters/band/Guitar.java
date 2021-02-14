@@ -14,7 +14,7 @@ public class Guitar extends Musician {
     public Guitar(GameEngine gameEngine) {
         super(gameEngine, new String[] { "Smoke", "Spit", "Break Guitar", "Solo" });
         this.setPosition(new Point(489, 148));
-        this.enableMusician();
+        this.enableClickable(0);
     }
 
     @Override

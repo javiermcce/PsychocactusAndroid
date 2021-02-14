@@ -43,8 +43,18 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     @Override
-    public boolean isAvailable() {
+    public boolean isAvailable(int index) {
         return this.available;
+    }
+
+    @Override
+    public void enableClickable(int index) {
+        this.available = true;
+    }
+
+    @Override
+    public void disableClickable(int index) {
+        this.available = false;
     }
 
     @Override
@@ -73,7 +83,7 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public boolean hasMenuOpen() {
-        return this.spriteMenu.isAvailable();
+        return this.spriteMenu.isMenuAvailable();
     }
 
     @Override

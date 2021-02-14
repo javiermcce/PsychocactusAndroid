@@ -170,11 +170,14 @@ public class TouchInputController extends InputController {
             if (entity instanceof MenuDisplay) {
                 MenuDisplay menuHolder = ((MenuDisplay) entity);
                 if (menuHolder.hasMenuOpen()) {
-                    for (Hitbox hitbox : menuHolder.getMenu().getHitboxes()) {
-                        if (hitbox != null && hitboxCollision(xTouch, yTouch,
-                                hitbox.getUpLeftPoint(),
-                                hitbox.getDownRightPoint())) {
-                            return hitbox;
+                    Hitbox[] hitboxesCheck = menuHolder.getMenu().getHitboxes();
+                    if (hitboxesCheck != null) {
+                        for (Hitbox hitbox : hitboxesCheck) {
+                            if (hitbox != null && hitboxCollision(xTouch, yTouch,
+                                    hitbox.getUpLeftPoint(),
+                                    hitbox.getDownRightPoint())) {
+                                return hitbox;
+                            }
                         }
                     }
                 }
@@ -183,11 +186,14 @@ public class TouchInputController extends InputController {
         // Prioridad nivel 3: personajes
         for (GameEntity entity : this.gameEntities) {
             if (entity instanceof Clickable) {
-                for (Hitbox hitbox : ((Clickable) entity).getHitboxes()) {
-                    if (hitbox != null && hitboxCollision(xTouch, yTouch,
-                            hitbox.getUpLeftPoint(),
-                            hitbox.getDownRightPoint())) {
-                        return hitbox;
+                Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
+                if (hitboxesCheck != null) {
+                    for (Hitbox hitbox : hitboxesCheck) {
+                        if (hitbox != null && hitboxCollision(xTouch, yTouch,
+                                hitbox.getUpLeftPoint(),
+                                hitbox.getDownRightPoint())) {
+                            return hitbox;
+                        }
                     }
                 }
             }

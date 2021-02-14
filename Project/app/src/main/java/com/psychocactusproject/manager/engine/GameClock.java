@@ -9,6 +9,8 @@ public class GameClock {
     private int totalFrames;
     private int timestamp;
     private double period;
+    private boolean usingReverse;
+    private boolean reversing;
 
     // totalFrames -> número total de ciclos
     // period -> expresado en segundos
@@ -17,6 +19,18 @@ public class GameClock {
         this.totalFrames = totalFrames;
         this.timestamp = 0;
         this.period = period;
+        this.usingReverse = false;
+        this.reversing = false;
+        this.updateTask();
+    }
+
+    public GameClock(int totalFrames, double period, boolean usingReverse) {
+        this.timer = new Timer();
+        this.totalFrames = totalFrames;
+        this.timestamp = 0;
+        this.period = period;
+        this.usingReverse = usingReverse;
+        this.reversing = false;
         this.updateTask();
     }
     
@@ -37,13 +51,35 @@ public class GameClock {
 
         //this.timer.cancel();
         //this.timer.purge();
-        TimerTask task = new TimerTask() {
+        TimerTask regularTask = new TimerTask() {
             @Override
             public void run() {
                 timestamp = (timestamp + 1) % totalFrames;
             }
         };
+        TimerTask reversingTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (!reversing) {
+                    timestamp++;
+                    if (timestamp >= totalFrames - 1) {
+                        reversing = true;
+                    }
+                } else {
+                    timestamp--;
+                    if (timestamp <= 0) {
+                        reversing = false;
+                    }
+                }
+            }
+        };
         long periodArgument = (long)(this.period * 1000 / totalFrames);
-        this.timer.scheduleAtFixedRate(task, 0, periodArgument);
+        TimerTask selectedTask;
+        if (!usingReverse) {
+            selectedTask = regularTask;
+        } else {
+            selectedTask = reversingTask;
+        }
+        this.timer.scheduleAtFixedRate(selectedTask, 0, periodArgument);
     }
 }

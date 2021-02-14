@@ -13,12 +13,10 @@ import com.psychocactusproject.input.InputController;
 public abstract class Musician extends ClickableAnimation {
 
     private GameEngine gameEngine;
-    private boolean available;
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine, optionNames);
         this.gameEngine = gameEngine;
-        this.available = false;
     }
 
     // Equivalente a Player según la guía
@@ -40,15 +38,10 @@ public abstract class Musician extends ClickableAnimation {
     }
 
     @Override
-    public boolean isAvailable() {
-        return this.available;
-    }
-
-    @Override
     public void draw(Canvas canvas) {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        Paint usedPaint = this.available ? SurfaceGameView.getColorFilter() : null;
+        Paint usedPaint = this.isAvailable(0) ? SurfaceGameView.getColorFilter() : null;
         canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), usedPaint);
     }
 
@@ -59,13 +52,5 @@ public abstract class Musician extends ClickableAnimation {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
         }
         return options;
-    }
-
-    protected void enableMusician() {
-        this.available = true;
-    }
-
-    protected void disableMusician() {
-        this.available = false;
     }
 }

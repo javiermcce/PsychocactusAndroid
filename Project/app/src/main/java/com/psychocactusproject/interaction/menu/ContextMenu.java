@@ -32,6 +32,13 @@ public class ContextMenu extends InanimateSprite implements Clickable {
     private MenuOption[] lastMenuOptions;
     private Point lastPosition;
 
+    // Para implementar que las opciones estén disponibles o no, basta generar un bitmap en que
+    // el texto se imprima con un color grisaceo
+    // En cuanto a las hitboxes, sobrescribir su método para devolver un nuevo array solo con las
+    // disponibles
+
+    // MODIFICAR IMÁGENES PARA QUE SE VEA MÁS CONTRASTADO CON EL FONDO, QUITAR UN POCO DE ALPHA
+
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName() + " menu");
         this.father = father;
@@ -148,9 +155,29 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         return menuBitmap;
     }
 
-    public boolean isAvailable() {
+
+    public boolean isMenuAvailable() {
         return this.menuIsAvailable;
     }
+
+    @Override
+    public boolean isAvailable(int index) {
+        // aquí tendría que devolver opción por opción si está disponible o no
+        return this.menuIsAvailable;
+    }
+
+    @Override
+    public void enableClickable(int index) {
+
+    }
+
+    @Override
+    public void disableClickable(int index) {
+
+    }
+
+    // también tendría que sobrescribir el método de dibujado, ya que el menú se
+    // dibuja entero aunque alguna opción no esté disponible
 
     public boolean isShown() {
         return this.menuIsShown;
@@ -172,7 +199,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
     @Override
     public void draw(Canvas canvas) {
-        if (this.isAvailable() && this.isShown()) {
+        if (this.isMenuAvailable() && this.isShown()) {
             if (this.hasMoved() || this.menuHitboxes == null) {
                 this.updateByFatherPosition();
             }

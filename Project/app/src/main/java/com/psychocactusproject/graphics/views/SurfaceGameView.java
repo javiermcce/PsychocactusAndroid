@@ -72,7 +72,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.frameCanvas.setBitmap(this.frameBitmap);
         filterLevels = 20;
         colorFilters = generateColorFilters();
-        filterClock = new GameClock(filterLevels, 2);
+        filterClock = new GameClock(filterLevels, 0.6, true);
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
@@ -219,11 +219,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     private static Paint[] generateColorFilters() {
-        int minContrast = 0, maxContrast = 10;
-        int minBrigtness = -255, maxBrightness = 255;
+        float minContrast = 0.7f, maxContrast = 1;
+        float minBrigtness = -30, maxBrightness = 20;
         Paint[] filters = new Paint[filterLevels];
-        float contrastSlope = (float) (maxContrast - minContrast) / filterLevels;
-        float brightnessSlope = (float) (maxBrightness - minBrigtness) / filterLevels;
+        float contrastSlope = (maxContrast - minContrast) / filterLevels;
+        float brightnessSlope = (maxBrightness - minBrigtness) / filterLevels;
         for (int i = 0; i < filterLevels; i++) {
             float contrastLevelValue = (contrastSlope * i) + minContrast;
             float brightnessLevelValue = (brightnessSlope * i) + minBrigtness;
