@@ -7,7 +7,6 @@ import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
-import com.psychocactusproject.interaction.menu.MenuDisplay;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +18,9 @@ public class GameEngine {
     public final static int RESOLUTION_Y = 720;
     private UpdateThread updateThread;
     private DrawThread drawThread;
-    private List<AbstractSprite> gameEntities;
-    private List<AbstractSprite> entitiesToAdd;
-    private List<AbstractSprite> entitiesToRemove;
+    private List<GameEntity> gameEntities;
+    private List<GameEntity> entitiesToAdd;
+    private List<GameEntity> entitiesToRemove;
     private InputController inputController;
     private Activity activity;
     private GameView gameView;
@@ -96,7 +95,7 @@ public class GameEngine {
         return deviceHeight;
     }
 
-    public List<AbstractSprite> getGameEntities() {
+    public List<GameEntity> getGameEntities() {
         return this.gameEntities;
     }
 

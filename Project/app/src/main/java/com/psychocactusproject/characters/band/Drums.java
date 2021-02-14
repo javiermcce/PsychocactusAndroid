@@ -1,9 +1,6 @@
 package com.psychocactusproject.characters.band;
 
-import android.view.View;
-
 import com.psychocactusproject.R;
-import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
@@ -13,7 +10,7 @@ import java.util.HashMap;
 public class Drums extends Musician {
 
     public Drums(GameEngine gameEngine) {
-        super(gameEngine);
+        super(gameEngine, new String[] { "Sleep", "Phone Call", "Throw Drumstick", "Solo" });
         this.setPosition(new Point(608, 109));
     }
 
@@ -47,26 +44,19 @@ public class Drums extends Musician {
     }
 
     @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
-        options[0] = new ContextMenu.MenuOption("Sleep");
-        options[1] = new ContextMenu.MenuOption("Phone Call");
-        options[2] = new ContextMenu.MenuOption("Throw Drumstick");
-        options[3] = new ContextMenu.MenuOption("Solo");
-        return options;
-    }
-
-    @Override
-    public void onOptionSelected(ContextMenu.MenuOption option) {
-        ContextMenu.MenuOption[] options = this.getMenuOptions();
-        if (option.optionName.equals(options[0].optionName)) {
-
-        } else if (option.optionName.equals(options[1].optionName)) {
-
-        } else if (option.optionName.equals(options[2].optionName)) {
-
-        } else if (option.optionName.equals(options[3].optionName)) {
-
+    public void onOptionSelected(String option) {
+        switch (option) {
+            case "Sleep":
+                break;
+            case "Phone Call":
+                break;
+            case "Throw Drumstick":
+                break;
+            case "Solo":
+                break;
+            default:
+                throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
+                        "que no existe.");
         }
     }
 }

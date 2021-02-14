@@ -6,15 +6,28 @@ import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.manager.engine.Hitbox;
 
 public abstract class ClickableAnimation extends AnimatedEntity implements MenuDisplay {
 
     private ContextMenu animationMenu;
+    private final String[] optionNames;
+    private final Hitbox[][] hitboxes;
 
-    public ClickableAnimation(GameEngine gameEngine) {
+    public ClickableAnimation(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine);
         this.animationMenu = new ContextMenu(gameEngine, this);
+        this.optionNames = optionNames;
+        this.hitboxes = this.obtainAnimationResources().hitboxes;
+    }
+
+    @Override
+    public Hitbox[] getHitboxes() {
+        return this.getAllHitboxes()[this.getCurrentAction()];
+    }
+
+    protected Hitbox[][] getAllHitboxes() {
+        return this.hitboxes;
     }
 
     @Override
@@ -23,6 +36,11 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
         if (GameEngine.DEBUGGING) {
             GameFragment.setDebugText(this.getRoleName());
         }
+    }
+
+    @Override
+    public String[] getOptionNames() {
+        return optionNames;
     }
 
     @Override

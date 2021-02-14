@@ -2,7 +2,6 @@ package com.psychocactusproject.graphics.views;
 
 import android.content.Context;
 
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.manager.engine.GameEntity;
 
 import java.util.List;
@@ -11,7 +10,7 @@ public interface GameView {
 
     public void draw();
 
-    public void setGameEntities(List<AbstractSprite> gameEntities);
+    public void setGameEntities(List<GameEntity> gameEntities);
 
     public int getWidth();
 

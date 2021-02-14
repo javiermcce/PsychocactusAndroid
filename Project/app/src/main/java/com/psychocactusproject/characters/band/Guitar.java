@@ -1,9 +1,6 @@
 package com.psychocactusproject.characters.band;
 
-import android.view.View;
-
 import com.psychocactusproject.R;
-import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
@@ -13,7 +10,7 @@ import java.util.HashMap;
 public class Guitar extends Musician {
 
     public Guitar(GameEngine gameEngine) {
-        super(gameEngine);
+        super(gameEngine, new String[] { "Smoke", "Spit", "Break Guitar", "Solo" });
         this.setPosition(new Point(489, 148));
     }
 
@@ -46,27 +43,22 @@ public class Guitar extends Musician {
         return new AnimationResources(characterName, animations, hitboxes);
     }
 
-    @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
-        options[0] = new ContextMenu.MenuOption("Smoke");
-        options[1] = new ContextMenu.MenuOption("Spit");
-        options[2] = new ContextMenu.MenuOption("Break Guitar");
-        options[3] = new ContextMenu.MenuOption("Solo");
-        return options;
-    }
+
 
     @Override
-    public void onOptionSelected(ContextMenu.MenuOption option) {
-        ContextMenu.MenuOption[] options = this.getMenuOptions();
-        if (option.optionName.equals(options[0].optionName)) {
-
-        } else if (option.optionName.equals(options[1].optionName)) {
-
-        } else if (option.optionName.equals(options[2].optionName)) {
-
-        } else if (option.optionName.equals(options[3].optionName)) {
-
+    public void onOptionSelected(String option) {
+        switch (option) {
+            case "Smoke":
+                break;
+            case "Spit":
+                break;
+            case "Break Guitar":
+                break;
+            case "Solo":
+                break;
+            default:
+                throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
+                        "que no existe.");
         }
     }
 }

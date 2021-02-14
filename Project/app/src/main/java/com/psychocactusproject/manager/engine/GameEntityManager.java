@@ -21,7 +21,7 @@ public class GameEntityManager {
 
     public void populate(GameEngine gameEngine) {
         // TEST
-        InanimateSprite stage = new InanimateSprite(gameEngine, R.drawable.background_stage, "Background Stage", null);
+        InanimateSprite stage = new InanimateSprite(gameEngine, R.drawable.background_stage, "Background Stage");
         stage.resizeBitmap(GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y);
         this.entityList.add(stage);
         this.entityList.add(new Bass(gameEngine));

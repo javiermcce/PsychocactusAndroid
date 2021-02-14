@@ -3,6 +3,7 @@ package com.psychocactusproject.characters.band;
 import android.graphics.Canvas;
 
 import com.psychocactusproject.graphics.controllers.ClickableAnimation;
+import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.input.InputController;
 
@@ -10,8 +11,8 @@ public abstract class Musician extends ClickableAnimation {
 
     private GameEngine gameEngine;
 
-    protected Musician(GameEngine gameEngine) {
-        super(gameEngine);
+    protected Musician(GameEngine gameEngine, String[] optionNames) {
+        super(gameEngine, optionNames);
         this.gameEngine = gameEngine;
     }
 
@@ -38,5 +39,14 @@ public abstract class Musician extends ClickableAnimation {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
         canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), null);
+    }
+
+    @Override
+    public ContextMenu.MenuOption[] getMenuOptions() {
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
+        for (int i = 0; i < this.getOptionNames().length; i++) {
+            options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
+        }
+        return options;
     }
 }

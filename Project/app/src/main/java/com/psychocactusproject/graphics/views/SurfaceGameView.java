@@ -12,10 +12,11 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
+import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEntity;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
@@ -28,7 +29,7 @@ import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesType
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
-    private List<AbstractSprite> gameEntities;
+    private List<GameEntity> gameEntities;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -70,7 +71,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.adaptedWidth = gameEngine.getAdaptedWidth();
         this.adaptedHeight = gameEngine.getAdaptedHeight();
         // Se da de alta el sprite para el fondo de pantalla
-        this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image", null);
+        this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
         if (gameEngine.hasBlackStripes() != FALSE) {
             int backgroundX = deviceWidth;
@@ -107,7 +108,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<AbstractSprite> gameEntities) {
+    public void setGameEntities(List<GameEntity> gameEntities) {
         this.gameEntities = gameEntities;
     }
 
@@ -132,8 +133,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         synchronized (this.gameEntities) {
             for (int i = 0; i < this.gameEntities.size(); i++) {
                 this.gameEntities.get(i).draw(this.frameCanvas);
-                if (GameEngine.DEBUGGING) {
-                    Hitbox.drawHitboxes(this.gameEntities.get(i).getHitboxes(), frameCanvas);
+                if (GameEngine.DEBUGGING && this.gameEntities.get(i) instanceof Clickable) {
+                    Hitbox.drawHitboxes(((Clickable) this.gameEntities.get(i)).getHitboxes(), frameCanvas);
                 }
             }
         }

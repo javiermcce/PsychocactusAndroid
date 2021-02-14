@@ -5,15 +5,15 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes;
+import com.psychocactusproject.manager.engine.GameEntity;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
-import com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ public class TouchInputController extends InputController {
     private int deviceHeight;
     private int aspectRatioMargin;
     private BlackStripesTypes hasBlackStripes;
-    private List<AbstractSprite> gameEntities;
+    private List<GameEntity> gameEntities;
     private TextView textView;
     // DEBUG
     private boolean drawingPoints;
@@ -112,7 +112,7 @@ public class TouchInputController extends InputController {
             // Comprueba si hay una colisión con alguna hitbox
             Hitbox selected = this.checkHitboxes(click.getX(), click.getY());
             // Cierra los menús
-            for (AbstractSprite entity : this.gameEntities) {
+            for (GameEntity entity : this.gameEntities) {
                 // Los que tienen menu, los cierran
                 if (entity instanceof MenuDisplay) {
                     ((MenuDisplay) entity).closeMenu();
@@ -166,7 +166,7 @@ public class TouchInputController extends InputController {
 
             }*/
         // Prioridad nivel 2: menús
-        for (AbstractSprite entity : this.gameEntities) {
+        for (GameEntity entity : this.gameEntities) {
             if (entity instanceof MenuDisplay) {
                 MenuDisplay menuHolder = ((MenuDisplay) entity);
                 if (menuHolder.hasMenuOpen()) {
@@ -181,12 +181,14 @@ public class TouchInputController extends InputController {
             }
         }
         // Prioridad nivel 3: personajes
-        for (AbstractSprite entity : this.gameEntities) {
-            for(Hitbox hitbox : entity.getHitboxes()){
-                if(hitbox != null && hitboxCollision(xTouch, yTouch,
-                        hitbox.getUpLeftPoint(),
-                        hitbox.getDownRightPoint())){
-                    return hitbox;
+        for (GameEntity entity : this.gameEntities) {
+            if (entity instanceof Clickable) {
+                for (Hitbox hitbox : ((Clickable) entity).getHitboxes()) {
+                    if (hitbox != null && hitboxCollision(xTouch, yTouch,
+                            hitbox.getUpLeftPoint(),
+                            hitbox.getDownRightPoint())) {
+                        return hitbox;
+                    }
                 }
             }
         }

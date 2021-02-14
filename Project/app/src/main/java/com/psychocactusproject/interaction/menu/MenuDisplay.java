@@ -3,15 +3,16 @@ package com.psychocactusproject.interaction.menu;
 import android.graphics.Canvas;
 
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.engine.Point;
 
 public interface MenuDisplay extends Clickable {
 
     public String getRoleName();
 
+    public String[] getOptionNames();
+
     public ContextMenu.MenuOption[] getMenuOptions();
 
-    public void onOptionSelected(ContextMenu.MenuOption option);
+    public void onOptionSelected(String option);
 
     public ContextMenu getMenu();
 

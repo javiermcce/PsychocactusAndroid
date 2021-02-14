@@ -220,10 +220,11 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
     @Override
     public void executeClick(int index) {
-        System.out.println(this.getRoleName() + ": " + index);
         if (GameEngine.DEBUGGING) {
+            System.out.println(this.getRoleName() + ": " + index);
             GameFragment.setDebugText(this.getRoleName() + ": " + this.lastMenuOptions[index].optionName);
         }
+        this.father.onOptionSelected(this.lastMenuOptions[index].optionName);
     }
 
     public static class MenuOption {

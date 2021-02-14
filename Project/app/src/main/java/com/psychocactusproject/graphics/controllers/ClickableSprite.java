@@ -7,18 +7,29 @@ import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.manager.android.GameFragment;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+
+import java.util.HashMap;
 
 public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     private ContextMenu spriteMenu;
+    private String[] optionNames;
+    private Hitbox[] hitboxes;
 
-    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes) {
-        super(gameEngine, drawableResource, roleName, hitboxes);
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
+        super(gameEngine, drawableResource, roleName);
+        this.optionNames = optionNames;
+        this.hitboxes = hitboxes;
     }
 
-    public ClickableSprite(GameEngine gameEngine, String roleName) {
+    public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
         super(gameEngine, roleName);
+        this.optionNames = optionNames;
+    }
+
+    @Override
+    public Hitbox[] getHitboxes() {
+        return this.hitboxes;
     }
 
     @Override
@@ -30,12 +41,21 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
-        return new ContextMenu.MenuOption[0];
+    public String[] getOptionNames() {
+        return this.optionNames;
     }
 
     @Override
-    public void onOptionSelected(ContextMenu.MenuOption option) {
+    public ContextMenu.MenuOption[] getMenuOptions() {
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
+        for (int i = 0; i < this.getOptionNames().length; i++) {
+            options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
+        }
+        return options;
+    }
+
+    @Override
+    public void onOptionSelected(String option) {
 
     }
 
@@ -61,6 +81,6 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public void renderMenu(Canvas canvas) {
-
+        this.spriteMenu.draw(canvas);
     }
 }

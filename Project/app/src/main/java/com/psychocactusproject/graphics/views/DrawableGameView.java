@@ -5,14 +5,13 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.manager.engine.GameEntity;
 
 import java.util.List;
 
 public class DrawableGameView extends View implements GameView {
 
-    private List<AbstractSprite> gameEntities;
+    private List<GameEntity> gameEntities;
 
     public DrawableGameView(Context context) {
         super(context);
@@ -42,7 +41,7 @@ public class DrawableGameView extends View implements GameView {
     }
 
     @Override
-    public void setGameEntities(List<AbstractSprite> gameEntities) {
+    public void setGameEntities(List<GameEntity> gameEntities) {
         this.gameEntities = gameEntities;
     }
 }
