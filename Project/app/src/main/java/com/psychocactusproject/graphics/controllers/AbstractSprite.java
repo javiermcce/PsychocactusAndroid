@@ -1,6 +1,7 @@
 package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Matrix;
 
 import com.psychocactusproject.manager.engine.GameEngine;
@@ -17,6 +18,8 @@ public abstract class AbstractSprite extends GameEntity implements Dimensions {
         this.positionX = 0;
         this.positionY = 0;
     }
+
+    public abstract void draw(Canvas canvas);
 
     @Override
     public int getPositionX() {

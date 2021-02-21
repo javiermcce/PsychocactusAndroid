@@ -4,11 +4,11 @@ import android.graphics.Canvas;
 
 public abstract class GameEntity {
 
+    public static final Object entitiesLock = new Object();
+
     public abstract void initialize();
 
     public abstract void update(long elapsedMillis, GameEngine gameEngine);
-
-    public abstract void draw(Canvas canvas);
 
     public abstract String getRoleName();
 
