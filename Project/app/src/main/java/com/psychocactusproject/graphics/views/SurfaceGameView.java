@@ -14,6 +14,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
@@ -36,6 +37,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // implementar una interfaz común hecha expresamente a propósito
 
     private List<GameEntity> gameEntities;
+    private List<AbstractSprite> gameSprites;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -54,7 +56,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static Paint[] colorFilters;
     private static GameClock filterClock;
     // DEBUG
-    public static List<Point> inputMovePoints = new LinkedList<>();
+    public static final List<Point> inputMovePoints = new LinkedList<>();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -120,8 +122,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<GameEntity> gameEntities) {
+    public void setGameEntities(List<GameEntity> gameEntities, List<AbstractSprite> gameSprites) {
         this.gameEntities = gameEntities;
+        this.gameSprites = gameSprites;
     }
 
     @Override
@@ -142,19 +145,19 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         }
         // Dibuja todos los elementos del juego por capas de prioridades
         // Prioridad 3: Personajes
-        synchronized (this.gameEntities) {
-            for (int i = 0; i < this.gameEntities.size(); i++) {
-                this.gameEntities.get(i).draw(this.frameCanvas);
-                if (GameEngine.DEBUGGING && this.gameEntities.get(i) instanceof Clickable) {
-                    Hitbox.drawHitboxes(((Clickable) this.gameEntities.get(i)).getHitboxes(), frameCanvas);
+        synchronized (GameEntity.entitiesLock) {
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                this.gameSprites.get(i).draw(this.frameCanvas);
+                if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
+                    Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), frameCanvas);
                 }
             }
         }
         // Prioridad 2: Menús
-        synchronized (this.gameEntities) {
-            for (int i = 0; i < this.gameEntities.size(); i++) {
-                if (this.gameEntities.get(i) instanceof MenuDisplay) {
-                    MenuDisplay menu = ((MenuDisplay) this.gameEntities.get(i));
+        synchronized (GameEntity.entitiesLock) {
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                if (this.gameSprites.get(i) instanceof MenuDisplay) {
+                    MenuDisplay menu = ((MenuDisplay) this.gameSprites.get(i));
                     menu.renderMenu(frameCanvas);
                     if (GameEngine.DEBUGGING) {
                         Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);

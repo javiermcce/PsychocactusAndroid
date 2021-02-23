@@ -2,6 +2,7 @@ package com.psychocactusproject.characters.band;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameLogic;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
@@ -11,8 +12,12 @@ import java.util.List;
 
 public class Bass extends Musician {
 
+    // Lógica de juego
+    private static final int NIRVANA_DURATION = 3;
+    private int nirvana;
+
     public Bass(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Puke", "Taunt", "Dose", "Solo" });
+        super(gameEngine, new String[] { "Puke", "Schizophrenia", "Dose", "Solo" });
         this.setPosition(new Point(765, 133));
         this.enableClickable(0);
     }
@@ -26,13 +31,19 @@ public class Bass extends Musician {
     public void onOptionSelected(String option) {
         switch (option) {
             case "Puke":
+                this.fatigueAction();
                 break;
-            case "Taunt":
+            case "Schizophrenia":
+                this.furyAction();
                 break;
             case "Dose":
+                this.funAction();
                 break;
             case "Solo":
+                this.solo();
                 break;
+            case "Play":
+                this.play();
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
@@ -77,5 +88,38 @@ public class Bass extends Musician {
         Hitbox[][] hitboxes = new Hitbox[][] {idleHitbox/*, anotherHitbox*/};
         // Se devuelve la información para que AnimatedEntity la almacene e interprete
         return new AnimationResources(characterName, animations, hitboxes);
+    }
+    
+    //
+    @Override
+    public void funAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().dose();
+    }
+
+    @Override
+    public void fatigueAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().puke();
+    }
+
+    @Override
+    public void furyAction() {
+        super.furyAction();
+        GameLogic.getInstance().getStateManager().schizophrenia();
+    }
+
+    @Override
+    public void solo() {
+        // throw new UnsupportedOperationException();
+    }
+
+    public boolean isAtNirvana() {
+        return this.nirvana > 0;
+    }
+
+    @Override
+    public void checkAndUpdate() {
+
     }
 }

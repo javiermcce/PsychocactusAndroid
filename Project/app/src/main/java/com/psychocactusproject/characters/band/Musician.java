@@ -6,13 +6,32 @@ import android.graphics.Paint;
 import com.psychocactusproject.graphics.controllers.ClickableAnimation;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.ContextMenu;
-import com.psychocactusproject.manager.android.GameFragment;
+import com.psychocactusproject.interaction.scripts.TurnChecker;
 import com.psychocactusproject.manager.engine.GameEngine;
 import com.psychocactusproject.input.InputController;
+import com.psychocactusproject.manager.engine.GameLogic;
 
-public abstract class Musician extends ClickableAnimation {
+public abstract class Musician extends ClickableAnimation implements TurnChecker {
 
     private GameEngine gameEngine;
+
+    // Lógica de juego
+    private final int RAGE_DURATION = 3;
+    private final int EXHAUST_DURATION = 3;
+    private final int RESCUEING_LOST_COMPANION = 5;
+    private final int MAX_FATIGUE = 3;
+    private final int MAX_FURY = 3;
+    // protected final String[] skillNames; // los skill names corresponden a getOptionNames()
+    protected int fatigue;
+    protected int fury;
+    protected int rage;
+    protected int exhaust;
+    protected boolean arrested;
+    protected boolean dead;
+    private int timesExhausted;
+    private int turnsRemainingRescueing;
+    private int hitByStick;
+    
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine, optionNames);
@@ -23,7 +42,17 @@ public abstract class Musician extends ClickableAnimation {
 
     @Override
     public void initialize() {
+        fatigue = 0;
+        fury = 0;
+        rage = 0;
+        exhaust = 0;
+        arrested = false;
+        dead = false;
+        turnsRemainingRescueing = 0;
+        hitByStick = 0;
+    }
 
+    public void InitializeStates() {
     }
 
     @Override
@@ -53,4 +82,121 @@ public abstract class Musician extends ClickableAnimation {
         }
         return options;
     }
+    
+    // Lógica de juego
+
+    private void awake() {
+
+    }
+
+    public boolean isReady() {
+        return !isArrested() && !isDead() && !isRescueing() && !isStunnedByStick();
+    }
+
+    public void play() {
+        GameLogic logic = GameLogic.getInstance();
+        for (Musician each : logic.getGameEntityManager().getAllMusicians()) {
+            if(!each.isReady()) {
+                throw new IllegalStateException("Se intenta ejecutar la acción Play. " +
+                        "No todos los músicos están listos.");
+            }
+        }
+        if (logic.getStateManager().noBatteryCharge()) {
+            throw new IllegalStateException(
+                    "Se intenta ejecutar la acción Play. No queda batería.");
+        }
+        logic.getConcert().proceedNextTurn();
+        logic.getConcert().substractFun(4);
+        logic.getStateManager().substractBatteryCharge();
+        logic.getStateManager().damageAmplifier(logic.getGameEntityManager().getRandomMusician());
+    }
+
+    public abstract void solo();
+
+    public void fatigueAction() {
+        fatigue -= 2;
+        fury += 2;
+        if (fatigue < 0) {
+            fatigue = 0;
+        }
+        if (fury >= MAX_FURY) {
+            induceRage();
+        }
+    }
+
+    public void furyAction() {
+        fury -= 2;
+        GameLogic.getInstance().getConcert().substractFun(2);
+        if (fury < 0) {
+            fury = 0;
+        }
+    }
+
+    public void funAction() {
+        fatigue += 2;
+        GameLogic logic = GameLogic.getInstance();
+        for  (Musician each : logic.getGameEntityManager().getAllMusicians()) {
+            if (each.isReady()) {
+                logic.getConcert().addFun(1);
+            }
+        }
+        if (fatigue >= MAX_FATIGUE) {
+            induceExhaust();
+        }
+    }
+
+    public void induceExhaust() {
+        fatigue = 0;
+        exhaust = EXHAUST_DURATION;
+    }
+
+    public void induceRage() {
+        fury = 0;
+        rage = RAGE_DURATION;
+    }
+
+    public void punch() {
+        fury += 2;
+        if(fury >= MAX_FURY) {
+            induceRage();
+        }
+    }
+
+    public boolean isExhausted() {
+        return exhaust > 0;
+    }
+
+    public boolean isEnraged() {
+        return rage > 0;
+    }
+
+    public boolean isRescueing() {
+        return turnsRemainingRescueing == 0;
+    }
+
+    public boolean isStunnedByStick() {
+        return hitByStick == 0;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public boolean isArrested() {
+        return arrested;
+    }
+
+    public int getFuryValue() {
+        return fury;
+    }
+
+    public int getFatigueValue() {
+        return fatigue;
+    }
+
+    public void arrest() {
+        arrested = true;
+    }
+
+    public abstract void checkAndUpdate();
 }

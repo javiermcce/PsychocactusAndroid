@@ -2,6 +2,7 @@ package com.psychocactusproject.characters.band;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameLogic;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
@@ -12,7 +13,7 @@ import java.util.List;
 public class Drums extends Musician {
 
     public Drums(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Sleep", "Phone Call", "Throw Drumstick", "Solo" });
+        super(gameEngine, new String[] { "Sleep", "Mom's Call", "Throw Drumstick", "Solo" });
         this.setPosition(new Point(608, 109));
     }
 
@@ -53,16 +54,51 @@ public class Drums extends Musician {
     public void onOptionSelected(String option) {
         switch (option) {
             case "Sleep":
+                this.fatigueAction();
                 break;
-            case "Phone Call":
+            case "Mom's Call":
+                this.furyAction();
                 break;
             case "Throw Drumstick":
+                this.funAction();
                 break;
             case "Solo":
+                this.solo();
+                break;
+            case "Play":
+                this.play();
                 break;
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    public void funAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().throwStick();
+    }
+
+    @Override
+    public void fatigueAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().sleep();
+    }
+
+    @Override
+    public void furyAction() {
+        super.furyAction();
+        GameLogic.getInstance().getStateManager().momsCall();
+    }
+
+    @Override
+    public void solo() {
+        // throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void checkAndUpdate() {
+
     }
 }

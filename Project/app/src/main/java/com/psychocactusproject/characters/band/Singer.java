@@ -2,6 +2,7 @@ package com.psychocactusproject.characters.band;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.manager.engine.GameLogic;
 import com.psychocactusproject.manager.engine.Hitbox;
 import com.psychocactusproject.manager.engine.Point;
 
@@ -55,16 +56,51 @@ public class Singer extends Musician {
     public void onOptionSelected(String option) {
         switch (option) {
             case "Pina Colada":
+                this.fatigueAction();
                 break;
             case "Scream":
+                this.furyAction();
                 break;
             case "Pogo":
+                this.funAction();
                 break;
             case "Solo":
+                this.solo();
+                break;
+            case "Play":
+                this.play();
                 break;
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    public void funAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().pogo();
+    }
+
+    @Override
+    public void fatigueAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().pinyaColada();
+    }
+
+    @Override
+    public void furyAction() {
+        super.furyAction();
+        GameLogic.getInstance().getStateManager().scream();
+    }
+
+    @Override
+    public void solo() {
+
+    }
+
+    @Override
+    public void checkAndUpdate() {
+
     }
 }

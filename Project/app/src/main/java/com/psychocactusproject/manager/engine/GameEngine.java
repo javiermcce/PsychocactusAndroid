@@ -18,9 +18,10 @@ public class GameEngine {
     public final static int RESOLUTION_Y = 720;
     private UpdateThread updateThread;
     private DrawThread drawThread;
-    private List<GameEntity> gameEntities;
+    private final List<GameEntity> gameEntities;
     private List<GameEntity> entitiesToAdd;
     private List<GameEntity> entitiesToRemove;
+    private List<AbstractSprite> gameSprites;
     private InputController inputController;
     private Activity activity;
     private GameView gameView;
@@ -30,9 +31,9 @@ public class GameEngine {
     private int adaptedWidth;
     private int adaptedHeight;
     private int aspectRatioMargin;
-    private GameEntityManager entityManager;
     private BlackStripesTypes hasBlackStripes;
     public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
+    public GameLogic gameLogic;
 
     public GameEngine(Activity activity, GameView gameView) {
         this.activity = activity;
@@ -40,11 +41,12 @@ public class GameEngine {
         this.gameEntities = new ArrayList<>();
         this.entitiesToAdd = new ArrayList<>();
         this.entitiesToRemove = new ArrayList<>();
-        this.gameView.setGameEntities(this.gameEntities);
+        this.gameSprites = new ArrayList<>();
+        this.gameView.setGameEntities(this.gameEntities, this.gameSprites);
         this.deviceWidth = gameView.getWidth();
         this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
-        this.entityManager = new GameEntityManager();
+        this.gameLogic = GameLogic.initialize();
         // Se calculan los tamaños de la pantalla
         this.adjustScreenAspectRatio();
     }
@@ -111,7 +113,7 @@ public class GameEngine {
         // Si el juego está en marcha, se detiene
         this.stopGame();
         // Se crean e insertan los objetos en el motor
-        this.entityManager.populate(this);
+        this.gameLogic.getGameEntityManager().populate(this);
         // Se ajustan los objetos por primera vez
         for (int i = 0; i < this.gameEntities.size(); i++) {
             this.gameEntities.get(i).initialize();
@@ -159,18 +161,26 @@ public class GameEngine {
         this.inputController.resume();
     }
 
-    public void addGameEntity(AbstractSprite gameEntity) {
+    public void addGameEntity(GameEntity gameEntity) {
         if (this.isRunning()) {
             this.entitiesToAdd.add(gameEntity);
         } else {
             this.gameEntities.add(gameEntity);
+            if (gameEntity instanceof AbstractSprite) {
+                this.gameSprites.add((AbstractSprite) gameEntity);
+            }
         }
-        // Falta revisar
     }
 
-    public void removeGameEntity(AbstractSprite gameEntity) {
-        this.entitiesToRemove.add(gameEntity);
-        // Falta revisar
+    public void removeGameEntity(GameEntity gameEntity) {
+        if (this.isRunning()) {
+            this.entitiesToRemove.add(gameEntity);
+        } else {
+            this.gameEntities.remove(gameEntity);
+            if (gameEntity instanceof AbstractSprite) {
+                this.gameSprites.remove(gameEntity);
+            }
+        }
     }
 
     public void updateGame(long ellapsedTime) {
@@ -178,12 +188,20 @@ public class GameEngine {
         for (int i = 0; i < this.gameEntities.size(); i++) {
             this.gameEntities.get(i).update(ellapsedTime, this);
         }
-        synchronized (gameEntities) {
+        synchronized (GameEntity.entitiesLock) { // recordar que hay que arreglar lo del lock
             while (!entitiesToRemove.isEmpty()) {
-                gameEntities.remove(entitiesToRemove.remove(0));
+                GameEntity entityToRemove = entitiesToRemove.remove(0);
+                gameEntities.remove(entityToRemove);
+                if (entityToRemove instanceof AbstractSprite) {
+                    this.gameSprites.remove(entityToRemove);
+                }
             }
             while (!entitiesToAdd.isEmpty()) {
-                gameEntities.add(entitiesToAdd.remove(0));
+                GameEntity entity = entitiesToAdd.remove(0);
+                gameEntities.add(entity);
+                if (entity instanceof AbstractSprite) {
+                    this.gameSprites.add((AbstractSprite) entity);
+                }
             }
         }
     }
