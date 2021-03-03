@@ -12,8 +12,14 @@ import java.util.List;
 
 public class Singer extends Musician {
 
+    private final static String FATIGUE_ACTION = "Pina Colada";
+    private final static String FURY_ACTION = "Scream";
+    private final static String FUN_ACTION = "Pogo";
+    private final static String SOLO_ACTION = "Solo";
+    private final static String PLAY_ACTION = "Play";
+
     public Singer(GameEngine gameEngine) {
-        super(gameEngine, new String[] {"Pina Colada", "Scream", "Pogo", "Solo"});
+        super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(668, 229));
     }
 
@@ -55,19 +61,19 @@ public class Singer extends Musician {
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
-            case "Pina Colada":
+            case FATIGUE_ACTION:
                 this.fatigueAction();
                 break;
-            case "Scream":
+            case FURY_ACTION:
                 this.furyAction();
                 break;
-            case "Pogo":
+            case FUN_ACTION:
                 this.funAction();
                 break;
-            case "Solo":
+            case SOLO_ACTION:
                 this.solo();
                 break;
-            case "Play":
+            case PLAY_ACTION:
                 this.play();
                 break;
             default:

@@ -12,8 +12,14 @@ import java.util.List;
 
 public class Drums extends Musician {
 
+    private final static String FATIGUE_ACTION = "Sleep";
+    private final static String FURY_ACTION = "Mom's Call";
+    private final static String FUN_ACTION = "Throw Drumstick";
+    private final static String SOLO_ACTION = "Solo";
+    private final static String PLAY_ACTION = "Play";
+
     public Drums(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Sleep", "Mom's Call", "Throw Drumstick", "Solo" });
+        super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(608, 109));
     }
 
@@ -53,19 +59,19 @@ public class Drums extends Musician {
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
-            case "Sleep":
+            case FATIGUE_ACTION:
                 this.fatigueAction();
                 break;
-            case "Mom's Call":
+            case FURY_ACTION:
                 this.furyAction();
                 break;
-            case "Throw Drumstick":
+            case FUN_ACTION:
                 this.funAction();
                 break;
-            case "Solo":
+            case SOLO_ACTION:
                 this.solo();
                 break;
-            case "Play":
+            case PLAY_ACTION:
                 this.play();
                 break;
             default:

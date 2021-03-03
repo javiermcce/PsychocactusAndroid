@@ -12,12 +12,19 @@ import java.util.List;
 
 public class Bass extends Musician {
 
+    private final static String FATIGUE_ACTION = "Puke";
+    private final static String FURY_ACTION = "Schizophrenia";
+    private final static String FUN_ACTION = "Dose";
+    private final static String SOLO_ACTION = "Solo";
+    private final static String PLAY_ACTION = "Play";
+
     // Lógica de juego
     private static final int NIRVANA_DURATION = 3;
     private int nirvana;
 
+
     public Bass(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Puke", "Schizophrenia", "Dose", "Solo" });
+        super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(765, 133));
         this.enableClickable(0);
     }
@@ -30,19 +37,19 @@ public class Bass extends Musician {
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
-            case "Puke":
+            case FATIGUE_ACTION:
                 this.fatigueAction();
                 break;
-            case "Schizophrenia":
+            case FURY_ACTION:
                 this.furyAction();
                 break;
-            case "Dose":
+            case FUN_ACTION:
                 this.funAction();
                 break;
-            case "Solo":
+            case SOLO_ACTION:
                 this.solo();
                 break;
-            case "Play":
+            case PLAY_ACTION:
                 this.play();
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +

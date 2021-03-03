@@ -38,6 +38,15 @@ public class Hitbox {
         this.index = index;
     }
 
+    public Hitbox(Clickable father, int index) {
+        this.xUpLeft = 0;
+        this.yUpLeft = 0;
+        this.xDownRight = 100;
+        this.yDownRight = 100;
+        this.father = father;
+        this.index = index;
+    }
+
     public int getUpLeftX(){
         return this.father.getPositionX() +
                 this.father.getSpriteWidth() * xUpLeft / 100;

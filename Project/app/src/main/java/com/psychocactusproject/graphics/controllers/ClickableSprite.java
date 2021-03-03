@@ -17,13 +17,16 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     private Hitbox[] hitboxes;
     private boolean available;
 
+    // Tiene sentido este public constructor?? Lo del HashMap me despista
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
         super(gameEngine, drawableResource, roleName);
-        this.optionNames = optionNames;
+        // Como se supone que le paso las acciones a actions? Resolver!
+        this.optionNames = actions.keySet().toArray(this.optionNames);
         this.hitboxes = hitboxes;
         this.available = false;
     }
 
+    // Tiene sentido este public constructor?? Lo del HashMap me despista
     public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
         super(gameEngine, roleName);
         this.optionNames = optionNames;

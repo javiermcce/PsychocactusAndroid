@@ -31,11 +31,14 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     private int timesExhausted;
     private int turnsRemainingRescueing;
     private int hitByStick;
+    // Debug
+    private Paint basicPaint;
     
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine, optionNames);
         this.gameEngine = gameEngine;
+        this.basicPaint = new Paint();
     }
 
     // Equivalente a Player según la guía
@@ -70,8 +73,20 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     public void draw(Canvas canvas) {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
+        // Devuelve un Paint que brilla si el personaje puede ser usado
         Paint usedPaint = this.isAvailable(0) ? SurfaceGameView.getColorFilter() : null;
         canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), usedPaint);
+        if (GameEngine.DEBUGGING) {
+            canvas.drawText("fatigue: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            canvas.drawText("fury: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            canvas.drawText("rage remaining: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            canvas.drawText("exhaust remaining: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            // estados adicionales, solo activados si es seleccionado el botón de debug extendido
+            if (GameEngine.verboseDebugging) {
+                canvas.drawText("arrested: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+                canvas.drawText("dead: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            }
+        }
     }
 
     @Override

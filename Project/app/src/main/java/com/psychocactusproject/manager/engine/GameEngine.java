@@ -13,7 +13,6 @@ import java.util.List;
 
 public class GameEngine {
 
-    public final static boolean DEBUGGING = true;
     public final static int RESOLUTION_X = 1280;
     public final static int RESOLUTION_Y = 720;
     private UpdateThread updateThread;
@@ -34,6 +33,9 @@ public class GameEngine {
     private BlackStripesTypes hasBlackStripes;
     public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
     public GameLogic gameLogic;
+    //
+    public final static boolean DEBUGGING = true;
+    public static boolean verboseDebugging = false;
 
     public GameEngine(Activity activity, GameView gameView) {
         this.activity = activity;

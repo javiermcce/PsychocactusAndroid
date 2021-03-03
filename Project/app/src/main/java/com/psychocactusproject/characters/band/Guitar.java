@@ -12,8 +12,14 @@ import java.util.List;
 
 public class Guitar extends Musician {
 
+    private final static String FATIGUE_ACTION = "Smoke";
+    private final static String FURY_ACTION = "Spit";
+    private final static String FUN_ACTION = "Break Guitar";
+    private final static String SOLO_ACTION = "Solo";
+    private final static String PLAY_ACTION = "Play";
+
     public Guitar(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Smoke", "Spit", "Break Guitar", "Solo" });
+        super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(489, 148));
         this.enableClickable(0);
     }
@@ -58,19 +64,19 @@ public class Guitar extends Musician {
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
-            case "Smoke":
+            case FATIGUE_ACTION:
                 this.fatigueAction();
                 break;
-            case "Spit":
+            case FURY_ACTION:
                 this.furyAction();
                 break;
-            case "Break Guitar":
+            case FUN_ACTION:
                 this.funAction();
                 break;
-            case "Solo":
+            case SOLO_ACTION:
                 this.solo();
                 break;
-            case "Play":
+            case PLAY_ACTION:
                 this.play();
                 break;
             default:

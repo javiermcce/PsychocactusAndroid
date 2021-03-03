@@ -10,9 +10,11 @@ import com.psychocactusproject.characters.band.Singer;
 import com.psychocactusproject.characters.barry.Barry;
 import com.psychocactusproject.characters.police.Police;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.graphics.controllers.ClickableSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,6 +61,15 @@ public class GameEntityManager {
         this.shotgunMan = new ShotgunMan(gameEngine);
         // this.entityList.add(this.shotgunMan);
          */
+        // Debug
+        // Con este boton se podrá acceder a todas las opciones de debug, con acciones indicadas a través de un hashmap runnable
+        // A saber si esto es un poco un invento raro
+        Hitbox[] debugButtonHitbox = new Hitbox[1];
+        HashMap<String, Runnable> actions = new HashMap<>();
+        ClickableSprite botonDebug = new ClickableSprite(gameEngine, R.drawable.debug_button, "Debug button", debugButtonHitbox, actions);
+        debugButtonHitbox[0] = new Hitbox(botonDebug, 0);
+        actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
+        this.entityManagerList.add(botonDebug);
         // Inserción en el motor
         for (GameEntity entity : this.entityManagerList) {
             gameEngine.addGameEntity(entity);
