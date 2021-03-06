@@ -17,6 +17,8 @@ public class Drums extends Musician {
     private final static String FUN_ACTION = "Throw Drumstick";
     private final static String SOLO_ACTION = "Solo";
     private final static String PLAY_ACTION = "Play";
+    // Debug
+    private static boolean debugMusician = false;
 
     public Drums(GameEngine gameEngine) {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
@@ -78,6 +80,15 @@ public class Drums extends Musician {
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    protected boolean debuggingMusician() {
+        return Drums.debugMusician;
+    }
+
+    public static void debugDrumsSwitch() {
+        Drums.debugMusician = !Drums.debugMusician;
     }
 
     @Override

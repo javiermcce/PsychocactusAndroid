@@ -52,6 +52,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
                 if (GameEngine.DEBUGGING) {
                     GameFragment.debugTextView = getView().findViewById(R.id.txt_debug);
+                    GameFragment.debugTextView.setVisibility(View.GONE);
                     activity = getActivity();
                 } else {
                     ((TextView) getView().findViewById(R.id.txt_debug)).setText("");

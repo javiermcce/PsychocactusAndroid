@@ -17,6 +17,8 @@ public class Guitar extends Musician {
     private final static String FUN_ACTION = "Break Guitar";
     private final static String SOLO_ACTION = "Solo";
     private final static String PLAY_ACTION = "Play";
+    // Debug
+    private static boolean debugMusician = false;
 
     public Guitar(GameEngine gameEngine) {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
@@ -83,6 +85,15 @@ public class Guitar extends Musician {
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    protected boolean debuggingMusician() {
+        return Guitar.debugMusician;
+    }
+
+    public static void debugDrumsSwitch() {
+        Guitar.debugMusician = !Guitar.debugMusician;
     }
 
     @Override

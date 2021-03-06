@@ -17,6 +17,8 @@ public class Singer extends Musician {
     private final static String FUN_ACTION = "Pogo";
     private final static String SOLO_ACTION = "Solo";
     private final static String PLAY_ACTION = "Play";
+    // Debug
+    private static boolean debugMusician = false;
 
     public Singer(GameEngine gameEngine) {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
@@ -80,6 +82,15 @@ public class Singer extends Musician {
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    protected boolean debuggingMusician() {
+        return Singer.debugMusician;
+    }
+
+    public static void debugDrumsSwitch() {
+        Singer.debugMusician = !Singer.debugMusician;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Canvas;
 
+import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.android.GameFragment;
@@ -12,24 +13,32 @@ import java.util.HashMap;
 
 public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
-    private ContextMenu spriteMenu;
-    private String[] optionNames;
+    private final ContextMenu spriteMenu;
+    private final HashMap<String, Runnable> actions;
     private Hitbox[] hitboxes;
     private boolean available;
 
-    // Tiene sentido este public constructor?? Lo del HashMap me despista
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
         super(gameEngine, drawableResource, roleName);
-        // Como se supone que le paso las acciones a actions? Resolver!
-        this.optionNames = actions.keySet().toArray(this.optionNames);
+        this.actions = actions;
+        this.spriteMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = hitboxes;
-        this.available = false;
+        this.available = true;
     }
 
-    // Tiene sentido este public constructor?? Lo del HashMap me despista
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions, Point position) {
+        super(gameEngine, drawableResource, roleName);
+        this.actions = actions;
+        this.spriteMenu = new ContextMenu(gameEngine, this);
+        this.hitboxes = hitboxes;
+        this.available = true;
+        this.setPosition(position);
+    }
+
     public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
         super(gameEngine, roleName);
-        this.optionNames = optionNames;
+        this.spriteMenu = new ContextMenu(gameEngine, this);
+        this.actions = actions;
     }
 
     @Override
@@ -42,7 +51,11 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public Hitbox[] getHitboxes() {
-        return this.hitboxes;
+        if (this.isAvailable(0)) {
+            return this.hitboxes;
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -62,12 +75,12 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public String[] getOptionNames() {
-        return this.optionNames;
+        return actions.keySet().toArray(new String[0]);
     }
 
     @Override
     public ContextMenu.MenuOption[] getMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[this.getOptionNames().length];
         for (int i = 0; i < this.getOptionNames().length; i++) {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
         }
@@ -76,7 +89,11 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public void onOptionSelected(String option) {
-
+        for (String each : this.getOptionNames()) {
+            if (each.equals(option)) {
+                this.actions.get(option).run();
+            }
+        }
     }
 
     @Override
@@ -97,6 +114,11 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     @Override
     public void closeMenu() {
         this.spriteMenu.closeMenu();
+    }
+
+    @Override
+    public void updateMenu() {
+        this.spriteMenu.onUpdate();
     }
 
     @Override

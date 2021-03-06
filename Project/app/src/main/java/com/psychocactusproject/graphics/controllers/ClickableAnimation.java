@@ -75,6 +75,11 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     }
 
     @Override
+    public void updateMenu() {
+        this.updateMenu();
+    }
+
+    @Override
     public void renderMenu(Canvas canvas) {
         this.animationMenu.draw(canvas);
     }

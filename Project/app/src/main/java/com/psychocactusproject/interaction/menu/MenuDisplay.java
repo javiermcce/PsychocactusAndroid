@@ -22,6 +22,8 @@ public interface MenuDisplay extends Clickable {
 
     public void closeMenu();
 
+    public void updateMenu();
+
     public void renderMenu(Canvas canvas);
 
 }

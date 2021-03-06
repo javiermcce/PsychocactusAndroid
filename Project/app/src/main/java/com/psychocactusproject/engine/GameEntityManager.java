@@ -64,12 +64,27 @@ public class GameEntityManager {
         // Debug
         // Con este boton se podrá acceder a todas las opciones de debug, con acciones indicadas a través de un hashmap runnable
         // A saber si esto es un poco un invento raro
-        Hitbox[] debugButtonHitbox = new Hitbox[1];
+        // Debug button
+        Hitbox[] debugGeneralHitbox = new Hitbox[1];
         HashMap<String, Runnable> actions = new HashMap<>();
-        ClickableSprite botonDebug = new ClickableSprite(gameEngine, R.drawable.debug_button, "Debug button", debugButtonHitbox, actions);
-        debugButtonHitbox[0] = new Hitbox(botonDebug, 0);
+        ClickableSprite generalDebug = new ClickableSprite(gameEngine, R.drawable.debug_button, "Debug button", debugGeneralHitbox, actions);
+        debugGeneralHitbox[0] = new Hitbox(generalDebug, 0);
         actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
-        this.entityManagerList.add(botonDebug);
+        generalDebug.updateMenu();
+        this.entityManagerList.add(generalDebug);
+        // Debug button musicians
+        Hitbox[] debugMusiciansHitbox = new Hitbox[1];
+        HashMap<String, Runnable> musicianActions = new HashMap<>();
+        ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
+                R.drawable.debug_button_musicians, "Debug musicians", debugMusiciansHitbox,
+                musicianActions, new Point(0, generalDebug.getSpriteHeight()));
+        debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
+        musicianActions.put("Debug Singer", () -> { Singer.debugDrumsSwitch(); });
+        musicianActions.put("Debug Bass", () -> { Bass.debugBassSwitch(); });
+        musicianActions.put("Debug Guitar", () -> { Guitar.debugDrumsSwitch(); });
+        musicianActions.put("Debug Drums", () -> { Drums.debugDrumsSwitch(); });
+        musiciansDebug.updateMenu();
+        this.entityManagerList.add(musiciansDebug);
         // Inserción en el motor
         for (GameEntity entity : this.entityManagerList) {
             gameEngine.addGameEntity(entity);

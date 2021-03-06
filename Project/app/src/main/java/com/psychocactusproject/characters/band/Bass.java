@@ -22,6 +22,9 @@ public class Bass extends Musician {
     private static final int NIRVANA_DURATION = 3;
     private int nirvana;
 
+    // Debug
+    private static boolean debugMusician = false;
+
 
     public Bass(GameEngine gameEngine) {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
@@ -34,6 +37,8 @@ public class Bass extends Musician {
         return "Bass";
     }
 
+    // Hace falta reformar este método, e implementarlo al nivel de clickableAnimation, tal y como
+    // está ya hecho en clickable sprite. Más sencillo, genérico, y mantenible.
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
@@ -51,10 +56,20 @@ public class Bass extends Musician {
                 break;
             case PLAY_ACTION:
                 this.play();
+                break;
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    protected boolean debuggingMusician() {
+        return Bass.debugMusician;
+    }
+
+    public static void debugBassSwitch() {
+        Bass.debugMusician = !Bass.debugMusician;
     }
 
     @Override

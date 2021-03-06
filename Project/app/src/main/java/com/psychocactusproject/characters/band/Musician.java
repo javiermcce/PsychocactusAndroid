@@ -1,6 +1,7 @@
 package com.psychocactusproject.characters.band;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.psychocactusproject.graphics.controllers.ClickableAnimation;
@@ -36,12 +37,22 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
-        super(gameEngine, optionNames);
+        super(gameEngine, GameEngine.DEBUGGING ? debugArrayAppend(optionNames) : optionNames);
         this.gameEngine = gameEngine;
         this.basicPaint = new Paint();
+        this.basicPaint.setTextSize(30);
+        this.basicPaint.setFakeBoldText(true);
+        this.basicPaint.setColor(Color.WHITE);
     }
 
-    // Equivalente a Player según la guía
+    private static String[] debugArrayAppend(String[] regularArray) {
+        String[] debugArray = new String[regularArray.length + 1];
+        for (int i = 0; i < regularArray.length; i++) {
+            debugArray[i] = regularArray[i];
+        }
+        debugArray[debugArray.length - 1] = "Debug musician";
+        return debugArray;
+    }
 
     @Override
     public void initialize() {
@@ -76,22 +87,24 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
         // Devuelve un Paint que brilla si el personaje puede ser usado
         Paint usedPaint = this.isAvailable(0) ? SurfaceGameView.getColorFilter() : null;
         canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), usedPaint);
-        if (GameEngine.DEBUGGING) {
+        if (GameEngine.DEBUGGING && this.debuggingMusician()) {
             canvas.drawText("fatigue: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
-            canvas.drawText("fury: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
-            canvas.drawText("rage remaining: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
-            canvas.drawText("exhaust remaining: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+            canvas.drawText("fury: ", this.getPositionX(), this.getPositionY() + 30, this.basicPaint);
+            canvas.drawText("rage remaining: ", this.getPositionX(), this.getPositionY() + 60, this.basicPaint);
+            canvas.drawText("exhaust remaining: ", this.getPositionX(), this.getPositionY() + 90, this.basicPaint);
             // estados adicionales, solo activados si es seleccionado el botón de debug extendido
             if (GameEngine.verboseDebugging) {
-                canvas.drawText("arrested: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
-                canvas.drawText("dead: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
+                canvas.drawText("arrested: ", this.getPositionX(), this.getPositionY() + 120, this.basicPaint);
+                canvas.drawText("dead: ", this.getPositionX(), this.getPositionY() + 150, this.basicPaint);
             }
         }
     }
 
+    protected abstract boolean debuggingMusician();
+
     @Override
     public ContextMenu.MenuOption[] getMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[4];
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[this.getOptionNames().length];
         for (int i = 0; i < this.getOptionNames().length; i++) {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
         }
