@@ -6,9 +6,8 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
-import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.engine.GameEntity;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class DrawableGameView extends View implements GameView {

@@ -3,7 +3,7 @@ package com.psychocactusproject.graphics.views;
 import android.content.Context;
 
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
-import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.engine.GameEntity;
 
 import java.util.List;
 

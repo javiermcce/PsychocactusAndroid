@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.engine;
+package com.psychocactusproject.engine;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

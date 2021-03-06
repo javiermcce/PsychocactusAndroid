@@ -18,18 +18,18 @@ import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.engine.GameClock;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameClock;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.FALSE;
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
+import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.FALSE;
+import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
+import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 

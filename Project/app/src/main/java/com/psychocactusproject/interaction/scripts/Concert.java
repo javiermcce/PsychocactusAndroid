@@ -1,7 +1,7 @@
 package com.psychocactusproject.interaction.scripts;
 
 import com.psychocactusproject.characters.band.Musician;
-import com.psychocactusproject.manager.engine.GameLogic;
+import com.psychocactusproject.engine.GameLogic;
 
 import java.util.LinkedList;
 

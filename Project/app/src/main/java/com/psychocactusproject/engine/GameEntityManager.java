@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.engine;
+package com.psychocactusproject.engine;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.characters.audience.ShotgunMan;

@@ -3,7 +3,7 @@ package com.psychocactusproject.characters.barry;
 import android.graphics.Canvas;
 
 import com.psychocactusproject.graphics.controllers.AnimatedEntity;
-import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine;
 
 public class Barry extends AnimatedEntity {
 

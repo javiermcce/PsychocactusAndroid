@@ -5,8 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.engine.GameEngine;
 
 public class MenuFlyweight {
 

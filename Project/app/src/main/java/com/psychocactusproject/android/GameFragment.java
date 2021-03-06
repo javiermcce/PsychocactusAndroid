@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.android;
+package com.psychocactusproject.android;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -12,7 +12,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.input.TouchInputController;
 

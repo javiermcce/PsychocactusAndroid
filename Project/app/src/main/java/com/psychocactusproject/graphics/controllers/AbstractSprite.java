@@ -4,9 +4,9 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.Point;
 
 public abstract class AbstractSprite extends GameEntity implements Dimensions {
 

@@ -1,6 +1,6 @@
 package com.psychocactusproject.graphics.controllers;
 
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.Point;
 
 public interface Dimensions {
 

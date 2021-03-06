@@ -1,10 +1,10 @@
 package com.psychocactusproject.characters.band;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameLogic;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 
 import java.util.HashMap;
 import java.util.LinkedList;

@@ -1,9 +1,7 @@
 package com.psychocactusproject.sound;
 
-import android.graphics.Canvas;
-
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
 
 public class SoundManager extends GameEntity {
 

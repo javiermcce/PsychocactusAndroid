@@ -1,11 +1,7 @@
 package com.psychocactusproject.characters.police;
 
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.AnimatedEntity;
-import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine;
 
 public abstract class Police extends AnimatedEntity {
 

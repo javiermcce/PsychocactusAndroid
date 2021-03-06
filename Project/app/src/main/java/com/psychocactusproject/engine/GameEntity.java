@@ -1,6 +1,4 @@
-package com.psychocactusproject.manager.engine;
-
-import android.graphics.Canvas;
+package com.psychocactusproject.engine;
 
 public abstract class GameEntity {
 

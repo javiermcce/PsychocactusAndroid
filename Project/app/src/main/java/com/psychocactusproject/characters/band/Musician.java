@@ -7,9 +7,9 @@ import com.psychocactusproject.graphics.controllers.ClickableAnimation;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
-import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.input.InputController;
-import com.psychocactusproject.manager.engine.GameLogic;
+import com.psychocactusproject.engine.GameLogic;
 
 public abstract class Musician extends ClickableAnimation implements TurnChecker {
 

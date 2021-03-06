@@ -1,9 +1,9 @@
 package com.psychocactusproject.interaction.scripts;
 
 import com.psychocactusproject.characters.band.Musician;
-import com.psychocactusproject.manager.engine.GameEntityManager;
-import com.psychocactusproject.manager.engine.GameEntityManager.MusicianTypes;
-import com.psychocactusproject.manager.engine.GameLogic;
+import com.psychocactusproject.engine.GameEntityManager;
+import com.psychocactusproject.engine.GameEntityManager.MusicianTypes;
+import com.psychocactusproject.engine.GameLogic;
 
 public class StateManager implements TurnChecker {
 

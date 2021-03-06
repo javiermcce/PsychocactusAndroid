@@ -4,9 +4,9 @@ import android.graphics.Canvas;
 
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.manager.android.GameFragment;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.android.GameFragment;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.Hitbox;
 
 import java.util.HashMap;
 

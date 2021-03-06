@@ -13,10 +13,10 @@ import androidx.core.content.res.ResourcesCompat;
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.android.GameFragment;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.android.GameFragment;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 
 public class ContextMenu extends InanimateSprite implements Clickable {
 

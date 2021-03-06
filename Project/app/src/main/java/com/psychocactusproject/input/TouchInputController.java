@@ -8,12 +8,12 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.android.GameFragment;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.android.GameFragment;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine.BlackStripesTypes;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 
 import java.util.List;
 
