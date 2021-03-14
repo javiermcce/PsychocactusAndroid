@@ -21,6 +21,8 @@ public abstract class AbstractSprite extends GameEntity implements Dimensions {
 
     public abstract void draw(Canvas canvas);
 
+    public abstract void debugDraw(Canvas canvas);
+
     @Override
     public int getPositionX() {
         return positionX;

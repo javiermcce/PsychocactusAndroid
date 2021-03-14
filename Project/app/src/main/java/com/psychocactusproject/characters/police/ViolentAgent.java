@@ -21,7 +21,7 @@ public class ViolentAgent extends Police {
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
+    public void update(GameEngine gameEngine) {
 
     }
 

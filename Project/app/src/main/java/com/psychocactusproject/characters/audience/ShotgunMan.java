@@ -22,12 +22,17 @@ public class ShotgunMan extends AnimatedEntity {
     }
 
     @Override
+    public void debugDraw(Canvas canvas) {
+
+    }
+
+    @Override
     public void initialize() {
 
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
+    public void update(GameEngine gameEngine) {
 
     }
 

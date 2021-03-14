@@ -11,6 +11,7 @@ import android.text.TextPaint;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.engine.GameLogic;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.android.GameFragment;
@@ -253,6 +254,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
             GameFragment.setDebugText(this.getRoleName() + ": " + this.lastMenuOptions[index].optionName);
         }
         this.father.onOptionSelected(this.lastMenuOptions[index].optionName);
+        GameLogic.getInstance().getStateManager().updateEntities();
     }
 
     public static class MenuOption {

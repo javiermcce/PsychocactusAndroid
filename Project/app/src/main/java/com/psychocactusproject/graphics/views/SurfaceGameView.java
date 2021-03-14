@@ -166,7 +166,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
             }
         }
         // Prioridad 1: Interfaz de usuario
-
+        synchronized (GameEntity.entitiesLock) {
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                this.gameSprites.get(i).debugDraw(this.frameCanvas);
+            }
+        }
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);

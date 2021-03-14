@@ -37,7 +37,7 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     
 
     protected Musician(GameEngine gameEngine, String[] optionNames) {
-        super(gameEngine, GameEngine.DEBUGGING ? debugArrayAppend(optionNames) : optionNames);
+        super(gameEngine, optionNames);
         this.gameEngine = gameEngine;
         this.basicPaint = new Paint();
         this.basicPaint.setTextSize(30);
@@ -56,28 +56,22 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
 
     @Override
     public void initialize() {
-        fatigue = 0;
-        fury = 0;
-        rage = 0;
-        exhaust = 0;
-        arrested = false;
-        dead = false;
-        turnsRemainingRescueing = 0;
-        hitByStick = 0;
+        this.fatigue = 0;
+        this.fury = 0;
+        this.rage = 0;
+        this.exhaust = 0;
+        this.arrested = false;
+        this.dead = false;
+        this.turnsRemainingRescueing = 0;
+        this.hitByStick = 0;
     }
 
     public void InitializeStates() {
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
-        InputController inputController = gameEngine.getInputController();
-        // aquí debería tener un gestor de movimiento que funcione como un script en un
-        // hilo independiente, input controller tiene poco que ver en esto, pero lo voy a
-        // mantener hasta implementar mi propio código
-        // this.setPositionX();
-        // this.setPositionX(this.getPositionX() + 1);
-        // this.setPositionY(this.getPositionY() + 1);
+    public void update(GameEngine gameEngine) {
+
     }
 
     @Override
@@ -87,15 +81,19 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
         // Devuelve un Paint que brilla si el personaje puede ser usado
         Paint usedPaint = this.isAvailable(0) ? SurfaceGameView.getColorFilter() : null;
         canvas.drawBitmap(this.getSpriteImage(), this.getMatrix(), usedPaint);
+    }
+
+    @Override
+    public void debugDraw(Canvas canvas) {
         if (GameEngine.DEBUGGING && this.debuggingMusician()) {
-            canvas.drawText("fatigue: ", this.getPositionX(), this.getPositionY(), this.basicPaint);
-            canvas.drawText("fury: ", this.getPositionX(), this.getPositionY() + 30, this.basicPaint);
-            canvas.drawText("rage remaining: ", this.getPositionX(), this.getPositionY() + 60, this.basicPaint);
-            canvas.drawText("exhaust remaining: ", this.getPositionX(), this.getPositionY() + 90, this.basicPaint);
+            canvas.drawText("fatigue: " + this.getFatigueValue(), this.getPositionX(), this.getPositionY(), this.basicPaint);
+            canvas.drawText("fury: " + this.getFuryValue(), this.getPositionX(), this.getPositionY() + 30, this.basicPaint);
+            canvas.drawText("rage remaining: " + this.rageRemaining(), this.getPositionX(), this.getPositionY() + 60, this.basicPaint);
+            canvas.drawText("exhaust remaining: " + this.exhaustRemaining(), this.getPositionX(), this.getPositionY() + 90, this.basicPaint);
             // estados adicionales, solo activados si es seleccionado el botón de debug extendido
             if (GameEngine.verboseDebugging) {
-                canvas.drawText("arrested: ", this.getPositionX(), this.getPositionY() + 120, this.basicPaint);
-                canvas.drawText("dead: ", this.getPositionX(), this.getPositionY() + 150, this.basicPaint);
+                canvas.drawText("arrested: " + this.isArrested(), this.getPositionX(), this.getPositionY() + 120, this.basicPaint);
+                canvas.drawText("dead: " + this.isDead(), this.getPositionX(), this.getPositionY() + 150, this.basicPaint);
             }
         }
     }
@@ -142,89 +140,100 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     public abstract void solo();
 
     public void fatigueAction() {
-        fatigue -= 2;
-        fury += 2;
-        if (fatigue < 0) {
-            fatigue = 0;
+        this.fatigue -= 2;
+        this.fury += 2;
+        if (this.fatigue < 0) {
+            this.fatigue = 0;
         }
-        if (fury >= MAX_FURY) {
+        if (this.fury >= MAX_FURY) {
             induceRage();
         }
     }
 
     public void furyAction() {
-        fury -= 2;
+        this.fury -= 2;
         GameLogic.getInstance().getConcert().substractFun(2);
-        if (fury < 0) {
-            fury = 0;
+        if (this.fury < 0) {
+            this.fury = 0;
         }
     }
 
     public void funAction() {
-        fatigue += 2;
+        this.fatigue += 2;
         GameLogic logic = GameLogic.getInstance();
         for  (Musician each : logic.getGameEntityManager().getAllMusicians()) {
             if (each.isReady()) {
                 logic.getConcert().addFun(1);
             }
         }
-        if (fatigue >= MAX_FATIGUE) {
-            induceExhaust();
+        if (this.fatigue >= MAX_FATIGUE) {
+            this.induceExhaust();
         }
     }
 
     public void induceExhaust() {
-        fatigue = 0;
-        exhaust = EXHAUST_DURATION;
+        this.fatigue = 0;
+        this.exhaust = EXHAUST_DURATION;
     }
 
     public void induceRage() {
-        fury = 0;
-        rage = RAGE_DURATION;
+        this.fury = 0;
+        this.rage = RAGE_DURATION;
     }
 
     public void punch() {
-        fury += 2;
-        if(fury >= MAX_FURY) {
-            induceRage();
+        this.fury += 2;
+        if(this.fury >= MAX_FURY) {
+            this.induceRage();
         }
     }
 
     public boolean isExhausted() {
-        return exhaust > 0;
+        return this.exhaust > 0;
+    }
+
+    public int exhaustRemaining() {
+        return this.exhaust;
     }
 
     public boolean isEnraged() {
-        return rage > 0;
+        return this.rage > 0;
+    }
+
+    public int rageRemaining() {
+        return this.rage;
     }
 
     public boolean isRescueing() {
-        return turnsRemainingRescueing == 0;
+        return this.turnsRemainingRescueing == 0;
     }
 
     public boolean isStunnedByStick() {
-        return hitByStick == 0;
+        return this.hitByStick == 0;
     }
 
     public boolean isDead() {
-        return dead;
+        return this.dead;
     }
 
     public boolean isArrested() {
-        return arrested;
+        return this.arrested;
     }
 
     public int getFuryValue() {
-        return fury;
+        return this.fury;
     }
 
     public int getFatigueValue() {
-        return fatigue;
+        return this.fatigue;
     }
 
     public void arrest() {
-        arrested = true;
+        this.arrested = true;
     }
 
-    public abstract void checkAndUpdate();
+    @Override
+    public void checkAndUpdate() {
+
+    }
 }

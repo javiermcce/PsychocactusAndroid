@@ -34,12 +34,17 @@ public class Barry extends AnimatedEntity {
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
+    public void update(GameEngine gameEngine) {
 
     }
 
     @Override
     public void draw(Canvas canvas) {
+
+    }
+
+    @Override
+    public void debugDraw(Canvas canvas) {
 
     }
 

@@ -1,5 +1,6 @@
 package com.psychocactusproject.input;
 
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
@@ -17,7 +18,7 @@ import com.psychocactusproject.engine.Point;
 
 import java.util.List;
 
-public class TouchInputController extends InputController {
+public class TouchInputController extends InputController implements View.OnKeyListener {
 
     private int xCoordinate;
     private int yCoordinate;
@@ -36,6 +37,7 @@ public class TouchInputController extends InputController {
 
     public TouchInputController(GameEngine gameEngine, View view) {
         view.findViewById(R.id.gameView).setOnTouchListener(this);
+        view.findViewById(R.id.gameView).setOnKeyListener(this);
         this.textView = view.findViewById(R.id.txt_debug);
         this.xCoordinate = 0;
         this.yCoordinate = 0;
@@ -104,6 +106,32 @@ public class TouchInputController extends InputController {
         }
         return false;
     }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        return false;
+    }
+/*
+    @Override
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_D:
+                moveShip(MOVE_LEFT);
+                return true;
+            case KeyEvent.KEYCODE_F:
+                moveShip(MOVE_RIGHT);
+                return true;
+            case KeyEvent.KEYCODE_J:
+                fireMachineGun();
+                return true;
+            case KeyEvent.KEYCODE_K:
+                fireMissile();
+                return true;
+            default:
+                return super.onKeyUp(keyCode, event);
+        }
+    }
+*/
 
     @Override
     public void update() {

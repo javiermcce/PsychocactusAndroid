@@ -2,13 +2,15 @@ package com.psychocactusproject.android;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.psychocactusproject.R;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity /*implements View.OnKeyListener*/ {
 
     private static final String TAG_FRAGMENT = "content";
 
@@ -65,5 +67,18 @@ public class GameActivity extends AppCompatActivity {
                 throw new IllegalStateException("Android Lollipop required to run this game");
             }
         }
+    }
+/*
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        return false;
+    }
+*/
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (event.isShiftPressed()) {
+            System.out.println();
+        }
+        return false;
     }
 }

@@ -2,11 +2,14 @@ package com.psychocactusproject.engine;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.Debug;
 
+import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
+import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +35,8 @@ public class GameEngine {
     private int aspectRatioMargin;
     private BlackStripesTypes hasBlackStripes;
     public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
-    public GameLogic gameLogic;
+    private GameLogic gameLogic;
+    private DebugHelper debugHelper;
     //
     public final static boolean DEBUGGING = true;
     public static boolean verboseDebugging = false;
@@ -49,6 +53,8 @@ public class GameEngine {
         this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
         this.gameLogic = GameLogic.initialize();
+        this.debugHelper = new DebugHelper();
+        //() this.activity.setDebugHelper();
         // Se calculan los tamaños de la pantalla
         this.adjustScreenAspectRatio();
     }
@@ -167,10 +173,7 @@ public class GameEngine {
         if (this.isRunning()) {
             this.entitiesToAdd.add(gameEntity);
         } else {
-            this.gameEntities.add(gameEntity);
-            if (gameEntity instanceof AbstractSprite) {
-                this.gameSprites.add((AbstractSprite) gameEntity);
-            }
+            this.doAddGameEntity(gameEntity);
         }
     }
 
@@ -178,32 +181,45 @@ public class GameEngine {
         if (this.isRunning()) {
             this.entitiesToRemove.add(gameEntity);
         } else {
-            this.gameEntities.remove(gameEntity);
-            if (gameEntity instanceof AbstractSprite) {
-                this.gameSprites.remove(gameEntity);
-            }
+            this.doRemoveGameEntity(gameEntity);
+        }
+    }
+
+    // Método auténtico por el cual finalmente se añade
+    private void doAddGameEntity(GameEntity gameEntity) {
+        this.gameEntities.add(gameEntity);
+        if (gameEntity instanceof AbstractSprite) {
+            this.gameSprites.add((AbstractSprite) gameEntity);
+        }
+        if (gameEntity instanceof TurnChecker) {
+            this.gameLogic.getStateManager().addUpdatableEntity((TurnChecker) gameEntity);
+        }
+    }
+
+    // Método auténtico por el cual finalmente se borra
+    private void doRemoveGameEntity(GameEntity gameEntity) {
+        this.gameEntities.remove(gameEntity);
+        if (gameEntity instanceof AbstractSprite) {
+            this.gameSprites.remove(gameEntity);
+        }
+        if (gameEntity instanceof TurnChecker) {
+            this.gameLogic.getStateManager().removeUpdatableEntity((TurnChecker) gameEntity);
         }
     }
 
     public void updateGame(long ellapsedTime) {
         this.inputController.update();
         for (int i = 0; i < this.gameEntities.size(); i++) {
-            this.gameEntities.get(i).update(ellapsedTime, this);
+            this.gameEntities.get(i).update(this);
         }
         synchronized (GameEntity.entitiesLock) { // recordar que hay que arreglar lo del lock
             while (!entitiesToRemove.isEmpty()) {
                 GameEntity entityToRemove = entitiesToRemove.remove(0);
-                gameEntities.remove(entityToRemove);
-                if (entityToRemove instanceof AbstractSprite) {
-                    this.gameSprites.remove(entityToRemove);
-                }
+                this.doRemoveGameEntity(entityToRemove);
             }
             while (!entitiesToAdd.isEmpty()) {
-                GameEntity entity = entitiesToAdd.remove(0);
-                gameEntities.add(entity);
-                if (entity instanceof AbstractSprite) {
-                    this.gameSprites.add((AbstractSprite) entity);
-                }
+                GameEntity entityToAdd = entitiesToAdd.remove(0);
+                this.doAddGameEntity(entityToAdd);
             }
         }
     }

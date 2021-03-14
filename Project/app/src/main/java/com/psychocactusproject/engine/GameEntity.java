@@ -6,7 +6,7 @@ public abstract class GameEntity {
 
     public abstract void initialize();
 
-    public abstract void update(long elapsedMillis, GameEngine gameEngine);
+    public abstract void update(GameEngine gameEngine);
 
     public abstract String getRoleName();
 

@@ -5,7 +5,10 @@ import com.psychocactusproject.engine.GameEntityManager;
 import com.psychocactusproject.engine.GameEntityManager.MusicianTypes;
 import com.psychocactusproject.engine.GameLogic;
 
-public class StateManager implements TurnChecker {
+import java.util.LinkedList;
+import java.util.List;
+
+public class StateManager {
 
     // 
     private final static int MAX_CHARGE_LOAD = 4;
@@ -27,7 +30,10 @@ public class StateManager implements TurnChecker {
     private int cableEndurance;
     private int fissureDamage;
 
+    private List<TurnChecker> updatableEntities;
+
     public StateManager() {
+        this.updatableEntities = new LinkedList<>();
         this.ampsEndurance = new int[MusicianTypes.values().length];
         for (int i = 0; i < this.ampsEndurance.length; i++) {
             this.ampsEndurance[i] = MAX_AMP_ENDURANCE;
@@ -35,6 +41,20 @@ public class StateManager implements TurnChecker {
         this.fightsInPlace = new int[MAX_FIGHTS];
         for (int i = 0; i < MAX_FIGHTS; i++) {
             this.fightsInPlace[i] = -1;
+        }
+    }
+
+    public void addUpdatableEntity(TurnChecker entity) {
+        boolean success = this.updatableEntities.add(entity);
+        if (!success) {
+            throw new IllegalStateException("No ha habido éxito al intentar insertar una entidad en StateManager.");
+        }
+    }
+
+    public void removeUpdatableEntity(TurnChecker entity) {
+        boolean success = this.updatableEntities.remove(entity);
+        if (!success) {
+            throw new IllegalStateException("No ha habido éxito al intentar borrar una entidad de StateManager.");
         }
     }
 
@@ -109,8 +129,10 @@ public class StateManager implements TurnChecker {
         }
     }
 
-    public void checkAndUpdate() {
-
+    public void updateEntities() {
+        for (TurnChecker each : this.updatableEntities) {
+            each.checkAndUpdate();
+        }
     }
 
     // Bass

@@ -37,7 +37,7 @@ public class InanimateSprite extends AbstractSprite {
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
+    public void update(GameEngine gameEngine) {
 
     }
 
@@ -46,6 +46,11 @@ public class InanimateSprite extends AbstractSprite {
         this.getMatrix().reset();
         this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
         canvas.drawBitmap(this.bitmap, this.getMatrix(), null);
+    }
+
+    @Override
+    public void debugDraw(Canvas canvas) {
+
     }
 
     @Override
