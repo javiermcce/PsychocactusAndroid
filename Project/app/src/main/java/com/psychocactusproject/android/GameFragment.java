@@ -58,7 +58,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                     ((TextView) getView().findViewById(R.id.txt_debug)).setText("");
                 }
                 // El motor es creado con la actividad y la vista
-                gameEngine = new GameEngine(getActivity(), gameView);
+                gameEngine = new GameEngine((GameActivity) getActivity(), gameView);
                 // El gestor de controles es vinculado al motor
                 gameEngine.setInputController(new TouchInputController(gameEngine, getView()));
                 // Arranca el juego

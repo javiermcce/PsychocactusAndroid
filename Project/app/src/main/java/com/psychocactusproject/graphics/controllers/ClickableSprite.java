@@ -27,11 +27,7 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions, Point position) {
-        super(gameEngine, drawableResource, roleName);
-        this.actions = actions;
-        this.spriteMenu = new ContextMenu(gameEngine, this);
-        this.hitboxes = hitboxes;
-        this.available = true;
+        this(gameEngine, drawableResource, roleName, hitboxes, actions);
         this.setPosition(position);
     }
 

@@ -34,7 +34,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
     private Point lastPosition;
 
     // Para implementar que las opciones estén disponibles o no, basta generar un bitmap en que
-    // el texto se imprima con un color grisaceo
+    // el texto se imprima con un color grisáceo
     // En cuanto a las hitboxes, sobrescribir su método para devolver un nuevo array solo con las
     // disponibles
 

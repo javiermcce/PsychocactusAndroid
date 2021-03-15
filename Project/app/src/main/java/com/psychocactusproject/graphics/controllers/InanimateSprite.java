@@ -14,7 +14,7 @@ public class InanimateSprite extends AbstractSprite {
     private final String roleName;
 
     public InanimateSprite(GameEngine gameEngine, int drawableResource, String roleName) {
-        super(gameEngine);
+        this(gameEngine, roleName);
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         this.bitmap = BitmapFactory.decodeResource(
@@ -23,7 +23,6 @@ public class InanimateSprite extends AbstractSprite {
                 options);
         this.imageWidth = bitmap.getWidth();
         this.imageHeight = bitmap.getHeight();
-        this.roleName = roleName;
     }
 
     public InanimateSprite(GameEngine gameEngine, String roleName) {

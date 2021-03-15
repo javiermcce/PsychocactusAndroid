@@ -11,7 +11,7 @@ import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.android.GameFragment;
 import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEngine.BlackStripesTypes;
+import com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
@@ -29,7 +29,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
     private int deviceWidth;
     private int deviceHeight;
     private int aspectRatioMargin;
-    private BlackStripesTypes hasBlackStripes;
+    private BLACK_STRIPE_TYPES hasBlackStripes;
     private List<GameEntity> gameEntities;
     private TextView textView;
     // DEBUG
@@ -37,7 +37,6 @@ public class TouchInputController extends InputController implements View.OnKeyL
 
     public TouchInputController(GameEngine gameEngine, View view) {
         view.findViewById(R.id.gameView).setOnTouchListener(this);
-        view.findViewById(R.id.gameView).setOnKeyListener(this);
         this.textView = view.findViewById(R.id.txt_debug);
         this.xCoordinate = 0;
         this.yCoordinate = 0;

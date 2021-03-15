@@ -2,9 +2,9 @@ package com.psychocactusproject.engine;
 
 import android.app.Activity;
 import android.content.Context;
-import android.os.Debug;
 
 import com.psychocactusproject.android.DebugHelper;
+import com.psychocactusproject.android.GameActivity;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
@@ -12,6 +12,8 @@ import com.psychocactusproject.input.InputController;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 public class GameEngine {
@@ -21,40 +23,46 @@ public class GameEngine {
     private UpdateThread updateThread;
     private DrawThread drawThread;
     private final List<GameEntity> gameEntities;
-    private List<GameEntity> entitiesToAdd;
-    private List<GameEntity> entitiesToRemove;
-    private List<AbstractSprite> gameSprites;
+    private final List<EntityToAdd> entitiesToAdd;
+    private final List<GameEntity> entitiesToRemove;
+    private final List<AbstractSprite> gameSprites;
+    private final HashMap<CHARACTER_LAYERS, List<GameEntity>> entitiesByLayer;
     private InputController inputController;
-    private Activity activity;
-    private GameView gameView;
-    private int deviceWidth;
-    private int deviceHeight;
+    private final GameActivity activity;
+    private final GameView gameView;
+    private final int deviceWidth;
+    private final int deviceHeight;
     private GameClock engineClock;
     private int adaptedWidth;
     private int adaptedHeight;
     private int aspectRatioMargin;
-    private BlackStripesTypes hasBlackStripes;
-    public enum BlackStripesTypes {FALSE, TOP_BOTTOM, LEFT_RIGHT};
-    private GameLogic gameLogic;
-    private DebugHelper debugHelper;
+    private BLACK_STRIPE_TYPES hasBlackStripes;
+    public enum BLACK_STRIPE_TYPES {FALSE, TOP_BOTTOM, LEFT_RIGHT};
+    public enum CHARACTER_LAYERS {BACKGROUND, UNSPECIFIED, FRONT};
+    private final GameLogic gameLogic;
+    private final DebugHelper debugHelper;
     //
     public final static boolean DEBUGGING = true;
     public static boolean verboseDebugging = false;
 
-    public GameEngine(Activity activity, GameView gameView) {
+    public GameEngine(GameActivity activity, GameView gameView) {
         this.activity = activity;
         this.gameView = gameView;
         this.gameEntities = new ArrayList<>();
         this.entitiesToAdd = new ArrayList<>();
         this.entitiesToRemove = new ArrayList<>();
+        this.entitiesByLayer = new HashMap<>();
+        for (CHARACTER_LAYERS key : CHARACTER_LAYERS.values()) {
+            this.entitiesByLayer.put(key, new LinkedList<>());
+        }
         this.gameSprites = new ArrayList<>();
         this.gameView.setGameEntities(this.gameEntities, this.gameSprites);
         this.deviceWidth = gameView.getWidth();
         this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
         this.gameLogic = GameLogic.initialize();
-        this.debugHelper = new DebugHelper();
-        //() this.activity.setDebugHelper();
+        this.debugHelper = new DebugHelper(this);
+        this.activity.setDebugHelper(debugHelper);
         // Se calculan los tamaños de la pantalla
         this.adjustScreenAspectRatio();
     }
@@ -66,20 +74,20 @@ public class GameEngine {
                 this.adaptedWidth = this.deviceWidth;
                 this.adaptedHeight = this.deviceWidth * 9 / 16;
                 this.aspectRatioMargin = (this.deviceHeight - this.adaptedHeight) / 2;
-                this.hasBlackStripes = BlackStripesTypes.TOP_BOTTOM;
+                this.hasBlackStripes = BLACK_STRIPE_TYPES.TOP_BOTTOM;
             } else {
                 // Si la relación es mayor, tenemos bandas negras a derecha e izquierda
                 this.adaptedHeight = this.deviceHeight;
                 this.adaptedWidth = this.deviceHeight * 16 / 9;
                 this.aspectRatioMargin = (this.deviceWidth - this.adaptedWidth) / 2;
-                this.hasBlackStripes = BlackStripesTypes.LEFT_RIGHT;
+                this.hasBlackStripes = BLACK_STRIPE_TYPES.LEFT_RIGHT;
             }
         } else {
             // Si la relación de pantalla es de 16/9, las medidas utilizadas son las naturales
             this.adaptedWidth = this.deviceWidth;
             this.adaptedHeight = this.deviceHeight;
             this.aspectRatioMargin = 0;
-            this.hasBlackStripes = BlackStripesTypes.FALSE;
+            this.hasBlackStripes = BLACK_STRIPE_TYPES.FALSE;
         }
         // Después de calcular las medidas, se ajustan los parámetros de dibujado
         ((SurfaceGameView) (this.gameView)).setAspectRatio(this.deviceWidth, this.deviceHeight, this);
@@ -109,11 +117,28 @@ public class GameEngine {
         return this.gameEntities;
     }
 
+    public List<GameEntity> getEntitiesByLayer(CHARACTER_LAYERS layer) {
+        return this.entitiesByLayer.get(layer);
+    }
+
+    // Esto debe ser AbstractSprite
+    public List<List<GameEntity>> getEntityLayers() {
+        // Optimizar. La creación de objetos no está permitida en el bucle de dibujado.
+        List<List<GameEntity>> listaDeListas = new LinkedList<>();
+
+        for (int i = 0; i < this.entitiesByLayer.size(); i++) {
+            listaDeListas.add(this.entitiesByLayer.get(CHARACTER_LAYERS.values()[i]));
+        }
+
+        //return new LinkedList<>(this.entitiesByLayer.values());
+        return listaDeListas;
+    }
+
     public int getAspectRatioMargin() {
         return this.aspectRatioMargin;
     }
 
-    public BlackStripesTypes hasBlackStripes() {
+    public BLACK_STRIPE_TYPES hasBlackStripes() {
         return this.hasBlackStripes;
     }
 
@@ -134,6 +159,8 @@ public class GameEngine {
         this.drawThread.start();
         // Se inicia el gestor de controles
         this.inputController.start();
+        //
+        this.gameView.setGameEngine(this);
     }
 
     public void stopGame() {
@@ -171,9 +198,17 @@ public class GameEngine {
 
     public void addGameEntity(GameEntity gameEntity) {
         if (this.isRunning()) {
-            this.entitiesToAdd.add(gameEntity);
+            this.entitiesToAdd.add(new EntityToAdd(gameEntity));
         } else {
             this.doAddGameEntity(gameEntity);
+        }
+    }
+
+    public void addGameEntity(GameEntity gameEntity, CHARACTER_LAYERS layer) {
+        if (this.isRunning()) {
+            this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
+        } else {
+            this.doAddGameEntity(gameEntity, layer);
         }
     }
 
@@ -186,7 +221,7 @@ public class GameEngine {
     }
 
     // Método auténtico por el cual finalmente se añade
-    private void doAddGameEntity(GameEntity gameEntity) {
+    private void doAddGameEntity(GameEntity gameEntity, CHARACTER_LAYERS layer) {
         this.gameEntities.add(gameEntity);
         if (gameEntity instanceof AbstractSprite) {
             this.gameSprites.add((AbstractSprite) gameEntity);
@@ -194,6 +229,19 @@ public class GameEngine {
         if (gameEntity instanceof TurnChecker) {
             this.gameLogic.getStateManager().addUpdatableEntity((TurnChecker) gameEntity);
         }
+        CHARACTER_LAYERS selected = layer != null ? layer : CHARACTER_LAYERS.UNSPECIFIED;
+        // DA ERROR
+        List<GameEntity> layerList = this.entitiesByLayer.get(selected);
+        if (layerList == null) {
+            throw new IllegalStateException("La lista a la que se intenta acceder no ha sido inicializada. " +
+                    "Esta lista debe existir.");
+        }
+        layerList.add(gameEntity);
+
+    }
+
+    private void doAddGameEntity(GameEntity gameEntity) {
+        this.doAddGameEntity(gameEntity, null);
     }
 
     // Método auténtico por el cual finalmente se borra
@@ -204,6 +252,14 @@ public class GameEngine {
         }
         if (gameEntity instanceof TurnChecker) {
             this.gameLogic.getStateManager().removeUpdatableEntity((TurnChecker) gameEntity);
+        }
+        // Busca de entre las listas de layers y elimina si existe coincidencia
+        for (List<GameEntity> list : this.entitiesByLayer.values()) {
+            for (GameEntity listedEntity : list) {
+                if (gameEntity.equals(listedEntity)) {
+                    list.remove(listedEntity);
+                }
+            }
         }
     }
 
@@ -218,7 +274,7 @@ public class GameEngine {
                 this.doRemoveGameEntity(entityToRemove);
             }
             while (!entitiesToAdd.isEmpty()) {
-                GameEntity entityToAdd = entitiesToAdd.remove(0);
+                GameEntity entityToAdd = entitiesToAdd.remove(0).gameEntity;
                 this.doAddGameEntity(entityToAdd);
             }
         }
@@ -254,6 +310,22 @@ public class GameEngine {
 
     public void setInputController(InputController inputController) {
         this.inputController = inputController;
+    }
+
+    private static class EntityToAdd {
+
+        private final GameEntity gameEntity;
+        private final CHARACTER_LAYERS layer;
+
+        private EntityToAdd(GameEntity gameEntity, CHARACTER_LAYERS layer) {
+            this.gameEntity = gameEntity;
+            this.layer = layer;
+        }
+
+        private EntityToAdd(GameEntity gameEntity) {
+            this.gameEntity = gameEntity;
+            this.layer = CHARACTER_LAYERS.UNSPECIFIED;
+        }
     }
 
 }

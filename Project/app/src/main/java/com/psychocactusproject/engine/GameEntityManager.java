@@ -75,15 +75,15 @@ public class GameEntityManager {
         // Debug button musicians
         Hitbox[] debugMusiciansHitbox = new Hitbox[1];
         HashMap<String, Runnable> musicianActions = new HashMap<>();
-        ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
-                R.drawable.debug_button_musicians, "Debug musicians", debugMusiciansHitbox,
-                musicianActions, new Point(0, generalDebug.getSpriteHeight()));
-        debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
         musicianActions.put("Debug Singer", () -> { Singer.debugDrumsSwitch(); });
         musicianActions.put("Debug Bass", () -> { Bass.debugBassSwitch(); });
         musicianActions.put("Debug Guitar", () -> { Guitar.debugDrumsSwitch(); });
         musicianActions.put("Debug Drums", () -> { Drums.debugDrumsSwitch(); });
-        musiciansDebug.updateMenu();
+        ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
+                R.drawable.debug_button_musicians, "Debug musicians", debugMusiciansHitbox,
+                musicianActions, new Point(0, generalDebug.getSpriteHeight()));
+        debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
+        //musiciansDebug.updateMenu();
         this.entityManagerList.add(musiciansDebug);
         // Inserción en el motor
         for (GameEntity entity : this.entityManagerList) {

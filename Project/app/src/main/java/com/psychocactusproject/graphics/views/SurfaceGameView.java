@@ -27,9 +27,9 @@ import com.psychocactusproject.engine.Point;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.FALSE;
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
-import static com.psychocactusproject.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
+import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.FALSE;
+import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.LEFT_RIGHT;
+import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
@@ -38,6 +38,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     private List<GameEntity> gameEntities;
     private List<AbstractSprite> gameSprites;
+    private GameEngine gameEngine;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -128,6 +129,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
+    public void setGameEngine(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
+    }
+
+    @Override
     public void draw() {
         if (!this.ready) {
             return;
@@ -146,12 +152,22 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // Dibuja todos los elementos del juego por capas de prioridades
         // Prioridad 3: Personajes
         synchronized (GameEntity.entitiesLock) {
+            for (List<GameEntity> entityLayers : this.gameEngine.getEntityLayers()) {
+                for (GameEntity gameEntity : entityLayers) {
+                    if (gameEntity instanceof AbstractSprite) {
+                        AbstractSprite sprite = (AbstractSprite) gameEntity;
+                        sprite.draw(this.frameCanvas);
+                    }
+                }
+            }
+            /*
             for (int i = 0; i < this.gameSprites.size(); i++) {
+                // QUEDA PENDIENTE ORDENAR POR CAPAS
                 this.gameSprites.get(i).draw(this.frameCanvas);
                 if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
                     Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), frameCanvas);
                 }
-            }
+            }*/
         }
         // Prioridad 2: Menús
         synchronized (GameEntity.entitiesLock) {
@@ -169,6 +185,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         synchronized (GameEntity.entitiesLock) {
             for (int i = 0; i < this.gameSprites.size(); i++) {
                 this.gameSprites.get(i).debugDraw(this.frameCanvas);
+            }
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
+                    Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), frameCanvas);
+                }
             }
         }
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
