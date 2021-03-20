@@ -18,7 +18,14 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     private Hitbox[] hitboxes;
     private boolean available;
 
-    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
+    public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
+        super(gameEngine, roleName);
+        this.spriteMenu = new ContextMenu(gameEngine, this);
+        this.actions = actions;
+    }
+
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName,
+                           Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
         super(gameEngine, drawableResource, roleName);
         this.actions = actions;
         this.spriteMenu = new ContextMenu(gameEngine, this);
@@ -26,23 +33,31 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
         this.available = true;
     }
 
-    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions, Point position) {
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, int debugDrawableResource,
+                           String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
+        super(gameEngine, drawableResource, debugDrawableResource, roleName);
+        this.actions = actions;
+        this.spriteMenu = new ContextMenu(gameEngine, this);
+        this.hitboxes = hitboxes;
+        this.available = true;
+    }
+
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName,
+                           Hitbox[] hitboxes, HashMap<String, Runnable> actions, Point position) {
         this(gameEngine, drawableResource, roleName, hitboxes, actions);
         this.setPosition(position);
     }
 
-    public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
-        super(gameEngine, roleName);
-        this.spriteMenu = new ContextMenu(gameEngine, this);
-        this.actions = actions;
+    public ClickableSprite(GameEngine gameEngine, int drawableResource, int debugDrawableResource,
+                           String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions,
+                           Point position) {
+        this(gameEngine, drawableResource, debugDrawableResource, roleName, hitboxes, actions);
+        this.setPosition(position);
     }
 
     @Override
     public void executeClick(int index) {
         this.spriteMenu.openMenu();
-        if (GameEngine.DEBUGGING) {
-            GameFragment.setDebugText(this.getRoleName());
-        }
     }
 
     @Override

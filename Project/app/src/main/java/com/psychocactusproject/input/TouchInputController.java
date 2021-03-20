@@ -31,13 +31,11 @@ public class TouchInputController extends InputController implements View.OnKeyL
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
     private List<GameEntity> gameEntities;
-    private TextView textView;
     // DEBUG
     private boolean drawingPoints;
 
     public TouchInputController(GameEngine gameEngine, View view) {
         view.findViewById(R.id.gameView).setOnTouchListener(this);
-        this.textView = view.findViewById(R.id.txt_debug);
         this.xCoordinate = 0;
         this.yCoordinate = 0;
         this.pressing = false;
@@ -144,9 +142,6 @@ public class TouchInputController extends InputController implements View.OnKeyL
                 if (entity instanceof MenuDisplay) {
                     ((MenuDisplay) entity).closeMenu();
                 }
-            }
-            if (GameEngine.DEBUGGING) {
-                GameFragment.setDebugText("nada");
             }
             // Si ha habido colisión, ejecuta su acción asignada
             if (selected != null) {

@@ -67,7 +67,9 @@ public class GameEntityManager {
         // Debug button
         Hitbox[] debugGeneralHitbox = new Hitbox[1];
         HashMap<String, Runnable> actions = new HashMap<>();
-        ClickableSprite generalDebug = new ClickableSprite(gameEngine, R.drawable.debug_button, "Debug button", debugGeneralHitbox, actions);
+        ClickableSprite generalDebug = new ClickableSprite(gameEngine,
+                InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button, "Debug button",
+                debugGeneralHitbox, actions);
         debugGeneralHitbox[0] = new Hitbox(generalDebug, 0);
         actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
         generalDebug.updateMenu();
@@ -80,8 +82,9 @@ public class GameEntityManager {
         musicianActions.put("Debug Guitar", () -> { Guitar.debugDrumsSwitch(); });
         musicianActions.put("Debug Drums", () -> { Drums.debugDrumsSwitch(); });
         ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
-                R.drawable.debug_button_musicians, "Debug musicians", debugMusiciansHitbox,
-                musicianActions, new Point(0, generalDebug.getSpriteHeight()));
+                InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button_musicians, "Debug musicians",
+                debugMusiciansHitbox, musicianActions,
+                new Point(0, generalDebug.getSpriteHeight()));
         debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
         //musiciansDebug.updateMenu();
         this.entityManagerList.add(musiciansDebug);
@@ -92,7 +95,7 @@ public class GameEntityManager {
     }
 
     public Musician getRandomMusician() {
-        return getAllMusicians()[(int) Math.random() * this.musicians.length];
+        return getAllMusicians()[(int) (Math.random() * this.musicians.length)];
     }
 
     public Musician[] getAllMusicians() {

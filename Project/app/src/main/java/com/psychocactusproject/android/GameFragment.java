@@ -19,12 +19,6 @@ import com.psychocactusproject.input.TouchInputController;
 public class GameFragment extends GameBaseFragment implements View.OnClickListener {
 
     private GameEngine gameEngine;
-    private static TextView debugTextView;
-    private static Activity activity;
-
-    public static void setDebugText(String text){
-        activity.runOnUiThread(() -> { debugTextView.setText(text); });
-    }
 
     public GameFragment() {
     }
@@ -39,8 +33,6 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // El código a ejecutar por el botón de pausa es el ubicado en esta clase
-        view.findViewById(R.id.button_play_pause).setOnClickListener(this);
         // Arranca el motor de juego a través de un listener cuando la vista ya haya sido creada
         final ViewTreeObserver observer = view.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -50,13 +42,6 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 observer.removeOnGlobalLayoutListener(this);
                 // Interfaz GameView implementada por la clase que extiende SurfaceView
                 GameView gameView = (GameView) getView().findViewById(R.id.gameView);
-                if (GameEngine.DEBUGGING) {
-                    GameFragment.debugTextView = getView().findViewById(R.id.txt_debug);
-                    GameFragment.debugTextView.setVisibility(View.GONE);
-                    activity = getActivity();
-                } else {
-                    ((TextView) getView().findViewById(R.id.txt_debug)).setText("");
-                }
                 // El motor es creado con la actividad y la vista
                 gameEngine = new GameEngine((GameActivity) getActivity(), gameView);
                 // El gestor de controles es vinculado al motor
@@ -69,9 +54,10 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.button_play_pause) {
+        System.out.println("test");
+        /* if (v.getId() == R.id.button_play_pause) {
             pauseGameAndShowPauseDialog();
-        }
+        } */
     }
 
     @Override
@@ -129,6 +115,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     }
 
     private void playOrPause() {
+        /*
         Button button = (Button) getView().findViewById(R.id.button_play_pause);
         if (gameEngine.isPaused()) {
             gameEngine.resumeGame();
@@ -138,5 +125,6 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
             gameEngine.pauseGame();
             button.setText(R.string.resume);
         }
+        */
     }
 }

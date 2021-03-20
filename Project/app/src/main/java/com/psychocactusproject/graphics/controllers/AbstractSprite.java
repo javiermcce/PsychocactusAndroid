@@ -1,14 +1,13 @@
 package com.psychocactusproject.graphics.controllers;
 
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Matrix;
 
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Point;
 
-public abstract class AbstractSprite extends GameEntity implements Dimensions {
+public abstract class AbstractSprite extends GameEntity implements Dimensions, Drawable, DebugDrawable {
 
     private int positionX;
     private int positionY;
@@ -18,10 +17,6 @@ public abstract class AbstractSprite extends GameEntity implements Dimensions {
         this.positionX = 0;
         this.positionY = 0;
     }
-
-    public abstract void draw(Canvas canvas);
-
-    public abstract void debugDraw(Canvas canvas);
 
     @Override
     public int getPositionX() {

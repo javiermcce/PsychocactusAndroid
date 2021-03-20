@@ -5,7 +5,8 @@ import android.content.Context;
 
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.graphics.controllers.DebugDrawable;
+import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
@@ -25,8 +26,9 @@ public class GameEngine {
     private final List<GameEntity> gameEntities;
     private final List<EntityToAdd> entitiesToAdd;
     private final List<GameEntity> entitiesToRemove;
-    private final List<AbstractSprite> gameSprites;
-    private final HashMap<CHARACTER_LAYERS, List<GameEntity>> entitiesByLayer;
+    private final List<Drawable> gameDrawables;
+    private final List<DebugDrawable> debugDrawables;
+    private final HashMap<CHARACTER_LAYERS, List<Drawable>> drawablesByLayer;
     private InputController inputController;
     private final GameActivity activity;
     private final GameView gameView;
@@ -42,7 +44,7 @@ public class GameEngine {
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
     //
-    public final static boolean DEBUGGING = true;
+    public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
 
     public GameEngine(GameActivity activity, GameView gameView) {
@@ -51,12 +53,13 @@ public class GameEngine {
         this.gameEntities = new ArrayList<>();
         this.entitiesToAdd = new ArrayList<>();
         this.entitiesToRemove = new ArrayList<>();
-        this.entitiesByLayer = new HashMap<>();
+        this.drawablesByLayer = new HashMap<>();
         for (CHARACTER_LAYERS key : CHARACTER_LAYERS.values()) {
-            this.entitiesByLayer.put(key, new LinkedList<>());
+            this.drawablesByLayer.put(key, new LinkedList<>());
         }
-        this.gameSprites = new ArrayList<>();
-        this.gameView.setGameEntities(this.gameEntities, this.gameSprites);
+        this.gameDrawables = new ArrayList<>();
+        this.debugDrawables = new ArrayList<>();
+        this.gameView.setGameEntities(this.gameEntities, this.gameDrawables, this.debugDrawables);
         this.deviceWidth = gameView.getWidth();
         this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
@@ -117,17 +120,17 @@ public class GameEngine {
         return this.gameEntities;
     }
 
-    public List<GameEntity> getEntitiesByLayer(CHARACTER_LAYERS layer) {
-        return this.entitiesByLayer.get(layer);
+    public List<Drawable> getEntitiesByLayer(CHARACTER_LAYERS layer) {
+        return this.drawablesByLayer.get(layer);
     }
 
     // Esto debe ser AbstractSprite
-    public List<List<GameEntity>> getEntityLayers() {
+    public List<List<Drawable>> getDrawableLayers() {
         // Optimizar. La creación de objetos no está permitida en el bucle de dibujado.
-        List<List<GameEntity>> listaDeListas = new LinkedList<>();
+        List<List<Drawable>> listaDeListas = new LinkedList<>();
 
-        for (int i = 0; i < this.entitiesByLayer.size(); i++) {
-            listaDeListas.add(this.entitiesByLayer.get(CHARACTER_LAYERS.values()[i]));
+        for (int i = 0; i < this.drawablesByLayer.size(); i++) {
+            listaDeListas.add(this.drawablesByLayer.get(CHARACTER_LAYERS.values()[i]));
         }
 
         //return new LinkedList<>(this.entitiesByLayer.values());
@@ -223,21 +226,22 @@ public class GameEngine {
     // Método auténtico por el cual finalmente se añade
     private void doAddGameEntity(GameEntity gameEntity, CHARACTER_LAYERS layer) {
         this.gameEntities.add(gameEntity);
-        if (gameEntity instanceof AbstractSprite) {
-            this.gameSprites.add((AbstractSprite) gameEntity);
+        if (gameEntity instanceof Drawable) {
+            this.gameDrawables.add((Drawable) gameEntity);
+            CHARACTER_LAYERS selected = layer != null ? layer : CHARACTER_LAYERS.UNSPECIFIED;
+            List<Drawable> layerList = this.drawablesByLayer.get(selected);
+            if (layerList == null) {
+                throw new IllegalStateException("La lista a la que se intenta acceder no ha sido inicializada. " +
+                        "Esta lista debe existir.");
+            }
+            layerList.add((Drawable) gameEntity);
         }
         if (gameEntity instanceof TurnChecker) {
             this.gameLogic.getStateManager().addUpdatableEntity((TurnChecker) gameEntity);
         }
-        CHARACTER_LAYERS selected = layer != null ? layer : CHARACTER_LAYERS.UNSPECIFIED;
-        // DA ERROR
-        List<GameEntity> layerList = this.entitiesByLayer.get(selected);
-        if (layerList == null) {
-            throw new IllegalStateException("La lista a la que se intenta acceder no ha sido inicializada. " +
-                    "Esta lista debe existir.");
+        if (gameEntity instanceof DebugDrawable) {
+            this.debugDrawables.add((DebugDrawable) gameEntity);
         }
-        layerList.add(gameEntity);
-
     }
 
     private void doAddGameEntity(GameEntity gameEntity) {
@@ -247,20 +251,25 @@ public class GameEngine {
     // Método auténtico por el cual finalmente se borra
     private void doRemoveGameEntity(GameEntity gameEntity) {
         this.gameEntities.remove(gameEntity);
-        if (gameEntity instanceof AbstractSprite) {
-            this.gameSprites.remove(gameEntity);
+        if (gameEntity instanceof Drawable) {
+            Drawable gameDrawable = (Drawable) gameEntity;
+            this.gameDrawables.remove(gameDrawable);
+            // Busca de entre las listas de layers y elimina si existe coincidencia
+            for (List<Drawable> layer : this.drawablesByLayer.values()) {
+                for (Drawable listedEntity : layer) {
+                    if (gameDrawable.equals(listedEntity)) {
+                        layer.remove(listedEntity);
+                    }
+                }
+            }
         }
         if (gameEntity instanceof TurnChecker) {
             this.gameLogic.getStateManager().removeUpdatableEntity((TurnChecker) gameEntity);
         }
-        // Busca de entre las listas de layers y elimina si existe coincidencia
-        for (List<GameEntity> list : this.entitiesByLayer.values()) {
-            for (GameEntity listedEntity : list) {
-                if (gameEntity.equals(listedEntity)) {
-                    list.remove(listedEntity);
-                }
-            }
+        if (gameEntity instanceof DebugDrawable) {
+            this.debugDrawables.remove((DebugDrawable) gameEntity);
         }
+
     }
 
     public void updateGame(long ellapsedTime) {

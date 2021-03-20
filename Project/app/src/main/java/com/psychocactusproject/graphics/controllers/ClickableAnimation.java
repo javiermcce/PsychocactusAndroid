@@ -39,9 +39,6 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     @Override
     public void executeClick(int index) {
         this.openMenu();
-        if (GameEngine.DEBUGGING) {
-            GameFragment.setDebugText(this.getRoleName());
-        }
     }
 
     @Override

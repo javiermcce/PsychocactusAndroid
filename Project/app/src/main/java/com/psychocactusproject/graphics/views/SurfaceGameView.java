@@ -9,12 +9,14 @@ import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Debug;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
+import com.psychocactusproject.graphics.controllers.DebugDrawable;
+import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
@@ -37,7 +39,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // implementar una interfaz común hecha expresamente a propósito
 
     private List<GameEntity> gameEntities;
-    private List<AbstractSprite> gameSprites;
+    private List<Drawable> gameSprites;
+    private List<DebugDrawable> debugSprites;
     private GameEngine gameEngine;
     private boolean ready;
     private final Canvas frameCanvas;
@@ -123,9 +126,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<GameEntity> gameEntities, List<AbstractSprite> gameSprites) {
+    public void setGameEntities(List<GameEntity> gameEntities, List<Drawable> gameSprites, List<DebugDrawable> debugSprites) {
         this.gameEntities = gameEntities;
         this.gameSprites = gameSprites;
+        this.debugSprites = debugSprites;
     }
 
     @Override
@@ -152,12 +156,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // Dibuja todos los elementos del juego por capas de prioridades
         // Prioridad 3: Personajes
         synchronized (GameEntity.entitiesLock) {
-            for (List<GameEntity> entityLayers : this.gameEngine.getEntityLayers()) {
-                for (GameEntity gameEntity : entityLayers) {
-                    if (gameEntity instanceof AbstractSprite) {
-                        AbstractSprite sprite = (AbstractSprite) gameEntity;
-                        sprite.draw(this.frameCanvas);
-                    }
+            for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
+                for (Drawable drawableEntity : drawableLayers) {
+                        drawableEntity.draw(this.frameCanvas);
+
                 }
             }
             /*
@@ -183,8 +185,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         }
         // Prioridad 1: Interfaz de usuario
         synchronized (GameEntity.entitiesLock) {
-            for (int i = 0; i < this.gameSprites.size(); i++) {
-                this.gameSprites.get(i).debugDraw(this.frameCanvas);
+            if (GameEngine.DEBUGGING) {
+                for (int i = 0; i < this.debugSprites.size(); i++) {
+                    this.debugSprites.get(i).debugDraw(this.frameCanvas);
+                }
             }
             for (int i = 0; i < this.gameSprites.size(); i++) {
                 if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {

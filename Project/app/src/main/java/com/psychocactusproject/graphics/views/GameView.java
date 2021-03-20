@@ -3,8 +3,9 @@ package com.psychocactusproject.graphics.views;
 import android.content.Context;
 
 import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.graphics.controllers.DebugDrawable;
+import com.psychocactusproject.graphics.controllers.Drawable;
 
 import java.util.List;
 
@@ -12,7 +13,8 @@ public interface GameView {
 
     public void draw();
 
-    public void setGameEntities(List<GameEntity> gameEntities, List<AbstractSprite> gameSprites);
+    public void setGameEntities(List<GameEntity> gameEntities, List<Drawable> gameSprites,
+                                List<DebugDrawable> debugSprites);
 
     public void setGameEngine(GameEngine gameEngine);
 

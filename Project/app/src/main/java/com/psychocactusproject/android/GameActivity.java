@@ -2,8 +2,6 @@ package com.psychocactusproject.android;
 
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Debug;
-import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 
@@ -78,26 +76,28 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         char charToDisplay = event.getKeyCharacterMap().getDisplayLabel(keyCode);
-        if (charToDisplay >= 'A' && charToDisplay <= 'Z') {
-            // int asciiValue = keyCode + 12;
-            // Si el usuario no pulsa una combinación para letras mayúsculas, reduce a minúsculas
-            if (event.isShiftPressed() || event.isShiftPressed() && event.isCapsLockOn()) {
-                DebugHelper.printMessage("" + charToDisplay);
-                this.debugHelper.sendToTerminal(charToDisplay);
+        // Si se pulsa una tecla especial
+        if (event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+            this.debugHelper.deleteLastCharacter();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_SPACE) {
+            this.debugHelper.addCharacterToTerminal(' ');
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            this.debugHelper.executeCommand();
+        // En caso contrario, comprobamos si conocemos el carácter
+        } else if (charToDisplay != '\u0000') {
+            // Si se trata de un carácter alfabético
+            if (charToDisplay >= 'A' && charToDisplay <= 'Z') {
+                // Si el usuario no pulsa una combinación para letras mayúsculas, reduce a minúsculas
+                if (event.isShiftPressed() || event.isShiftPressed() && event.isCapsLockOn()) {
+                    this.debugHelper.addCharacterToTerminal(charToDisplay);
+                } else {
+                    this.debugHelper.addCharacterToTerminal(Character.toLowerCase(charToDisplay));
+                }
+            // Si se trata de cualquier otro carácter sí reconocido
             } else {
-                // asciiValue += 20;
-                DebugHelper.printMessage("" + Character.toLowerCase(charToDisplay));
-                this.debugHelper.sendToTerminal(Character.toLowerCase(charToDisplay));
+                this.debugHelper.addCharacterToTerminal(charToDisplay);
             }
-            /*
-            DebugHelper.printMessage("letra: " + event.getKeyCharacterMap().getDisplayLabel(keyCode)
-                    + " , valor num: " + keyCode
-                    + " , ascii value: " + asciiValue
-                    + " , minúscula: " + Character.toLowerCase(charToDisplay));
-
-             */
         }
         return false;
-        // si entra la secuencia de caracteres "debug" entra en modo debug???? podría ser
     }
 }
