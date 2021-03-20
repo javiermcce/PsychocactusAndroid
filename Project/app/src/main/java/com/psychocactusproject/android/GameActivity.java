@@ -83,6 +83,12 @@ public class GameActivity extends AppCompatActivity {
             this.debugHelper.addCharacterToTerminal(' ');
         } else if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
             this.debugHelper.executeCommand();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP
+                || event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            this.debugHelper.showPreviousCommand();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN
+                || event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT) {
+            this.debugHelper.showNextCommand();
         // En caso contrario, comprobamos si conocemos el carácter
         } else if (charToDisplay != '\u0000') {
             // Si se trata de un carácter alfabético
