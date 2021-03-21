@@ -5,5 +5,5 @@ import android.graphics.Canvas;
 @FunctionalInterface
 public interface Drawable {
 
-    public abstract void draw(Canvas canvas);
+    void draw(Canvas canvas);
 }

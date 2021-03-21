@@ -5,7 +5,6 @@ import android.graphics.Canvas;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.android.GameFragment;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.Hitbox;
 
@@ -90,15 +89,6 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     @Override
     public String[] getOptionNames() {
         return actions.keySet().toArray(new String[0]);
-    }
-
-    @Override
-    public ContextMenu.MenuOption[] createMenuOptions() {
-        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[this.getOptionNames().length];
-        for (int i = 0; i < this.getOptionNames().length; i++) {
-            options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
-        }
-        return options;
     }
 
     @Override

@@ -80,7 +80,7 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
 
     @Override
     public void updateMenu() {
-        this.updateMenu();
+        this.animationMenu.onUpdate();
     }
 
     @Override

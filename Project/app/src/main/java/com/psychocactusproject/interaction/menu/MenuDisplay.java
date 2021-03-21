@@ -10,8 +10,6 @@ public interface MenuDisplay extends Clickable {
 
     public String[] getOptionNames();
 
-    public ContextMenu.MenuOption[] createMenuOptions();
-
     public void onOptionSelected(String option);
 
     public ContextMenu getMenu();

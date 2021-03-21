@@ -67,12 +67,11 @@ public class GameEntityManager {
         // Debug button
         Hitbox[] debugGeneralHitbox = new Hitbox[1];
         HashMap<String, Runnable> actions = new HashMap<>();
+        actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
         ClickableSprite generalDebug = new ClickableSprite(gameEngine,
                 InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button, "Debug button",
                 debugGeneralHitbox, actions, () -> { return GameEngine.DEBUGGING; });
         debugGeneralHitbox[0] = new Hitbox(generalDebug, 0);
-        actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
-        generalDebug.updateMenu();
         this.entityManagerList.add(generalDebug);
         // Debug button musicians
         Hitbox[] debugMusiciansHitbox = new Hitbox[1];
@@ -86,7 +85,6 @@ public class GameEntityManager {
                 debugMusiciansHitbox, musicianActions, () -> { return GameEngine.DEBUGGING; },
                 new Point(0, generalDebug.getSpriteHeight()));
         debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
-        //musiciansDebug.updateMenu();
         this.entityManagerList.add(musiciansDebug);
         // Inserción en el motor
         for (GameEntity entity : this.entityManagerList) {

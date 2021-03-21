@@ -56,11 +56,22 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         this.textPaint.setColor(Color.WHITE);
         Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
         this.textPaint.setTypeface(typeface);
-        this.setBitmap(this.buildMenu(father.createMenuOptions()));
+        this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
     }
 
+    /**
+     * Provisional: Se llama onUpdate sin menuOptions inicializado porque se ha construido un
+     * objeto que inicialmente no tenía NINGUNA otra opción. Se llama onUpdate con menuOptions
+     * inicializado cuando se quiere actualizar el estado de alguna opción
+     * a desactivado / activado (que es el caso principal)
+     */
     public void onUpdate() {
-        this.setBitmap(this.buildMenu(father.createMenuOptions()));
+        if (this.menuOptions != null) {
+            this.setBitmap(this.buildMenu(this.menuOptions));
+        } else {
+            this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
+        }
+
     }
 
     // Construye una nueva versión del menú y actualiza los parámetros de la instancia
@@ -156,6 +167,14 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         this.menuMatrix.reset();
         // Devuelve imagen finalizada y la almacena para posteriores usos
         return menuBitmap;
+    }
+
+    public ContextMenu.MenuOption[] createMenuOptions(MenuDisplay father) {
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[father.getOptionNames().length];
+        for (int i = 0; i < father.getOptionNames().length; i++) {
+            options[i] = new MenuOption(father.getOptionNames()[i]);
+        }
+        return options;
     }
 
     public MenuOption[] getMenuOptions() {
@@ -261,14 +280,26 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
     @Override
     public void executeClick(int index) {
-        this.father.onOptionSelected(this.menuOptions[index].optionName);
-        GameLogic.getInstance().getStateManager().updateEntities();
+        // Pregunta por confirmación
+        String confirmationMessage = "Do you want "
+                + this.father.getRoleName() + " to execute '"
+                + this.menuOptions[index].optionName + "' action?";
+        GameEngine.showConfirmationDialog(confirmationMessage,
+                () -> {
+                    this.father.onOptionSelected(this.menuOptions[index].optionName);
+                    GameLogic.getInstance().getStateManager().updateEntities();
+                }
+        );
     }
 
-    public static class MenuOption {
+    public String getFatherRole() {
+        return this.father.getRoleName();
+    }
+
+    public class MenuOption {
 
         private boolean available;
-        private String optionName;
+        private final String optionName;
 
         public MenuOption(String option) {
             this.available = true;
@@ -294,6 +325,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
         public void disable() {
             this.available = false;
+            onUpdate();
         }
     }
 }

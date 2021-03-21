@@ -3,7 +3,6 @@ package com.psychocactusproject.graphics.controllers;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
-import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 public class ClickableDirectSprite extends InanimateSprite implements Clickable {

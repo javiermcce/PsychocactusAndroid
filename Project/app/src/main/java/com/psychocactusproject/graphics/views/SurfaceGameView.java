@@ -16,18 +16,21 @@ import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.controllers.DebugDrawable;
 import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.input.TouchInputController;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.engine.GameClock;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.GameEngine.GameDialog;
+import com.psychocactusproject.engine.GameEngine.GameDialog.DIALOG_TYPE;
+import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
+import static com.psychocactusproject.engine.GameEngine.SCENES;
 
+import java.util.HashMap;
 import java.util.List;
 
-import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.FALSE;
-import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.LEFT_RIGHT;
-import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
@@ -56,6 +59,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static Paint[] colorFilters;
     private static GameClock filterClock;
 
+    private HashMap<SCENES, Drawable> drawableScenesMap;
+
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         // Permite conocer el estado del surface creado en fragment_game
@@ -73,6 +78,70 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         filterLevels = 20;
         colorFilters = generateColorFilters();
         filterClock = new GameClock(filterLevels, 0.6, true);
+
+        this.drawableScenesMap = new HashMap<>();
+        this.drawableScenesMap.put(GameEngine.getCurrentScene(), this.definedGameDrawable());
+    }
+
+
+    /*
+    * YA QUE LOS FRAGMENTOS DE CÓDIGOS HAN SIDO ESCRITOS COMO FUNCIONALES, PODRÍA APLICARSE
+    * PARA "SUPERPONER" CAPAS DE DIBUJADO. CUANDO ABRAMOS LA ESCENA MENÚ O LA ESCENA AVISO,
+    * ESTAS ESCENAS LLAMARÍAN TAMBIÉN A JUEGO, CON LO QUE TENEMOS ESTO SIENDO DIBUJADO DE FONDO
+    * MIENTRAS DIBUJAMOS UNA NUEVA ESCENA
+    * */
+    public Drawable definedGameDrawable() {
+        // Dibuja todos los elementos del juego por capas de prioridades
+        return (canvas) -> {
+            // Prioridad 3: Personajes
+            synchronized (GameEntity.entitiesLock) {
+                for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
+                    for (Drawable drawableEntity : drawableLayers) {
+                        drawableEntity.draw(canvas);
+                    }
+                }
+            }
+            // Prioridad 2: Menús
+            synchronized (GameEntity.entitiesLock) {
+                for (int i = 0; i < this.gameSprites.size(); i++) {
+                    if (this.gameSprites.get(i) instanceof MenuDisplay) {
+                        MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
+                        if (menuHolder.isMenuOpen()) {
+                            menuHolder.renderMenu(canvas);
+                            if (GameEngine.DEBUGGING) {
+                                Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
+                                // El fragmento de aquí abajo omite mostrar las hitboxes no activadas
+                                // cuando realmente lo que deseo es mostrarlas desactivadas y seguir
+                                // interactuando con ellas, pero de otra forma distinta
+                            /*
+                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
+                            for (int j = 0; j < availableHitboxes.length; j++) {
+                                if (menuHolder.getMenu().isAvailable(j)) {
+                                    availableHitboxes[j] = menuHitboxes[j];
+                                }
+                            }*/
+                                // Hitbox.drawHitboxes(availableHitboxes, canvas);
+                                Hitbox.drawHitboxes(menuHitboxes, canvas);
+                            }
+                        }
+                    }
+                }
+            }
+            // Prioridad 1: Interfaz de usuario
+            synchronized (GameEntity.entitiesLock) {
+                if (GameEngine.DEBUGGING) {
+                    for (int i = 0; i < this.debugSprites.size(); i++) {
+                        this.debugSprites.get(i).debugDraw(canvas);
+                    }
+                }
+                this.printAlerts();
+                for (int i = 0; i < this.gameSprites.size(); i++) {
+                    if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
+                        Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
+                    }
+                }
+            }
+        };
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
@@ -85,16 +154,16 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // Se da de alta el sprite para el fondo de pantalla
         this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
-        if (gameEngine.hasBlackStripes() != FALSE) {
+        if (gameEngine.hasBlackStripes() != BLACK_STRIPE_TYPES.FALSE) {
             int backgroundX = deviceWidth;
             int backgroundY = deviceHeight;
             // Si las bandas negras están arriba y abajo
-            if (gameEngine.hasBlackStripes() == TOP_BOTTOM) {
+            if (gameEngine.hasBlackStripes() == BLACK_STRIPE_TYPES.TOP_BOTTOM) {
                 this.basicMatrix.postTranslate(0, gameEngine.getAspectRatioMargin());
                 backgroundX = (int) (((double) deviceHeight / this.adaptedHeight) * this.adaptedWidth);
                 backgroundY = deviceHeight;
             // Si las bandas negras están a los laterales
-            } else if (gameEngine.hasBlackStripes() == LEFT_RIGHT) {
+            } else if (gameEngine.hasBlackStripes() == BLACK_STRIPE_TYPES.LEFT_RIGHT) {
                 this.basicMatrix.postTranslate(gameEngine.getAspectRatioMargin(), 0);
                 backgroundX = deviceWidth;
                 backgroundY = (int) (((double) deviceWidth / this.adaptedWidth) * this.adaptedHeight);
@@ -145,66 +214,31 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // DEBUG: dibuja en el frame de juego unas figuras equivalentes en todos los dispositivos
         if (GameEngine.DEBUGGING) {
             this.frameCanvas.drawRGB(0, 0, 0);
-            this.frameDrawTest();
         }
-        // Dibuja todos los elementos del juego por capas de prioridades
-        // Prioridad 3: Personajes
-        synchronized (GameEntity.entitiesLock) {
-            for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
-                for (Drawable drawableEntity : drawableLayers) {
-                        drawableEntity.draw(this.frameCanvas);
-
-                }
-            }
-            /*
-            for (int i = 0; i < this.gameSprites.size(); i++) {
-                // QUEDA PENDIENTE ORDENAR POR CAPAS
-                this.gameSprites.get(i).draw(this.frameCanvas);
-                if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
-                    Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), frameCanvas);
-                }
-            }*/
-        }
-        // Prioridad 2: Menús
-        synchronized (GameEntity.entitiesLock) {
-            for (int i = 0; i < this.gameSprites.size(); i++) {
-                if (this.gameSprites.get(i) instanceof MenuDisplay) {
-                    MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
-                    if (menuHolder.isMenuOpen()) {
-                        menuHolder.renderMenu(frameCanvas);
-                        if (GameEngine.DEBUGGING) {
-                            Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
-                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
-                            for (int j = 0; j < availableHitboxes.length; j++) {
-                                if (menuHolder.getMenu().isAvailable(j)) {
-                                    availableHitboxes[j] = menuHitboxes[j];
-                                }
-                            }
-                            Hitbox.drawHitboxes(availableHitboxes, frameCanvas);
-                        }
-                    }
-                }
-            }
-        }
-        // Prioridad 1: Interfaz de usuario
-        synchronized (GameEntity.entitiesLock) {
-            if (GameEngine.DEBUGGING) {
-                for (int i = 0; i < this.debugSprites.size(); i++) {
-                    this.debugSprites.get(i).debugDraw(this.frameCanvas);
-                }
-            }
-            for (int i = 0; i < this.gameSprites.size(); i++) {
-                if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
-                    Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), frameCanvas);
-                }
-            }
-        }
+        // Dibuja la escena actual
+        this.drawableScenesMap.get(GameEngine.getCurrentScene()).draw(this.frameCanvas);
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
         // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
+    }
+
+    private void printAlerts() {
+        if (GameEngine.getDialog() == null) {
+            return;
+        }
+        GameDialog dialog = GameEngine.getDialog();
+        if (dialog.getType() == DIALOG_TYPE.ALERT) {
+
+        } else if (dialog.getType() == DIALOG_TYPE.CONFIRMATION) {
+
+        }
+    }
+
+    private void printAlert(GameDialog dialog) {
+
     }
 
     // Método auxiliar utilizado para comprobar que las proporciones son iguales en todos los dispositivos
@@ -258,5 +292,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public static Paint getColorFilter() {
         return colorFilters[filterClock.getTimestamp()];
+    }
+
+    @FunctionalInterface
+    public interface DrawableScene {
+
+        public void drawScene();
     }
 }

@@ -21,6 +21,7 @@ public class GameEngine {
 
     public final static int RESOLUTION_X = 1280;
     public final static int RESOLUTION_Y = 720;
+    private static GameDialog activeDialog;
     private UpdateThread updateThread;
     private DrawThread drawThread;
     private final List<GameEntity> gameEntities;
@@ -39,10 +40,12 @@ public class GameEngine {
     private int adaptedHeight;
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
-    public enum BLACK_STRIPE_TYPES {FALSE, TOP_BOTTOM, LEFT_RIGHT};
-    public enum CHARACTER_LAYERS {BACKGROUND, UNSPECIFIED, FRONT};
+    public enum SCENES { DIALOG, GAME, PAUSE_MENU }
+    public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT };
+    public enum CHARACTER_LAYERS { BACKGROUND, UNSPECIFIED, FRONT };
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
+    private static SCENES currentScene = SCENES.GAME;
     //
     public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
@@ -319,6 +322,88 @@ public class GameEngine {
 
     public void setInputController(InputController inputController) {
         this.inputController = inputController;
+    }
+
+    public static SCENES getCurrentScene() {
+        return GameEngine.currentScene;
+    }
+
+    public static void setCurrentScene(SCENES scene) {
+        GameEngine.currentScene = scene;
+    }
+
+    public static void showConfirmationDialog(String message, Runnable action) {
+        GameEngine.activeDialog = new GameDialog(message, action);
+    }
+
+    public static void showConfirmationDialog(String message, String details, Runnable action) {
+        GameEngine.activeDialog = new GameDialog(message, details, action);
+    }
+
+    public static void showAlertDialog(String message) {
+        GameEngine.activeDialog = new GameDialog(message);
+    }
+
+    public static void showAlertDialog(String message, String details) {
+        GameEngine.activeDialog = new GameDialog(message, details);
+    }
+
+    public static GameDialog getDialog() {
+        return GameEngine.activeDialog = null;
+    }
+
+    public static void clearDialog() {
+        GameEngine.activeDialog = null;
+    }
+
+    public static class GameDialog {
+
+        public enum DIALOG_TYPE {
+            CONFIRMATION, ALERT
+        }
+
+        private final DIALOG_TYPE type;
+        private final String message;
+        private final String details;
+        private final Runnable action;
+
+        private GameDialog(String message) {
+            this(message, (String) null);
+        }
+
+        private GameDialog(String message, Runnable action) {
+            this(message, null, action);
+        }
+
+        private GameDialog(String message, String details) {
+            this.type = DIALOG_TYPE.ALERT;
+            this.message = message;
+            this.details = details;
+            this.action = null;
+        }
+
+        private GameDialog(String message, String details, Runnable action) {
+            this.type = DIALOG_TYPE.CONFIRMATION;
+            this.message = message;
+            this.details = details;
+            this.action = action;
+        }
+
+        public DIALOG_TYPE getType() {
+            return type;
+        }
+
+        public String getMessage() {
+            return this.message;
+        }
+
+        public String getDetails() {
+            return this.details;
+        }
+
+        public Runnable getAction() {
+            return this.action;
+        }
     }
 
     private static class EntityToAdd {

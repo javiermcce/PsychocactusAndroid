@@ -18,15 +18,15 @@ public class MenuFlyweight {
         return instance;
     }
 
-    private Bitmap bottomPiece;
-    private Bitmap bottomLeftPiece;
-    private Bitmap bottomRightPiece;
-    private Bitmap centerPiece;
-    private Bitmap leftPiece;
-    private Bitmap rightPiece;
-    private Bitmap topPiece;
-    private Bitmap topLeftPiece;
-    private Bitmap topRightPiece;
+    private final Bitmap bottomPiece;
+    private final Bitmap bottomLeftPiece;
+    private final Bitmap bottomRightPiece;
+    private final Bitmap centerPiece;
+    private final Bitmap leftPiece;
+    private final Bitmap rightPiece;
+    private final Bitmap topPiece;
+    private final Bitmap topLeftPiece;
+    private final Bitmap topRightPiece;
 
     private MenuFlyweight(GameEngine gameEngine) {
         BitmapFactory.Options options = new BitmapFactory.Options();

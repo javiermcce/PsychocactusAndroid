@@ -5,6 +5,12 @@ import com.psychocactusproject.engine.Hitbox;
 
 public interface Clickable extends Dimensions {
 
+    /**
+     * Nuevo planteamiento, provisional: Ahora también devuelve la confirmación. True si se
+     * ejecuta, false si no se ejecuta nada
+     * @param index
+     * @return
+     */
     public void executeClick(int index);
 
     public Hitbox[] getHitboxes();
