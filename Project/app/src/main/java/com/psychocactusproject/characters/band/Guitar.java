@@ -24,6 +24,7 @@ public class Guitar extends Musician {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(489, 148));
         this.enableClickable(0);
+        this.getMenu().getMenuOptions()[1].disable();
     }
 
     @Override

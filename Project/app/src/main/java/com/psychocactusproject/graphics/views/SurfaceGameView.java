@@ -8,8 +8,6 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
-import android.os.Debug;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -24,9 +22,7 @@ import com.psychocactusproject.engine.GameClock;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Hitbox;
-import com.psychocactusproject.engine.Point;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES.FALSE;
@@ -59,8 +55,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static int filterLevels = 20;
     private static Paint[] colorFilters;
     private static GameClock filterClock;
-    // DEBUG
-    public static final List<Point> inputMovePoints = new LinkedList<>();
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -175,10 +169,19 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         synchronized (GameEntity.entitiesLock) {
             for (int i = 0; i < this.gameSprites.size(); i++) {
                 if (this.gameSprites.get(i) instanceof MenuDisplay) {
-                    MenuDisplay menu = ((MenuDisplay) this.gameSprites.get(i));
-                    menu.renderMenu(frameCanvas);
-                    if (GameEngine.DEBUGGING) {
-                        Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
+                    MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
+                    if (menuHolder.isMenuOpen()) {
+                        menuHolder.renderMenu(frameCanvas);
+                        if (GameEngine.DEBUGGING) {
+                            Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
+                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
+                            for (int j = 0; j < availableHitboxes.length; j++) {
+                                if (menuHolder.getMenu().isAvailable(j)) {
+                                    availableHitboxes[j] = menuHitboxes[j];
+                                }
+                            }
+                            Hitbox.drawHitboxes(availableHitboxes, frameCanvas);
+                        }
                     }
                 }
             }
@@ -200,17 +203,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
-        // DEBUG: Dibuja los puntos recorridos por la acción táctil de arrastrar
-        if (GameEngine.DEBUGGING) {
-            Paint basicPaint2 = new Paint();
-            basicPaint2.setColor(Color.WHITE);
-            synchronized (inputMovePoints) {
-                for (Point punto : inputMovePoints) {
-                    Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
-                    screen.drawRect(rect, basicPaint2);
-                }
-            }
-        }
         // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
     }

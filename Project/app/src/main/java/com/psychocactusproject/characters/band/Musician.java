@@ -101,12 +101,18 @@ public abstract class Musician extends ClickableAnimation implements TurnChecker
     protected abstract boolean debuggingMusician();
 
     @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
+    public ContextMenu.MenuOption[] createMenuOptions() {
         ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[this.getOptionNames().length];
         for (int i = 0; i < this.getOptionNames().length; i++) {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
         }
         return options;
+    }
+
+    @Override
+    public boolean isReadyForAction() {
+        // IMPLEMENTAR!!!
+        return true;
     }
     
     // Lógica de juego

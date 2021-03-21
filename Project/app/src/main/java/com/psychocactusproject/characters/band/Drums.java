@@ -23,6 +23,7 @@ public class Drums extends Musician {
     public Drums(GameEngine gameEngine) {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(608, 109));
+        this.getMenu().getMenuOptions()[0].disable();
     }
 
     @Override

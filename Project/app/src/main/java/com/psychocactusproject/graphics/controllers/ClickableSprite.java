@@ -16,12 +16,13 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     private final ContextMenu spriteMenu;
     private final HashMap<String, Runnable> actions;
     private Hitbox[] hitboxes;
-    private boolean available;
+    private final Checker readyForAction;
 
     public ClickableSprite(GameEngine gameEngine, String roleName, HashMap<String, Runnable> actions) {
         super(gameEngine, roleName);
         this.spriteMenu = new ContextMenu(gameEngine, this);
         this.actions = actions;
+        this.readyForAction = () -> { return true; };
     }
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName,
@@ -30,16 +31,17 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
         this.actions = actions;
         this.spriteMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = hitboxes;
-        this.available = true;
+        this.readyForAction = () -> { return true; };
     }
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, int debugDrawableResource,
-                           String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions) {
+                           String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions,
+                           Checker readyCheck) {
         super(gameEngine, drawableResource, debugDrawableResource, roleName);
         this.actions = actions;
         this.spriteMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = hitboxes;
-        this.available = true;
+        this.readyForAction = readyCheck;
     }
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, String roleName,
@@ -50,8 +52,9 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     public ClickableSprite(GameEngine gameEngine, int drawableResource, int debugDrawableResource,
                            String roleName, Hitbox[] hitboxes, HashMap<String, Runnable> actions,
-                           Point position) {
-        this(gameEngine, drawableResource, debugDrawableResource, roleName, hitboxes, actions);
+                           Checker readyCheck, Point position) {
+        this(gameEngine, drawableResource, debugDrawableResource, roleName, hitboxes, actions,
+                readyCheck);
         this.setPosition(position);
     }
 
@@ -71,17 +74,17 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
 
     @Override
     public boolean isAvailable(int index) {
-        return this.available;
+        return this.isSomeOptionAvailable() && this.isReadyForAction();
     }
 
     @Override
     public void enableClickable(int index) {
-        this.available = true;
+        this.spriteMenu.enableClickable(index);
     }
 
     @Override
     public void disableClickable(int index) {
-        this.available = false;
+        this.spriteMenu.disableClickable(index);
     }
 
     @Override
@@ -90,7 +93,7 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     @Override
-    public ContextMenu.MenuOption[] getMenuOptions() {
+    public ContextMenu.MenuOption[] createMenuOptions() {
         ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[this.getOptionNames().length];
         for (int i = 0; i < this.getOptionNames().length; i++) {
             options[i] = new ContextMenu.MenuOption(this.getOptionNames()[i]);
@@ -113,8 +116,8 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     }
 
     @Override
-    public boolean hasMenuOpen() {
-        return this.spriteMenu.isMenuAvailable();
+    public boolean isMenuOpen() {
+        return this.spriteMenu.isShown();
     }
 
     @Override
@@ -135,5 +138,20 @@ public class ClickableSprite extends InanimateSprite implements MenuDisplay {
     @Override
     public void renderMenu(Canvas canvas) {
         this.spriteMenu.draw(canvas);
+    }
+
+    @Override
+    public boolean isSomeOptionAvailable() {
+        for (ContextMenu.MenuOption option : this.getMenu().getMenuOptions()) {
+            if (option.isAvailable()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isReadyForAction() {
+        return this.readyForAction.check();
     }
 }

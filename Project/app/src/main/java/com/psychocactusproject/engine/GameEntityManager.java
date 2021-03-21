@@ -69,7 +69,7 @@ public class GameEntityManager {
         HashMap<String, Runnable> actions = new HashMap<>();
         ClickableSprite generalDebug = new ClickableSprite(gameEngine,
                 InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button, "Debug button",
-                debugGeneralHitbox, actions);
+                debugGeneralHitbox, actions, () -> { return GameEngine.DEBUGGING; });
         debugGeneralHitbox[0] = new Hitbox(generalDebug, 0);
         actions.put("Verbose debug", () -> { GameEngine.verboseDebugging = !GameEngine.verboseDebugging; });
         generalDebug.updateMenu();
@@ -83,7 +83,7 @@ public class GameEntityManager {
         musicianActions.put("Debug Drums", () -> { Drums.debugDrumsSwitch(); });
         ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
                 InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button_musicians, "Debug musicians",
-                debugMusiciansHitbox, musicianActions,
+                debugMusiciansHitbox, musicianActions, () -> { return GameEngine.DEBUGGING; },
                 new Point(0, generalDebug.getSpriteHeight()));
         debugMusiciansHitbox[0] = new Hitbox(musiciansDebug, 0);
         //musiciansDebug.updateMenu();

@@ -4,23 +4,20 @@ import android.graphics.Canvas;
 
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.android.GameFragment;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.Hitbox;
 
 public abstract class ClickableAnimation extends AnimatedEntity implements MenuDisplay {
 
-    private ContextMenu animationMenu;
+    private final ContextMenu animationMenu;
     private final String[] optionNames;
     private final Hitbox[][] hitboxes;
-    private boolean available;
 
     public ClickableAnimation(GameEngine gameEngine, String[] optionNames) {
         super(gameEngine);
         this.optionNames = optionNames;
         this.animationMenu = new ContextMenu(gameEngine, this);
         this.hitboxes = this.obtainAnimationResources().hitboxes;
-        this.available = false;
     }
 
     @Override
@@ -43,7 +40,17 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
 
     @Override
     public boolean isAvailable(int index) {
-        return this.available;
+        return this.isSomeOptionAvailable() && this.isReadyForAction();
+    }
+
+    @Override
+    public void enableClickable(int index) {
+        this.animationMenu.enableClickable(index);
+    }
+
+    @Override
+    public void disableClickable(int index) {
+        this.animationMenu.disableClickable(index);
     }
 
     @Override
@@ -52,7 +59,7 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     }
 
     @Override
-    public boolean hasMenuOpen() {
+    public boolean isMenuOpen() {
         return this.animationMenu.isShown();
     }
 
@@ -82,12 +89,12 @@ public abstract class ClickableAnimation extends AnimatedEntity implements MenuD
     }
 
     @Override
-    public void enableClickable(int index) {
-        this.available = true;
-    }
-
-    @Override
-    public void disableClickable(int index) {
-        this.available = false;
+    public boolean isSomeOptionAvailable() {
+        for (ContextMenu.MenuOption option : this.getMenu().getMenuOptions()) {
+            if (option.isAvailable()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

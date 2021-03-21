@@ -3,13 +3,11 @@ package com.psychocactusproject.input;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.TextView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.graphics.views.SurfaceGameView;
+import com.psychocactusproject.interaction.menu.ContextMenu.MenuOption;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.android.GameFragment;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
 import com.psychocactusproject.engine.GameEntity;
@@ -80,12 +78,6 @@ public class TouchInputController extends InputController implements View.OnKeyL
             case MotionEvent.ACTION_MOVE:
                 if (moveCountdown <= 0) {
                     this.moving = true;
-                    // DEBUG: dibuja puntos en pantalla cuando un deslizamiento es detectado
-                    if (GameEngine.DEBUGGING && this.drawingPoints) {
-                        synchronized (SurfaceGameView.inputMovePoints) {
-                            SurfaceGameView.inputMovePoints.add(new Point((int) event.getX(), (int) event.getY()));
-                        }
-                    }
                 }
                 this.moveCountdown--;
                 // La acción continúa
@@ -108,27 +100,6 @@ public class TouchInputController extends InputController implements View.OnKeyL
     public boolean onKey(View v, int keyCode, KeyEvent event) {
         return false;
     }
-/*
-    @Override
-    public boolean onKeyUp(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_D:
-                moveShip(MOVE_LEFT);
-                return true;
-            case KeyEvent.KEYCODE_F:
-                moveShip(MOVE_RIGHT);
-                return true;
-            case KeyEvent.KEYCODE_J:
-                fireMachineGun();
-                return true;
-            case KeyEvent.KEYCODE_K:
-                fireMissile();
-                return true;
-            default:
-                return super.onKeyUp(keyCode, event);
-        }
-    }
-*/
 
     @Override
     public void update() {
@@ -191,10 +162,12 @@ public class TouchInputController extends InputController implements View.OnKeyL
         for (GameEntity entity : this.gameEntities) {
             if (entity instanceof MenuDisplay) {
                 MenuDisplay menuHolder = ((MenuDisplay) entity);
-                if (menuHolder.hasMenuOpen()) {
+                if (menuHolder.isMenuOpen()) {
+                    MenuOption[] entityOptions = ((MenuDisplay) entity).getMenu().getMenuOptions();
                     Hitbox[] hitboxesCheck = menuHolder.getMenu().getHitboxes();
-                    if (hitboxesCheck != null) {
-                        for (Hitbox hitbox : hitboxesCheck) {
+                    for (int i = 0; i < entityOptions.length; i++) {
+                        if (entityOptions[i].isAvailable()) {
+                            Hitbox hitbox = hitboxesCheck[i];
                             if (hitbox != null && hitboxCollision(xTouch, yTouch,
                                     hitbox.getUpLeftPoint(),
                                     hitbox.getDownRightPoint())) {
@@ -208,13 +181,15 @@ public class TouchInputController extends InputController implements View.OnKeyL
         // Prioridad nivel 3: personajes
         for (GameEntity entity : this.gameEntities) {
             if (entity instanceof Clickable) {
-                Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
-                if (hitboxesCheck != null) {
-                    for (Hitbox hitbox : hitboxesCheck) {
-                        if (hitbox != null && hitboxCollision(xTouch, yTouch,
-                                hitbox.getUpLeftPoint(),
-                                hitbox.getDownRightPoint())) {
-                            return hitbox;
+                if (((Clickable) entity).isAvailable(0)) {
+                    Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
+                    if (hitboxesCheck != null) {
+                        for (Hitbox hitbox : hitboxesCheck) {
+                            if (hitbox != null && hitboxCollision(xTouch, yTouch,
+                                    hitbox.getUpLeftPoint(),
+                                    hitbox.getDownRightPoint())) {
+                                return hitbox;
+                            }
                         }
                     }
                 }

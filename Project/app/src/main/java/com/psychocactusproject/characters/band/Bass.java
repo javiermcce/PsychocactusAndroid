@@ -30,6 +30,7 @@ public class Bass extends Musician {
         super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(765, 133));
         this.enableClickable(0);
+        this.getMenu().getMenuOptions()[2].disable();
     }
 
     @Override
