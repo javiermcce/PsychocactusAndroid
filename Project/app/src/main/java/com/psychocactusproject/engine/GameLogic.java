@@ -5,8 +5,8 @@ import com.psychocactusproject.interaction.scripts.StateManager;
 
 public class GameLogic {
 
-    public static GameLogic initialize() {
-        instance = new GameLogic();
+    public static GameLogic initialize(GameEngine gameEngine) {
+        instance = new GameLogic(gameEngine);
         return instance;
     }
 
@@ -20,11 +20,16 @@ public class GameLogic {
 
     private static GameLogic instance;
 
-    private StateManager stateManager;
-    private GameEntityManager gameEntityManager;
-    private Concert concert;
 
-    private GameLogic() {
+    // Incluir una referencia a gameEngine en GameLogic podría ser la manera de trabajar a partir
+    // de ahora, y podría refactorizar el código que venga en base a este cambio
+    private final GameEngine gameEngine;
+    private final StateManager stateManager;
+    private final GameEntityManager gameEntityManager;
+    private final Concert concert;
+
+    private GameLogic(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
         this.stateManager = new StateManager();
         this.gameEntityManager = new GameEntityManager();
         this.concert = new Concert();
@@ -43,4 +48,7 @@ public class GameLogic {
     }
 
 
+    public GameEngine getGameEngine() {
+        return this.gameEngine;
+    }
 }

@@ -93,7 +93,7 @@ public class Guitar extends Musician {
         return Guitar.debugMusician;
     }
 
-    public static void debugDrumsSwitch() {
+    public static void debugGuitarSwitch() {
         Guitar.debugMusician = !Guitar.debugMusician;
     }
 

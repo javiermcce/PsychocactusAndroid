@@ -27,7 +27,7 @@ public class GameEntityManager {
     private ShotgunMan shotgunMan;
 
     public enum MusicianTypes {
-            BASS, GUITAR, SINGER, DRUMS
+        BASS, GUITAR, SINGER, DRUMS
     }
 
 
@@ -76,9 +76,9 @@ public class GameEntityManager {
         // Debug button musicians
         Hitbox[] debugMusiciansHitbox = new Hitbox[1];
         HashMap<String, Runnable> musicianActions = new HashMap<>();
-        musicianActions.put("Debug Singer", () -> { Singer.debugDrumsSwitch(); });
+        musicianActions.put("Debug Singer", () -> { Singer.debugSingerSwitch(); });
         musicianActions.put("Debug Bass", () -> { Bass.debugBassSwitch(); });
-        musicianActions.put("Debug Guitar", () -> { Guitar.debugDrumsSwitch(); });
+        musicianActions.put("Debug Guitar", () -> { Guitar.debugGuitarSwitch(); });
         musicianActions.put("Debug Drums", () -> { Drums.debugDrumsSwitch(); });
         ClickableSprite musiciansDebug = new ClickableSprite(gameEngine,
                 InanimateSprite.NOT_SPECIFIED, R.drawable.debug_button_musicians, "Debug musicians",
@@ -88,7 +88,7 @@ public class GameEntityManager {
         this.entityManagerList.add(musiciansDebug);
         // Inserción en el motor
         for (GameEntity entity : this.entityManagerList) {
-            gameEngine.addGameEntity(entity);
+            gameEngine.addGameEntity(entity, GameEngine.GAME_LAYERS.UNSPECIFIED);
         }
     }
 

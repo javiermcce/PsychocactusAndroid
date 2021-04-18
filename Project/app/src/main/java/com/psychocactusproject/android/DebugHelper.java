@@ -16,7 +16,6 @@ import com.psychocactusproject.graphics.controllers.DrawableEntity;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 public class DebugHelper {
 
@@ -50,7 +49,7 @@ public class DebugHelper {
         ClickableDirectSprite commandDebug = new ClickableDirectSprite(gameEngine,
                 R.drawable.debug_enter, "Debug enter command",
                 enterCommandAction, new Point(400, 200));
-        gameEngine.addGameEntity(commandDebug, GameEngine.CHARACTER_LAYERS.FRONT);
+        gameEngine.addGameEntity(commandDebug, GameEngine.GAME_LAYERS.FRONT);
 
         Drawable test = (Canvas canvas) -> {};
         DrawableEntity customEntity = new DrawableEntity(test, "debug");
@@ -60,8 +59,7 @@ public class DebugHelper {
         final Paint terminalTextPaint = new Paint();
         terminalTextPaint.setColor(Color.WHITE);
         terminalTextPaint.setTextSize(32);
-        Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
-        terminalTextPaint.setTypeface(typeface);
+        terminalTextPaint.setTypeface(GameEngine.getInstance().getTypeface());
         final Paint terminalBackgroundPaint = new Paint();
         terminalBackgroundPaint.setColor(Color.argb(122, 53, 53, 47));
         Drawable terminalDrawable = (canvas) -> {
@@ -76,7 +74,7 @@ public class DebugHelper {
         // Es creado el terminal, que solo se muestra si el modo debug está activado
         this.debugTerminal = new DrawableEntity(null, terminalDrawable, "Debug Terminal",
                 new Point(20, 650), new Point(820, 700));
-        gameEngine.addGameEntity(this.debugTerminal, GameEngine.CHARACTER_LAYERS.FRONT);
+        gameEngine.addGameEntity(this.debugTerminal, GameEngine.GAME_LAYERS.FRONT);
     }
 
     // Inserta todos los posibles comandos

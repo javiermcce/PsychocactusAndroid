@@ -8,23 +8,24 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.engine.GameLogic;
 import com.psychocactusproject.graphics.controllers.DebugDrawable;
 import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.input.TouchInputController;
+import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
 import com.psychocactusproject.engine.GameClock;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Hitbox;
-import com.psychocactusproject.engine.GameEngine.GameDialog;
-import com.psychocactusproject.engine.GameEngine.GameDialog.DIALOG_TYPE;
 import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
 import static com.psychocactusproject.engine.GameEngine.SCENES;
 
@@ -33,9 +34,6 @@ import java.util.List;
 
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
-
-    // Si quisiera hacer bien esto de poder utilizar ambas views, deberían
-    // implementar una interfaz común hecha expresamente a propósito
 
     private List<GameEntity> gameEntities;
     private List<Drawable> gameSprites;
@@ -80,7 +78,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         filterClock = new GameClock(filterLevels, 0.6, true);
 
         this.drawableScenesMap = new HashMap<>();
-        this.drawableScenesMap.put(GameEngine.getCurrentScene(), this.definedGameDrawable());
+        this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
+        this.drawableScenesMap.put(SCENES.DIALOG, this.definedDialogDrawable());
+        // this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
     }
 
 
@@ -134,7 +134,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                         this.debugSprites.get(i).debugDraw(canvas);
                     }
                 }
-                this.printAlerts();
                 for (int i = 0; i < this.gameSprites.size(); i++) {
                     if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
                         Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
@@ -142,6 +141,42 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                 }
             }
         };
+    }
+
+    public Drawable definedDialogDrawable() {
+        return (canvas) -> {
+            synchronized (GameEntity.entitiesLock) {
+                // Dibuja de fondo el juego en su estado actual
+                definedGameDrawable().draw(canvas);
+                // Imprime la ventana de diálogo
+                // REFACTORIZAR: PROHIBIDO LLAMAR CONSTRUCTORES EN EL BUCLE DE DIBUJADO
+                Paint paint = new Paint();
+                paint.setColor(Color.argb(100, 20, 20, 50));
+                // int left, int top, int right, int bottom
+                canvas.drawRect(new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y), paint);
+
+
+                DialogScreen dialogScreen = GameEngine.getInstance().getDialog();
+                // Ahora se dibuja como tal el menú de diálogo
+                dialogScreen.draw(canvas);
+                if (GameEngine.DEBUGGING) {
+                    Hitbox.drawHitboxes(dialogScreen.getHitboxes(), canvas);
+                }
+            }
+        };
+
+        /*
+        GameEngine engine = GameEngine.getInstance();
+        if (engine.getDialog() == null) {
+            return;
+        }
+        GameDialog dialog = engine.getDialog();
+        if (dialog.getType() == DIALOG_TYPE.ALERT) {
+
+        } else if (dialog.getType() == DIALOG_TYPE.CONFIRMATION) {
+
+        }
+        * */
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
@@ -216,29 +251,13 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
             this.frameCanvas.drawRGB(0, 0, 0);
         }
         // Dibuja la escena actual
-        this.drawableScenesMap.get(GameEngine.getCurrentScene()).draw(this.frameCanvas);
+        this.drawableScenesMap.get(GameEngine.getInstance().getCurrentScene()).draw(this.frameCanvas);
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
         // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
-    }
-
-    private void printAlerts() {
-        if (GameEngine.getDialog() == null) {
-            return;
-        }
-        GameDialog dialog = GameEngine.getDialog();
-        if (dialog.getType() == DIALOG_TYPE.ALERT) {
-
-        } else if (dialog.getType() == DIALOG_TYPE.CONFIRMATION) {
-
-        }
-    }
-
-    private void printAlert(GameDialog dialog) {
-
     }
 
     // Método auxiliar utilizado para comprobar que las proporciones son iguales en todos los dispositivos
@@ -292,11 +311,5 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public static Paint getColorFilter() {
         return colorFilters[filterClock.getTimestamp()];
-    }
-
-    @FunctionalInterface
-    public interface DrawableScene {
-
-        public void drawScene();
     }
 }

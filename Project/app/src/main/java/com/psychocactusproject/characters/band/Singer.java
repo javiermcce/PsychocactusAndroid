@@ -89,7 +89,7 @@ public class Singer extends Musician {
         return Singer.debugMusician;
     }
 
-    public static void debugDrumsSwitch() {
+    public static void debugSingerSwitch() {
         Singer.debugMusician = !Singer.debugMusician;
     }
 

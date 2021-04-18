@@ -75,12 +75,34 @@ public class Hitbox {
         return new Point(getDownRightX(), getDownRightY());
     }
 
+    public int getXUpLeftPercentage() {
+        return this.xUpLeft;
+    }
+
+    public int getYUpLeftPercentage() {
+        return this.yUpLeft;
+    }
+
+    public int getXDownRightPercentage() {
+        return this.xDownRight;
+    }
+
+    public int getYDownRightPercentage() {
+        return this.yDownRight;
+    }
+
     public Clickable getFather() {
         return this.father;
     }
 
     public int getIndex() {
         return this.index;
+    }
+
+    public static Point percentagesToRelativePoint(int xPercentage, int yPercentage, int elementWidth, int elementHeight) {
+        int xCoord = elementWidth * xPercentage / 100;
+        int yCoord = elementHeight * yPercentage / 100;
+        return new Point(xCoord, yCoord);
     }
 
     public static void drawHitboxes(Hitbox[] hitboxes, Canvas canvas) {

@@ -14,6 +14,7 @@ import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.ContextMenu.MenuOption;
+import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
@@ -49,7 +50,9 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.hasBlackStripes = gameEngine.hasBlackStripes();
         this.gameEntities = gameEngine.getGameEntities();
         this.touchableScenesMap = new HashMap<>();
-        this.touchableScenesMap.put(GameEngine.getCurrentScene(), this.definedGameTouchable());
+        this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
+        this.touchableScenesMap.put(SCENES.DIALOG, this.definedDialogTouchable());
+        // this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
     }
 
     public Touchable definedGameTouchable() {
@@ -66,7 +69,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
                     closeAllMenus();
                     // Abre el nuevo menú
                     clickableHolder.executeClick(selected.getIndex());
-                    // Se trata de un menú
+                // Se trata de un menú
                 } else if (clickableHolder instanceof ContextMenu) {
                     ContextMenu clickedMenu = (ContextMenu) clickableHolder;
                     MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
@@ -76,18 +79,41 @@ public class TouchInputController extends InputController implements View.OnKeyL
                         // Ejecuta la acción de la instancia Clickable seleccionada
                         clickableHolder.executeClick(selected.getIndex());
                     } else {
-                        String alertMessage = "The '" + option.getOptionName() + "'action of "
+                        String alertMessage = "The '" + option.getOptionName() + "' action of "
                                 + clickedMenu.getFatherRole() + " cannot be performed.";
                         // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
-                        GameEngine.showAlertDialog(alertMessage);
+                        GameEngine.getInstance().showAlertDialog(alertMessage);
                         // this.gameEngine.showAlertDialog(alertMessage, reason);
                         DebugHelper.printMessage("Aquí debería decir 'la acción "
                                 + option.getOptionName() + " no se encuentra disponible'");
                     }
                 }
-                // Si no es seleccionada ninguna hitbox, cierra menús
+            // Si no es seleccionada ninguna hitbox, cierra menús
             } else {
                 closeAllMenus();
+            }
+        };
+    }
+
+    public Touchable definedDialogTouchable() {
+
+        return (point) -> {
+            // Comprueba si la pantalla de diálogo ha sido creada
+            DialogScreen dialog = GameEngine.getInstance().getDialog();
+            if (dialog == null) {
+                throw new IllegalStateException("La pantalla de diálogo debía estar abierta.");
+            }
+            // Busca si existe colisión con alguna hitbox del diálogo
+            Hitbox selected = null;
+            for (Hitbox hitbox : dialog.getHitboxes()) {
+                if (hitboxCollision(point.getX(), point.getY(), hitbox)) {
+                    selected = hitbox;
+                }
+            }
+            // Si ha habido colisión, ejecuta su acción asignada
+            if (selected != null) {
+                Clickable clickableHolder = selected.getFather();
+                clickableHolder.executeClick(selected.getIndex());
             }
         };
     }
@@ -160,7 +186,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
     public void update() {
         Point click = getPendingClick();
         if (click != null) {
-            this.touchableScenesMap.get(GameEngine.getCurrentScene()).search(click);
+            this.touchableScenesMap.get(GameEngine.getInstance().getCurrentScene()).search(click);
         }
     }
 
@@ -196,10 +222,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
 
     private Hitbox checkHitboxes(int xTouch, int yTouch) {
         // Prioridad nivel 1: interfaz
-            /*
-            for (Hitbox hitbox : ) {
 
-            }*/
         // Prioridad nivel 2: menús
         for (GameEntity entity : this.gameEntities) {
             if (entity instanceof MenuDisplay) {
@@ -212,9 +235,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
                         // activada o no, controlar la respuesta desde un fragmento
                         // superior de código
                         Hitbox hitbox = hitboxesCheck[i];
-                        if (hitbox != null && hitboxCollision(xTouch, yTouch,
-                                hitbox.getUpLeftPoint(),
-                                hitbox.getDownRightPoint())) {
+                        if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
                             return hitbox;
                         }
                     }
@@ -228,9 +249,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
                     Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
                     if (hitboxesCheck != null) {
                         for (Hitbox hitbox : hitboxesCheck) {
-                            if (hitbox != null && hitboxCollision(xTouch, yTouch,
-                                    hitbox.getUpLeftPoint(),
-                                    hitbox.getDownRightPoint())) {
+                            if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
                                 return hitbox;
                             }
                         }
@@ -242,11 +261,11 @@ public class TouchInputController extends InputController implements View.OnKeyL
         return null;
     }
 
-    private boolean hitboxCollision(int xTouch, int yTouch, Point upLeft, Point downRight){
-        return(xTouch > upLeft.getX()
-                && xTouch < downRight.getX()
-                && yTouch > upLeft.getY()
-                && yTouch < downRight.getY());
+    private boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {//Point upLeft, Point downRight){
+        return(xTouch > hitbox.getUpLeftX()
+                && xTouch < hitbox.getDownRightX()
+                && yTouch > hitbox.getUpLeftY()
+                && yTouch < hitbox.getDownRightY());
     }
 
     @FunctionalInterface

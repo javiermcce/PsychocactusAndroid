@@ -45,7 +45,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName() + " menu");
         this.father = father;
-        this.pieces = MenuFlyweight.getInstance(gameEngine);
+        this.pieces = MenuFlyweight.getInstance(gameEngine, MenuFlyweight.CONTEXT_MENU_TYPE);
         this.menuCanvas = new Canvas();
         this.menuMatrix = new Matrix();
         this.menuPaint = new Paint();
@@ -54,8 +54,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         this.textPaint = new TextPaint();
         this.textPaint.setTextSize(42);
         this.textPaint.setColor(Color.WHITE);
-        Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
-        this.textPaint.setTypeface(typeface);
+        this.textPaint.setTypeface(GameEngine.getInstance().getTypeface());
         this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
     }
 
@@ -284,7 +283,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         String confirmationMessage = "Do you want "
                 + this.father.getRoleName() + " to execute '"
                 + this.menuOptions[index].optionName + "' action?";
-        GameEngine.showConfirmationDialog(confirmationMessage,
+        GameEngine.getInstance().showConfirmationDialog(confirmationMessage,
                 () -> {
                     this.father.onOptionSelected(this.menuOptions[index].optionName);
                     GameLogic.getInstance().getStateManager().updateEntities();

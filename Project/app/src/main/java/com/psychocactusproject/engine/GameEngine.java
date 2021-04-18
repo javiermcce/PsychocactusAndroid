@@ -2,7 +2,11 @@ package com.psychocactusproject.engine;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Typeface;
 
+import androidx.core.content.res.ResourcesCompat;
+
+import com.psychocactusproject.R;
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
 import com.psychocactusproject.graphics.controllers.DebugDrawable;
@@ -10,6 +14,7 @@ import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
+import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
@@ -21,7 +26,7 @@ public class GameEngine {
 
     public final static int RESOLUTION_X = 1280;
     public final static int RESOLUTION_Y = 720;
-    private static GameDialog activeDialog;
+    private DialogScreen activeDialog;
     private UpdateThread updateThread;
     private DrawThread drawThread;
     private final List<GameEntity> gameEntities;
@@ -29,46 +34,55 @@ public class GameEngine {
     private final List<GameEntity> entitiesToRemove;
     private final List<Drawable> gameDrawables;
     private final List<DebugDrawable> debugDrawables;
-    private final HashMap<CHARACTER_LAYERS, List<Drawable>> drawablesByLayer;
+    private final HashMap<GAME_LAYERS, List<Drawable>> drawablesByLayer;
     private InputController inputController;
     private final GameActivity activity;
     private final GameView gameView;
     private final int deviceWidth;
     private final int deviceHeight;
-    private GameClock engineClock;
+    private final GameClock engineClock;
     private int adaptedWidth;
     private int adaptedHeight;
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
+    private SCENES pendingSceneChange;
+
     public enum SCENES { DIALOG, GAME, PAUSE_MENU }
-    public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT };
-    public enum CHARACTER_LAYERS { BACKGROUND, UNSPECIFIED, FRONT };
+    public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
+    public enum GAME_LAYERS { BACKGROUND, UNSPECIFIED, FRONT }
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
-    private static SCENES currentScene = SCENES.GAME;
+    private SCENES currentScene = SCENES.GAME;
+    //
+    private final Typeface typeface;
     //
     public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
 
     public GameEngine(GameActivity activity, GameView gameView) {
+        //
         this.activity = activity;
         this.gameView = gameView;
+        //
         this.gameEntities = new ArrayList<>();
         this.entitiesToAdd = new ArrayList<>();
         this.entitiesToRemove = new ArrayList<>();
         this.drawablesByLayer = new HashMap<>();
-        for (CHARACTER_LAYERS key : CHARACTER_LAYERS.values()) {
+        for (GAME_LAYERS key : GAME_LAYERS.values()) {
             this.drawablesByLayer.put(key, new LinkedList<>());
         }
         this.gameDrawables = new ArrayList<>();
         this.debugDrawables = new ArrayList<>();
         this.gameView.setGameEntities(this.gameEntities, this.gameDrawables, this.debugDrawables);
+        //
         this.deviceWidth = gameView.getWidth();
         this.deviceHeight = gameView.getHeight();
         this.engineClock = new GameClock(1, 1);
-        this.gameLogic = GameLogic.initialize();
+        this.gameLogic = GameLogic.initialize(this);
         this.debugHelper = new DebugHelper(this);
         this.activity.setDebugHelper(debugHelper);
+        this.pendingSceneChange = null;
+        this.typeface = ResourcesCompat.getFont(this.getContext(), R.font.truetypefont);
         // Se calculan los tamaños de la pantalla
         this.adjustScreenAspectRatio();
     }
@@ -123,8 +137,12 @@ public class GameEngine {
         return this.gameEntities;
     }
 
-    public List<Drawable> getEntitiesByLayer(CHARACTER_LAYERS layer) {
+    public List<Drawable> getEntitiesByLayer(GAME_LAYERS layer) {
         return this.drawablesByLayer.get(layer);
+    }
+
+    public Typeface getTypeface() {
+        return this.typeface;
     }
 
     // Esto debe ser AbstractSprite
@@ -133,7 +151,7 @@ public class GameEngine {
         List<List<Drawable>> listaDeListas = new LinkedList<>();
 
         for (int i = 0; i < this.drawablesByLayer.size(); i++) {
-            listaDeListas.add(this.drawablesByLayer.get(CHARACTER_LAYERS.values()[i]));
+            listaDeListas.add(this.drawablesByLayer.get(GAME_LAYERS.values()[i]));
         }
 
         //return new LinkedList<>(this.entitiesByLayer.values());
@@ -210,7 +228,7 @@ public class GameEngine {
         }
     }
 
-    public void addGameEntity(GameEntity gameEntity, CHARACTER_LAYERS layer) {
+    public void addGameEntity(GameEntity gameEntity, GAME_LAYERS layer) {
         if (this.isRunning()) {
             this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
         } else {
@@ -227,17 +245,19 @@ public class GameEngine {
     }
 
     // Método auténtico por el cual finalmente se añade
-    private void doAddGameEntity(GameEntity gameEntity, CHARACTER_LAYERS layer) {
+    private void doAddGameEntity(GameEntity gameEntity, GAME_LAYERS layer) {
         this.gameEntities.add(gameEntity);
         if (gameEntity instanceof Drawable) {
             this.gameDrawables.add((Drawable) gameEntity);
-            CHARACTER_LAYERS selected = layer != null ? layer : CHARACTER_LAYERS.UNSPECIFIED;
-            List<Drawable> layerList = this.drawablesByLayer.get(selected);
-            if (layerList == null) {
-                throw new IllegalStateException("La lista a la que se intenta acceder no ha sido inicializada. " +
-                        "Esta lista debe existir.");
+            // Si la entidad pertenece a alguna capa de entidad de juego, se suma al resto
+            if (layer != null) {
+                List<Drawable> layerList = this.drawablesByLayer.get(layer);
+                if (layerList == null) {
+                    throw new IllegalStateException("La lista a la que se intenta acceder no ha sido inicializada. " +
+                            "Esta lista debe existir.");
+                }
+                layerList.add((Drawable) gameEntity);
             }
-            layerList.add((Drawable) gameEntity);
         }
         if (gameEntity instanceof TurnChecker) {
             this.gameLogic.getStateManager().addUpdatableEntity((TurnChecker) gameEntity);
@@ -289,6 +309,11 @@ public class GameEngine {
                 GameEntity entityToAdd = entitiesToAdd.remove(0).gameEntity;
                 this.doAddGameEntity(entityToAdd);
             }
+            // El cambio de escena está sincronizado, para no ser ejecutado mientras nos
+            // encontramos en medio de un ciclo de dibujado
+            if (this.pendingSceneChange != null) {
+                this.doSwitchToScene();
+            }
         }
     }
 
@@ -324,101 +349,84 @@ public class GameEngine {
         this.inputController = inputController;
     }
 
-    public static SCENES getCurrentScene() {
-        return GameEngine.currentScene;
+    public SCENES getCurrentScene() {
+        return this.currentScene;
     }
 
-    public static void setCurrentScene(SCENES scene) {
-        GameEngine.currentScene = scene;
+    public void setCurrentScene(SCENES scene) {
+        this.currentScene = scene;
     }
 
-    public static void showConfirmationDialog(String message, Runnable action) {
-        GameEngine.activeDialog = new GameDialog(message, action);
+    public void switchToScene(SCENES scene) {
+        this.pendingSceneChange = scene;
     }
 
-    public static void showConfirmationDialog(String message, String details, Runnable action) {
-        GameEngine.activeDialog = new GameDialog(message, details, action);
+    public void doSwitchToScene() {
+        SCENES scene = this.pendingSceneChange;
+        SCENES oldScene = this.getCurrentScene();
+        switch (scene) {
+            case GAME:
+                this.clearDialog();
+                // la idea es que al final del fragmento ejecutable correspondiente, siempre se
+                // acuda a este metodo para hacer efectivo el cambio de escena
+                break;
+            case DIALOG:
+                break;
+            case PAUSE_MENU:
+                break;
+            default:
+                throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
+                        + ", pero no es válida.");
+        }
+        this.currentScene = scene;
     }
 
-    public static void showAlertDialog(String message) {
-        GameEngine.activeDialog = new GameDialog(message);
+    public void showConfirmationDialog(String message, Runnable action) {
+        this.showConfirmationDialog(message, null, action);
     }
 
-    public static void showAlertDialog(String message, String details) {
-        GameEngine.activeDialog = new GameDialog(message, details);
+    public void showConfirmationDialog(String message, String details, Runnable action) {
+        this.activeDialog = new DialogScreen(this, message, details, action);
+        this.addGameEntity(this.activeDialog, GAME_LAYERS.FRONT);
+        this.switchToScene(GameEngine.SCENES.DIALOG);
     }
 
-    public static GameDialog getDialog() {
-        return GameEngine.activeDialog = null;
+    public void showAlertDialog(String message) {
+        this.showAlertDialog(message, null);
     }
 
-    public static void clearDialog() {
-        GameEngine.activeDialog = null;
+    public void showAlertDialog(String message, String details) {
+        this.activeDialog = new DialogScreen(this, message, details);
+        this.addGameEntity(this.activeDialog, GAME_LAYERS.FRONT);
+        this.switchToScene(GameEngine.SCENES.DIALOG);
     }
 
-    public static class GameDialog {
+    public DialogScreen getDialog() {
+        return this.activeDialog;
+    }
 
-        public enum DIALOG_TYPE {
-            CONFIRMATION, ALERT
-        }
+    public void clearDialog() {
+        this.removeGameEntity(this.activeDialog);
+        this.activeDialog = null;
+    }
 
-        private final DIALOG_TYPE type;
-        private final String message;
-        private final String details;
-        private final Runnable action;
-
-        private GameDialog(String message) {
-            this(message, (String) null);
-        }
-
-        private GameDialog(String message, Runnable action) {
-            this(message, null, action);
-        }
-
-        private GameDialog(String message, String details) {
-            this.type = DIALOG_TYPE.ALERT;
-            this.message = message;
-            this.details = details;
-            this.action = null;
-        }
-
-        private GameDialog(String message, String details, Runnable action) {
-            this.type = DIALOG_TYPE.CONFIRMATION;
-            this.message = message;
-            this.details = details;
-            this.action = action;
-        }
-
-        public DIALOG_TYPE getType() {
-            return type;
-        }
-
-        public String getMessage() {
-            return this.message;
-        }
-
-        public String getDetails() {
-            return this.details;
-        }
-
-        public Runnable getAction() {
-            return this.action;
-        }
+    public static GameEngine getInstance() {
+        return GameLogic.getInstance().getGameEngine();
     }
 
     private static class EntityToAdd {
 
         private final GameEntity gameEntity;
-        private final CHARACTER_LAYERS layer;
+        private final GAME_LAYERS layer;
 
-        private EntityToAdd(GameEntity gameEntity, CHARACTER_LAYERS layer) {
+        private EntityToAdd(GameEntity gameEntity, GAME_LAYERS layer) {
             this.gameEntity = gameEntity;
             this.layer = layer;
         }
 
         private EntityToAdd(GameEntity gameEntity) {
             this.gameEntity = gameEntity;
-            this.layer = CHARACTER_LAYERS.UNSPECIFIED;
+            this.layer = GAME_LAYERS.UNSPECIFIED;
         }
     }
 
