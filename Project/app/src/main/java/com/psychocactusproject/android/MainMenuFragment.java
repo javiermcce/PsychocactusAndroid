@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.android;
+package com.psychocactusproject.android;
 
 import android.os.Bundle;
 

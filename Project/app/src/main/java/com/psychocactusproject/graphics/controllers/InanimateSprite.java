@@ -4,31 +4,50 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
-import com.psychocactusproject.manager.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine;
 
 public class InanimateSprite extends AbstractSprite {
 
+    public static final int NOT_SPECIFIED = -1;
     private Bitmap bitmap;
+    private Bitmap debugBitmap;
     private int imageWidth;
     private int imageHeight;
     private final String roleName;
-
-    public InanimateSprite(GameEngine gameEngine, int drawableResource, String roleName) {
-        super(gameEngine);
-        BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        this.bitmap = BitmapFactory.decodeResource(
-                gameEngine.getContext().getResources(),
-                drawableResource,
-                options);
-        this.imageWidth = bitmap.getWidth();
-        this.imageHeight = bitmap.getHeight();
-        this.roleName = roleName;
-    }
+    private BitmapFactory.Options options;
 
     public InanimateSprite(GameEngine gameEngine, String roleName) {
         super(gameEngine);
         this.roleName = roleName;
+    }
+
+    public InanimateSprite(GameEngine gameEngine, int drawableResource, String roleName) {
+        this(gameEngine, roleName);
+        this.options = new BitmapFactory.Options();
+        this.options.inScaled = false;
+        if (drawableResource != InanimateSprite.NOT_SPECIFIED) {
+            this.bitmap = BitmapFactory.decodeResource(
+                    gameEngine.getContext().getResources(),
+                    drawableResource,
+                    options);
+            this.imageWidth = bitmap.getWidth();
+            this.imageHeight = bitmap.getHeight();
+        }
+    }
+
+    public InanimateSprite(GameEngine gameEngine, int drawableResource, int debugDrawableResource,
+                           String roleName) {
+        this(gameEngine, drawableResource, roleName);
+        if (debugDrawableResource != InanimateSprite.NOT_SPECIFIED) {
+            this.debugBitmap = BitmapFactory.decodeResource(
+                    gameEngine.getContext().getResources(),
+                    debugDrawableResource,
+                    options);
+            if (this.imageWidth == 0 && this.imageHeight == 0) {
+                this.imageWidth = debugBitmap.getWidth();
+                this.imageHeight = debugBitmap.getHeight();
+            }
+        }
     }
 
     @Override
@@ -37,15 +56,26 @@ public class InanimateSprite extends AbstractSprite {
     }
 
     @Override
-    public void update(long elapsedMillis, GameEngine gameEngine) {
+    public void update(GameEngine gameEngine) {
 
     }
 
     @Override
     public void draw(Canvas canvas) {
-        this.getMatrix().reset();
-        this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
-        canvas.drawBitmap(this.bitmap, this.getMatrix(), null);
+        if (this.bitmap != null) {
+            this.getMatrix().reset();
+            this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
+            canvas.drawBitmap(this.bitmap, this.getMatrix(), null);
+        }
+    }
+
+    @Override
+    public void debugDraw(Canvas canvas) {
+        if (this.debugBitmap != null) {
+            this.getMatrix().reset();
+            this.getMatrix().postTranslate((float) this.getPositionX(), (float) this.getPositionY());
+            canvas.drawBitmap(this.debugBitmap, this.getMatrix(), null);
+        }
     }
 
     @Override

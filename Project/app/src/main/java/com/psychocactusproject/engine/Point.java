@@ -1,6 +1,4 @@
-package com.psychocactusproject.manager.engine;
-
-import androidx.annotation.Nullable;
+package com.psychocactusproject.engine;
 
 public class Point {
 

@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.engine;
+package com.psychocactusproject.engine;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -38,6 +38,15 @@ public class Hitbox {
         this.index = index;
     }
 
+    public Hitbox(Clickable father, int index) {
+        this.xUpLeft = 0;
+        this.yUpLeft = 0;
+        this.xDownRight = 100;
+        this.yDownRight = 100;
+        this.father = father;
+        this.index = index;
+    }
+
     public int getUpLeftX(){
         return this.father.getPositionX() +
                 this.father.getSpriteWidth() * xUpLeft / 100;
@@ -66,12 +75,34 @@ public class Hitbox {
         return new Point(getDownRightX(), getDownRightY());
     }
 
+    public int getXUpLeftPercentage() {
+        return this.xUpLeft;
+    }
+
+    public int getYUpLeftPercentage() {
+        return this.yUpLeft;
+    }
+
+    public int getXDownRightPercentage() {
+        return this.xDownRight;
+    }
+
+    public int getYDownRightPercentage() {
+        return this.yDownRight;
+    }
+
     public Clickable getFather() {
         return this.father;
     }
 
     public int getIndex() {
         return this.index;
+    }
+
+    public static Point percentagesToRelativePoint(int xPercentage, int yPercentage, int elementWidth, int elementHeight) {
+        int xCoord = elementWidth * xPercentage / 100;
+        int yCoord = elementHeight * yPercentage / 100;
+        return new Point(xCoord, yCoord);
     }
 
     public static void drawHitboxes(Hitbox[] hitboxes, Canvas canvas) {

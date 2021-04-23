@@ -11,29 +11,32 @@ import android.text.TextPaint;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.android.GameFragment;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
 
 public class ContextMenu extends InanimateSprite implements Clickable {
 
-    private MenuFlyweight pieces;
-    private MenuDisplay father;
+    private final MenuFlyweight pieces;
+    private final MenuDisplay father;
+    private final Canvas menuCanvas;
+    private final Matrix menuMatrix;
+    private final Paint menuPaint;
+    private final TextPaint textPaint;
     private boolean menuIsAvailable;
     private boolean menuIsShown;
-    private Canvas menuCanvas;
-    private Matrix menuMatrix;
-    private Paint menuPaint;
-    private TextPaint textPaint;
     private Hitbox[] menuHitboxes;
-    private MenuOption[] lastMenuOptions;
+    // Antes esto se llamaba lastMenuOptions, pero creo que no es necesario crear de nuevo
+    // un menú cada vez que se actualice un estado. Y creo que no habrá introducción de
+    // nuevas opciones en el transcurso del juego
+    private MenuOption[] menuOptions;
     private Point lastPosition;
 
     // Para implementar que las opciones estén disponibles o no, basta generar un bitmap en que
-    // el texto se imprima con un color grisaceo
+    // el texto se imprima con un color grisáceo
     // En cuanto a las hitboxes, sobrescribir su método para devolver un nuevo array solo con las
     // disponibles
 
@@ -42,7 +45,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName() + " menu");
         this.father = father;
-        this.pieces = MenuFlyweight.getInstance(gameEngine);
+        this.pieces = MenuFlyweight.getInstance(gameEngine, MenuFlyweight.CONTEXT_MENU_TYPE);
         this.menuCanvas = new Canvas();
         this.menuMatrix = new Matrix();
         this.menuPaint = new Paint();
@@ -51,13 +54,23 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         this.textPaint = new TextPaint();
         this.textPaint.setTextSize(42);
         this.textPaint.setColor(Color.WHITE);
-        Typeface typeface = ResourcesCompat.getFont(gameEngine.getContext(), R.font.truetypefont);
-        this.textPaint.setTypeface(typeface);
-        this.setBitmap(this.buildMenu(father.getMenuOptions()));
+        this.textPaint.setTypeface(GameEngine.getInstance().getTypeface());
+        this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
     }
 
+    /**
+     * Provisional: Se llama onUpdate sin menuOptions inicializado porque se ha construido un
+     * objeto que inicialmente no tenía NINGUNA otra opción. Se llama onUpdate con menuOptions
+     * inicializado cuando se quiere actualizar el estado de alguna opción
+     * a desactivado / activado (que es el caso principal)
+     */
     public void onUpdate() {
-        this.setBitmap(this.buildMenu(father.getMenuOptions()));
+        if (this.menuOptions != null) {
+            this.setBitmap(this.buildMenu(this.menuOptions));
+        } else {
+            this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
+        }
+
     }
 
     // Construye una nueva versión del menú y actualiza los parámetros de la instancia
@@ -74,7 +87,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
             }
         }
         // maximumOptionLength += 3;
-        this.lastMenuOptions = options;
+        this.menuOptions = options;
         // Calculamos el tamaño que tendrá el eje horizontal del menú
         int computedWidth = this.pieces.getTopLeftPiece().getWidth() +
                 this.pieces.getTopRightPiece().getWidth() +
@@ -155,6 +168,17 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         return menuBitmap;
     }
 
+    public ContextMenu.MenuOption[] createMenuOptions(MenuDisplay father) {
+        ContextMenu.MenuOption[] options = new ContextMenu.MenuOption[father.getOptionNames().length];
+        for (int i = 0; i < father.getOptionNames().length; i++) {
+            options[i] = new MenuOption(father.getOptionNames()[i]);
+        }
+        return options;
+    }
+
+    public MenuOption[] getMenuOptions() {
+        return this.menuOptions;
+    }
 
     public boolean isMenuAvailable() {
         return this.menuIsAvailable;
@@ -162,23 +186,30 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
     @Override
     public boolean isAvailable(int index) {
-        // aquí tendría que devolver opción por opción si está disponible o no
-        return this.menuIsAvailable;
+        // Aquí devuelvo si CADA OPCIÓN está disponible o no
+        return this.getMenuOptions()[index].isAvailable();
     }
 
     @Override
     public void enableClickable(int index) {
-
+        this.menuOptions[index].available = true;
     }
 
     @Override
     public void disableClickable(int index) {
-
+        this.menuOptions[index].available = false;
     }
 
     // también tendría que sobrescribir el método de dibujado, ya que el menú se
     // dibuja entero aunque alguna opción no esté disponible
 
+    /**
+     * Provisional: Tengo algunas dudas sobre si tiene sentido hacer uso de la variable menuIsShown,
+     * o si resulta de alguna forma una duplicidad de código, ya que guardo constancia por otra
+     * parte de las opciones de menú que están disponibles y de los estados alterados que permiten
+     * continuar con el juego
+     * @return
+     */
     public boolean isShown() {
         return this.menuIsShown;
     }
@@ -229,13 +260,13 @@ public class ContextMenu extends InanimateSprite implements Clickable {
                 menuPosition.getY() - 20);
         this.setPosition(menuPosition);
         // Coloca las hitboxes en relación a la posición ajustada
-        this.menuHitboxes = new Hitbox[this.lastMenuOptions.length];
+        this.menuHitboxes = new Hitbox[this.menuOptions.length];
         int xMarginPerc = (int)((float) this.pieces.getLeftPiece().getWidth() /
                 this.getSpriteWidth() * 100);
         int yMarginPerc = (int)((float) this.pieces.getTopPiece().getHeight() /
                 this.getSpriteHeight() * 100);
-        int yFragmentPerc = (100 - (yMarginPerc * 2)) / this.lastMenuOptions.length;
-        for (int i = 0; i  < this.lastMenuOptions.length; i++) {
+        int yFragmentPerc = (100 - (yMarginPerc * 2)) / this.menuOptions.length;
+        for (int i = 0; i  < this.menuOptions.length; i++) {
             int xPercUpLeft = xMarginPerc;
             int xPercDownRight = 100 - xMarginPerc;
             int yPercUpLeft = yMarginPerc + i * yFragmentPerc;
@@ -248,17 +279,26 @@ public class ContextMenu extends InanimateSprite implements Clickable {
 
     @Override
     public void executeClick(int index) {
-        if (GameEngine.DEBUGGING) {
-            System.out.println(this.getRoleName() + ": " + index);
-            GameFragment.setDebugText(this.getRoleName() + ": " + this.lastMenuOptions[index].optionName);
-        }
-        this.father.onOptionSelected(this.lastMenuOptions[index].optionName);
+        // Pregunta por confirmación
+        String confirmationMessage = "Do you want "
+                + this.father.getRoleName() + " to execute '"
+                + this.menuOptions[index].optionName + "' action?";
+        GameEngine.getInstance().showConfirmationDialog(confirmationMessage,
+                () -> {
+                    this.father.onOptionSelected(this.menuOptions[index].optionName);
+                    GameLogic.getInstance().getStateManager().updateEntities();
+                }
+        );
     }
 
-    public static class MenuOption {
+    public String getFatherRole() {
+        return this.father.getRoleName();
+    }
 
-        public boolean available;
-        public String optionName;
+    public class MenuOption {
+
+        private boolean available;
+        private final String optionName;
 
         public MenuOption(String option) {
             this.available = true;
@@ -268,6 +308,23 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         public MenuOption(String option, boolean available) {
             this.available = available;
             this.optionName = option;
+        }
+
+        public boolean isAvailable() {
+            return this.available;
+        }
+
+        public String getOptionName() {
+            return this.optionName;
+        }
+
+        public void enable() {
+            this.available = true;
+        }
+
+        public void disable() {
+            this.available = false;
+            onUpdate();
         }
     }
 }

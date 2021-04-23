@@ -14,28 +14,31 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.graphics.controllers.DebugDrawable;
+import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.input.TouchInputController;
+import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.manager.engine.GameClock;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameClock;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.Hitbox;
+import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
+import static com.psychocactusproject.engine.GameEngine.SCENES;
 
-import java.util.LinkedList;
+import java.util.HashMap;
 import java.util.List;
 
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.FALSE;
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.LEFT_RIGHT;
-import static com.psychocactusproject.manager.engine.GameEngine.BlackStripesTypes.TOP_BOTTOM;
 
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
 
-    // Si quisiera hacer bien esto de poder utilizar ambas views, deberían
-    // implementar una interfaz común hecha expresamente a propósito
-
     private List<GameEntity> gameEntities;
+    private List<Drawable> gameSprites;
+    private List<DebugDrawable> debugSprites;
+    private GameEngine gameEngine;
     private boolean ready;
     private final Canvas frameCanvas;
     private final Paint basicPaint;
@@ -53,8 +56,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static int filterLevels = 20;
     private static Paint[] colorFilters;
     private static GameClock filterClock;
-    // DEBUG
-    public static List<Point> inputMovePoints = new LinkedList<>();
+
+    private HashMap<SCENES, Drawable> drawableScenesMap;
 
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
@@ -73,6 +76,107 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         filterLevels = 20;
         colorFilters = generateColorFilters();
         filterClock = new GameClock(filterLevels, 0.6, true);
+
+        this.drawableScenesMap = new HashMap<>();
+        this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
+        this.drawableScenesMap.put(SCENES.DIALOG, this.definedDialogDrawable());
+        // this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
+    }
+
+
+    /*
+    * YA QUE LOS FRAGMENTOS DE CÓDIGOS HAN SIDO ESCRITOS COMO FUNCIONALES, PODRÍA APLICARSE
+    * PARA "SUPERPONER" CAPAS DE DIBUJADO. CUANDO ABRAMOS LA ESCENA MENÚ O LA ESCENA AVISO,
+    * ESTAS ESCENAS LLAMARÍAN TAMBIÉN A JUEGO, CON LO QUE TENEMOS ESTO SIENDO DIBUJADO DE FONDO
+    * MIENTRAS DIBUJAMOS UNA NUEVA ESCENA
+    * */
+    public Drawable definedGameDrawable() {
+        // Dibuja todos los elementos del juego por capas de prioridades
+        return (canvas) -> {
+            // Prioridad 3: Personajes
+            synchronized (GameEntity.entitiesLock) {
+                for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
+                    for (Drawable drawableEntity : drawableLayers) {
+                        drawableEntity.draw(canvas);
+                    }
+                }
+            }
+            // Prioridad 2: Menús
+            synchronized (GameEntity.entitiesLock) {
+                for (int i = 0; i < this.gameSprites.size(); i++) {
+                    if (this.gameSprites.get(i) instanceof MenuDisplay) {
+                        MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
+                        if (menuHolder.isMenuOpen()) {
+                            menuHolder.renderMenu(canvas);
+                            if (GameEngine.DEBUGGING) {
+                                Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
+                                // El fragmento de aquí abajo omite mostrar las hitboxes no activadas
+                                // cuando realmente lo que deseo es mostrarlas desactivadas y seguir
+                                // interactuando con ellas, pero de otra forma distinta
+                            /*
+                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
+                            for (int j = 0; j < availableHitboxes.length; j++) {
+                                if (menuHolder.getMenu().isAvailable(j)) {
+                                    availableHitboxes[j] = menuHitboxes[j];
+                                }
+                            }*/
+                                // Hitbox.drawHitboxes(availableHitboxes, canvas);
+                                Hitbox.drawHitboxes(menuHitboxes, canvas);
+                            }
+                        }
+                    }
+                }
+            }
+            // Prioridad 1: Interfaz de usuario
+            synchronized (GameEntity.entitiesLock) {
+                if (GameEngine.DEBUGGING) {
+                    for (int i = 0; i < this.debugSprites.size(); i++) {
+                        this.debugSprites.get(i).debugDraw(canvas);
+                    }
+                }
+                for (int i = 0; i < this.gameSprites.size(); i++) {
+                    if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
+                        Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
+                    }
+                }
+            }
+        };
+    }
+
+    public Drawable definedDialogDrawable() {
+        return (canvas) -> {
+            synchronized (GameEntity.entitiesLock) {
+                // Dibuja de fondo el juego en su estado actual
+                definedGameDrawable().draw(canvas);
+                // Imprime la ventana de diálogo
+                // REFACTORIZAR: PROHIBIDO LLAMAR CONSTRUCTORES EN EL BUCLE DE DIBUJADO
+                Paint paint = new Paint();
+                paint.setColor(Color.argb(100, 20, 20, 50));
+                // int left, int top, int right, int bottom
+                canvas.drawRect(new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y), paint);
+
+
+                DialogScreen dialogScreen = GameEngine.getInstance().getDialog();
+                // Ahora se dibuja como tal el menú de diálogo
+                dialogScreen.draw(canvas);
+                if (GameEngine.DEBUGGING) {
+                    Hitbox.drawHitboxes(dialogScreen.getHitboxes(), canvas);
+                }
+            }
+        };
+
+        /*
+        GameEngine engine = GameEngine.getInstance();
+        if (engine.getDialog() == null) {
+            return;
+        }
+        GameDialog dialog = engine.getDialog();
+        if (dialog.getType() == DIALOG_TYPE.ALERT) {
+
+        } else if (dialog.getType() == DIALOG_TYPE.CONFIRMATION) {
+
+        }
+        * */
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
@@ -85,16 +189,16 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // Se da de alta el sprite para el fondo de pantalla
         this.backgroundSprite = new InanimateSprite(gameEngine, R.drawable.background_black_bars, "Background Bars Image");
         // Si la pantalla no tendrá bandas negras, porque la relación de pantalla es de 16/9
-        if (gameEngine.hasBlackStripes() != FALSE) {
+        if (gameEngine.hasBlackStripes() != BLACK_STRIPE_TYPES.FALSE) {
             int backgroundX = deviceWidth;
             int backgroundY = deviceHeight;
             // Si las bandas negras están arriba y abajo
-            if (gameEngine.hasBlackStripes() == TOP_BOTTOM) {
+            if (gameEngine.hasBlackStripes() == BLACK_STRIPE_TYPES.TOP_BOTTOM) {
                 this.basicMatrix.postTranslate(0, gameEngine.getAspectRatioMargin());
                 backgroundX = (int) (((double) deviceHeight / this.adaptedHeight) * this.adaptedWidth);
                 backgroundY = deviceHeight;
             // Si las bandas negras están a los laterales
-            } else if (gameEngine.hasBlackStripes() == LEFT_RIGHT) {
+            } else if (gameEngine.hasBlackStripes() == BLACK_STRIPE_TYPES.LEFT_RIGHT) {
                 this.basicMatrix.postTranslate(gameEngine.getAspectRatioMargin(), 0);
                 backgroundX = deviceWidth;
                 backgroundY = (int) (((double) deviceWidth / this.adaptedWidth) * this.adaptedHeight);
@@ -120,8 +224,15 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     @Override
-    public void setGameEntities(List<GameEntity> gameEntities) {
+    public void setGameEntities(List<GameEntity> gameEntities, List<Drawable> gameSprites, List<DebugDrawable> debugSprites) {
         this.gameEntities = gameEntities;
+        this.gameSprites = gameSprites;
+        this.debugSprites = debugSprites;
+    }
+
+    @Override
+    public void setGameEngine(GameEngine gameEngine) {
+        this.gameEngine = gameEngine;
     }
 
     @Override
@@ -138,47 +249,13 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // DEBUG: dibuja en el frame de juego unas figuras equivalentes en todos los dispositivos
         if (GameEngine.DEBUGGING) {
             this.frameCanvas.drawRGB(0, 0, 0);
-            this.frameDrawTest();
         }
-        // Dibuja todos los elementos del juego por capas de prioridades
-        // Prioridad 3: Personajes
-        synchronized (this.gameEntities) {
-            for (int i = 0; i < this.gameEntities.size(); i++) {
-                this.gameEntities.get(i).draw(this.frameCanvas);
-                if (GameEngine.DEBUGGING && this.gameEntities.get(i) instanceof Clickable) {
-                    Hitbox.drawHitboxes(((Clickable) this.gameEntities.get(i)).getHitboxes(), frameCanvas);
-                }
-            }
-        }
-        // Prioridad 2: Menús
-        synchronized (this.gameEntities) {
-            for (int i = 0; i < this.gameEntities.size(); i++) {
-                if (this.gameEntities.get(i) instanceof MenuDisplay) {
-                    MenuDisplay menu = ((MenuDisplay) this.gameEntities.get(i));
-                    menu.renderMenu(frameCanvas);
-                    if (GameEngine.DEBUGGING) {
-                        Hitbox.drawHitboxes(menu.getMenu().getHitboxes(), frameCanvas);
-                    }
-                }
-            }
-        }
-        // Prioridad 1: Interfaz de usuario
-
+        // Dibuja la escena actual
+        this.drawableScenesMap.get(GameEngine.getInstance().getCurrentScene()).draw(this.frameCanvas);
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
         screen.drawBitmap(scaledBitmap, this.basicMatrix, this.basicPaint);
-        // DEBUG: Dibuja los puntos recorridos por la acción táctil de arrastrar
-        if (GameEngine.DEBUGGING) {
-            Paint basicPaint2 = new Paint();
-            basicPaint2.setColor(Color.WHITE);
-            synchronized (inputMovePoints) {
-                for (Point punto : inputMovePoints) {
-                    Rect rect = new Rect(punto.getX() - 2, punto.getY() - 2, punto.getX() + 2, punto.getY() + 2);
-                    screen.drawRect(rect, basicPaint2);
-                }
-            }
-        }
         // Plasma el frame obtenido tras aplicar el dibujado de los elementos
         getHolder().unlockCanvasAndPost(screen);
     }

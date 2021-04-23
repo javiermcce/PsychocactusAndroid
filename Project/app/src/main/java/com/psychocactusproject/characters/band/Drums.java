@@ -1,9 +1,10 @@
 package com.psychocactusproject.characters.band;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Hitbox;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.Point;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -11,9 +12,18 @@ import java.util.List;
 
 public class Drums extends Musician {
 
+    private final static String FATIGUE_ACTION = "Sleep";
+    private final static String FURY_ACTION = "Mom's Call";
+    private final static String FUN_ACTION = "Throw Drumstick";
+    private final static String SOLO_ACTION = "Solo";
+    private final static String PLAY_ACTION = "Play";
+    // Debug
+    private static boolean debugMusician = false;
+
     public Drums(GameEngine gameEngine) {
-        super(gameEngine, new String[] { "Sleep", "Phone Call", "Throw Drumstick", "Solo" });
+        super(gameEngine, new String[] { FATIGUE_ACTION, FURY_ACTION, FUN_ACTION, SOLO_ACTION });
         this.setPosition(new Point(608, 109));
+        this.getMenu().getMenuOptions()[0].disable();
     }
 
     @Override
@@ -52,17 +62,61 @@ public class Drums extends Musician {
     @Override
     public void onOptionSelected(String option) {
         switch (option) {
-            case "Sleep":
+            case FATIGUE_ACTION:
+                this.fatigueAction();
                 break;
-            case "Phone Call":
+            case FURY_ACTION:
+                this.furyAction();
                 break;
-            case "Throw Drumstick":
+            case FUN_ACTION:
+                this.funAction();
                 break;
-            case "Solo":
+            case SOLO_ACTION:
+                this.solo();
+                break;
+            case PLAY_ACTION:
+                this.play();
                 break;
             default:
                 throw new IllegalArgumentException("Se ha seleccionado una opción de menú " +
                         "que no existe.");
         }
+    }
+
+    @Override
+    protected boolean debuggingMusician() {
+        return Drums.debugMusician;
+    }
+
+    public static void debugDrumsSwitch() {
+        Drums.debugMusician = !Drums.debugMusician;
+    }
+
+    @Override
+    public void funAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().throwStick();
+    }
+
+    @Override
+    public void fatigueAction() {
+        super.fatigueAction();
+        GameLogic.getInstance().getStateManager().sleep();
+    }
+
+    @Override
+    public void furyAction() {
+        super.furyAction();
+        GameLogic.getInstance().getStateManager().momsCall();
+    }
+
+    @Override
+    public void solo() {
+        // throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void checkAndUpdate() {
+
     }
 }

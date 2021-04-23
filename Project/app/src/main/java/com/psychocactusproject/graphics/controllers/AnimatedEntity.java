@@ -3,9 +3,9 @@ package com.psychocactusproject.graphics.controllers;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.psychocactusproject.manager.engine.GameClock;
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.Hitbox;
+import com.psychocactusproject.engine.GameClock;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.Hitbox;
 
 import java.util.ArrayList;
 import java.util.HashMap;

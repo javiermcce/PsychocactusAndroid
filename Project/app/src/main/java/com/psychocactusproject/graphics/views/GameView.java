@@ -2,7 +2,10 @@ package com.psychocactusproject.graphics.views;
 
 import android.content.Context;
 
-import com.psychocactusproject.manager.engine.GameEntity;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.graphics.controllers.DebugDrawable;
+import com.psychocactusproject.graphics.controllers.Drawable;
 
 import java.util.List;
 
@@ -10,7 +13,10 @@ public interface GameView {
 
     public void draw();
 
-    public void setGameEntities(List<GameEntity> gameEntities);
+    public void setGameEntities(List<GameEntity> gameEntities, List<Drawable> gameSprites,
+                                List<DebugDrawable> debugSprites);
+
+    public void setGameEngine(GameEngine gameEngine);
 
     public int getWidth();
 

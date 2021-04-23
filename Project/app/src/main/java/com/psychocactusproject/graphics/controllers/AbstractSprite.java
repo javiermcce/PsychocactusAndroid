@@ -3,11 +3,11 @@ package com.psychocactusproject.graphics.controllers;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 
-import com.psychocactusproject.manager.engine.GameEngine;
-import com.psychocactusproject.manager.engine.GameEntity;
-import com.psychocactusproject.manager.engine.Point;
+import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.Point;
 
-public abstract class AbstractSprite extends GameEntity implements Dimensions {
+public abstract class AbstractSprite extends GameEntity implements Dimensions, Drawable, DebugDrawable {
 
     private int positionX;
     private int positionY;

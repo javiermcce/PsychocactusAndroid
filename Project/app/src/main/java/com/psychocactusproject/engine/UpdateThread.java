@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.engine;
+package com.psychocactusproject.engine;
 
 public class UpdateThread extends Thread {
 
@@ -13,6 +13,13 @@ public class UpdateThread extends Thread {
         this.updateRunning = true;
         this.updatePaused = false;
     }
+
+    /*
+    * SI QUIERO QUE LA CLASE UPDATE THREAD SEA COHERENTE DEBERÍA OBTENER LOS ESTADOS DE
+    * CADA UNO DE LOS OBJETOS EN EL PROPIO HILO, QUE UPDATETHREAD TUVIESE LA ÚNICA REFERENCIA
+    * A GAMELOGIC, Y QUE LOS OBJETOS MANIFESTASEN SU ESTADO PERO NO ACTUASEN PARA CAMBIAR
+    * SU COMPORTAMIENTO. GAME LOGIC POR OTRA PARTE DEJARÍA DE SER SINGLETON
+    * */
 
     @Override
     public void run() {

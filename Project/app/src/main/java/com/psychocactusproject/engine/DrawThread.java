@@ -1,4 +1,4 @@
-package com.psychocactusproject.manager.engine;
+package com.psychocactusproject.engine;
 
 public class DrawThread extends Thread {
 

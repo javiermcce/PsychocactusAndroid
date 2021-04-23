@@ -1,7 +1,8 @@
-package com.psychocactusproject.manager.android;
+package com.psychocactusproject.android;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import com.psychocactusproject.R;
 public class GameActivity extends AppCompatActivity {
 
     private static final String TAG_FRAGMENT = "content";
+    private DebugHelper debugHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,5 +67,43 @@ public class GameActivity extends AppCompatActivity {
                 throw new IllegalStateException("Android Lollipop required to run this game");
             }
         }
+    }
+
+    public void setDebugHelper(DebugHelper helper) {
+        this.debugHelper = helper;
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        char charToDisplay = event.getKeyCharacterMap().getDisplayLabel(keyCode);
+        // Si se pulsa una tecla especial
+        if (event.getKeyCode() == KeyEvent.KEYCODE_DEL) {
+            this.debugHelper.deleteLastCharacter();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_SPACE) {
+            this.debugHelper.addCharacterToTerminal(' ');
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+            this.debugHelper.executeCommand();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_UP
+                || event.getKeyCode() == KeyEvent.KEYCODE_DPAD_RIGHT) {
+            this.debugHelper.showPreviousCommand();
+        } else if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN
+                || event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT) {
+            this.debugHelper.showNextCommand();
+        // En caso contrario, comprobamos si conocemos el carácter
+        } else if (charToDisplay != '\u0000') {
+            // Si se trata de un carácter alfabético
+            if (charToDisplay >= 'A' && charToDisplay <= 'Z') {
+                // Si el usuario no pulsa una combinación para letras mayúsculas, reduce a minúsculas
+                if (event.isShiftPressed() || event.isShiftPressed() && event.isCapsLockOn()) {
+                    this.debugHelper.addCharacterToTerminal(charToDisplay);
+                } else {
+                    this.debugHelper.addCharacterToTerminal(Character.toLowerCase(charToDisplay));
+                }
+            // Si se trata de cualquier otro carácter sí reconocido
+            } else {
+                this.debugHelper.addCharacterToTerminal(charToDisplay);
+            }
+        }
+        return false;
     }
 }
