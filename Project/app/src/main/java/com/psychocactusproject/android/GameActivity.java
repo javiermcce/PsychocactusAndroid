@@ -6,6 +6,7 @@ import android.view.KeyEvent;
 import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.psychocactusproject.R;
 
@@ -105,5 +106,9 @@ public class GameActivity extends AppCompatActivity {
             }
         }
         return false;
+    }
+
+    public GameFragment getFragment() {
+        return (GameFragment) this.getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
     }
 }

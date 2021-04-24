@@ -239,6 +239,19 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         this.dialogMatrix.reset();
 
         // INSERTAR TEXTO DEL DIALOGO AQUÍ
+        // Este es el caso que ahora mismo hay definido, insertar en este condicional
+        if (this.getDetails() == null) {
+
+        // En este caso, debería hacer espacio para insertar la
+        // descripción (cambiarle también el color), modificando las palabras por línea,
+        // tamaño de fuente, etc...
+
+        // Valorar opción de convertir el fragmento de abajo en un método
+        // parametrizado (drawCenteredText no debería verse modificado, sino ser usado)
+        } else {
+
+        }
+
         String[] messageWords = this.message.split(" ");
         int wordIndex = 0;
         int lines = 0;
@@ -298,16 +311,6 @@ public class DialogScreen extends InanimateSprite implements Clickable {
             }
             this.drawCenteredText(relativeUpLeft, relativeDownRight, optionText, 60);
         }
-
-
-        // AQUI
-        this.getMessage();
-        this.getDetails();
-        Paint textPaint = new Paint();
-        textPaint.setColor(Color.WHITE);
-        //this.dialogCanvas.drawText();
-
-
         return dialogBitmap;
     }
 

@@ -3,9 +3,6 @@ package com.psychocactusproject.android;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Typeface;
-
-import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
@@ -16,6 +13,8 @@ import com.psychocactusproject.graphics.controllers.DrawableEntity;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+
+import static java.lang.Thread.sleep;
 
 public class DebugHelper {
 
@@ -80,6 +79,16 @@ public class DebugHelper {
     // Inserta todos los posibles comandos
     private void initializeCommands() {
         this.commands.put("disable debug", () -> { GameEngine.DEBUGGING = false; });
+        this.commands.put("pause", () -> {
+            GameEngine.getInstance().pauseGame();
+            try {
+                sleep(1500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            GameEngine.getInstance().resumeGame();
+            // GameEngine.getInstance().getGameActivity().getFragment().pauseGameAndShowPauseDialog();
+        });
     }
 
     public void showPreviousCommand() {

@@ -52,13 +52,14 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.touchableScenesMap = new HashMap<>();
         this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
         this.touchableScenesMap.put(SCENES.DIALOG, this.definedDialogTouchable());
+        this.touchableScenesMap.put(SCENES.PAUSE_MENU, this.definedPauseTouchable());
         // this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
     }
 
     public Touchable definedGameTouchable() {
         return (point) -> {
             // Comprueba si hay una colisión con alguna hitbox
-            Hitbox selected = checkHitboxes(point.getX(), point.getY());
+            Hitbox selected = checkGameHitboxes(point.getX(), point.getY());
             // this.closeAllMenus();
             // Si ha habido colisión, ejecuta su acción asignada
             if (selected != null) {
@@ -82,7 +83,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
                         String alertMessage = "The '" + option.getOptionName() + "' action of "
                                 + clickedMenu.getFatherRole() + " cannot be performed.";
                         // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
-                        GameEngine.getInstance().showAlertDialog(alertMessage);
+                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
                         // this.gameEngine.showAlertDialog(alertMessage, reason);
                         DebugHelper.printMessage("Aquí debería decir 'la acción "
                                 + option.getOptionName() + " no se encuentra disponible'");
@@ -99,7 +100,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
 
         return (point) -> {
             // Comprueba si la pantalla de diálogo ha sido creada
-            DialogScreen dialog = GameEngine.getInstance().getDialog();
+            DialogScreen dialog = GameEngine.getInstance().getSurfaceGameView().getDialog();
             if (dialog == null) {
                 throw new IllegalStateException("La pantalla de diálogo debía estar abierta.");
             }
@@ -114,6 +115,46 @@ public class TouchInputController extends InputController implements View.OnKeyL
             if (selected != null) {
                 Clickable clickableHolder = selected.getFather();
                 clickableHolder.executeClick(selected.getIndex());
+            }
+        };
+    }
+
+    public Touchable definedPauseTouchable() {
+        return (point) -> {
+            // Comprueba si hay una colisión con alguna hitbox
+            Hitbox selected = checkMenuHitboxes(point.getX(), point.getY());
+            // this.closeAllMenus();
+            // Si ha habido colisión, ejecuta su acción asignada
+            if (selected != null) {
+                Clickable clickableHolder = selected.getFather();
+                // Se trata de un personaje
+                if (clickableHolder instanceof MenuDisplay) {
+                    // Cierra los menús ya abiertos
+                    closeAllMenus();
+                    // Abre el nuevo menú
+                    clickableHolder.executeClick(selected.getIndex());
+                    // Se trata de un menú
+                } else if (clickableHolder instanceof ContextMenu) {
+                    ContextMenu clickedMenu = (ContextMenu) clickableHolder;
+                    MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
+                    if (option.isAvailable()) {
+                        // Cierra los menús ya abiertos
+                        closeAllMenus();
+                        // Ejecuta la acción de la instancia Clickable seleccionada
+                        clickableHolder.executeClick(selected.getIndex());
+                    } else {
+                        String alertMessage = "The '" + option.getOptionName() + "' action of "
+                                + clickedMenu.getFatherRole() + " cannot be performed.";
+                        // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
+                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
+                        // this.gameEngine.showAlertDialog(alertMessage, reason);
+                        DebugHelper.printMessage("Aquí debería decir 'la acción "
+                                + option.getOptionName() + " no se encuentra disponible'");
+                    }
+                }
+                // Si no es seleccionada ninguna hitbox, cierra menús
+            } else {
+                closeAllMenus();
             }
         };
     }
@@ -220,7 +261,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.setYCoordinate((int)((double) adjustedYTouch / borderlessDeviceHeight * GameEngine.RESOLUTION_Y));
     }
 
-    private Hitbox checkHitboxes(int xTouch, int yTouch) {
+    private Hitbox checkGameHitboxes(int xTouch, int yTouch) {
         // Prioridad nivel 1: interfaz
 
         // Prioridad nivel 2: menús
@@ -259,6 +300,29 @@ public class TouchInputController extends InputController implements View.OnKeyL
         }
 
         return null;
+    }
+
+    /**
+     * Utilizar tanto para la pantalla de inicio como para el menú de pausa dentro del juego
+     *
+     * @param xTouch
+     * @param yTouch
+     * @return
+     */
+    private Hitbox checkMenuHitboxes(int xTouch, int yTouch) {
+        // Prioridad nivel 3: personajes
+        /*for (MenuEntity menu : this.menuEntities) {
+            Hitbox[] hitboxesCheck = menu.getHitboxes();
+            if (hitboxesCheck != null) {
+                for (Hitbox hitbox : hitboxesCheck) {
+                    if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
+                        return hitbox;
+                    }
+                }
+            }
+        }
+
+         */return null;
     }
 
     private boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {//Point upLeft, Point downRight){

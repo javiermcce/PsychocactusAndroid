@@ -283,7 +283,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         String confirmationMessage = "Do you want "
                 + this.father.getRoleName() + " to execute '"
                 + this.menuOptions[index].optionName + "' action?";
-        GameEngine.getInstance().showConfirmationDialog(confirmationMessage,
+        GameEngine.getInstance().getSurfaceGameView().showConfirmationDialog(confirmationMessage,
                 () -> {
                     this.father.onOptionSelected(this.menuOptions[index].optionName);
                     GameLogic.getInstance().getStateManager().updateEntities();

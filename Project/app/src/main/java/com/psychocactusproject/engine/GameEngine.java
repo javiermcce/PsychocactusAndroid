@@ -1,6 +1,5 @@
 package com.psychocactusproject.engine;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 
@@ -9,9 +8,9 @@ import androidx.core.content.res.ResourcesCompat;
 import com.psychocactusproject.R;
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
+import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.controllers.DebugDrawable;
 import com.psychocactusproject.graphics.controllers.Drawable;
-import com.psychocactusproject.graphics.views.GameView;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
 import com.psychocactusproject.interaction.menu.DialogScreen;
@@ -26,7 +25,6 @@ public class GameEngine {
 
     public final static int RESOLUTION_X = 1280;
     public final static int RESOLUTION_Y = 720;
-    private DialogScreen activeDialog;
     private UpdateThread updateThread;
     private DrawThread drawThread;
     private final List<GameEntity> gameEntities;
@@ -37,7 +35,7 @@ public class GameEngine {
     private final HashMap<GAME_LAYERS, List<Drawable>> drawablesByLayer;
     private InputController inputController;
     private final GameActivity activity;
-    private final GameView gameView;
+    private final SurfaceGameView surfaceGameView;
     private final int deviceWidth;
     private final int deviceHeight;
     private final GameClock engineClock;
@@ -45,24 +43,27 @@ public class GameEngine {
     private int adaptedHeight;
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
-    private SCENES pendingSceneChange;
 
-    public enum SCENES { DIALOG, GAME, PAUSE_MENU }
+    // Scenes
+    private SCENES pendingSceneChange;
+    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU }
     public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
     public enum GAME_LAYERS { BACKGROUND, UNSPECIFIED, FRONT }
+    private SCENES currentScene = SCENES.GAME;
+
+    // Resources
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
-    private SCENES currentScene = SCENES.GAME;
     //
     private final Typeface typeface;
     //
     public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
 
-    public GameEngine(GameActivity activity, GameView gameView) {
+    public GameEngine(GameActivity activity, SurfaceGameView surfaceGameView) {
         //
         this.activity = activity;
-        this.gameView = gameView;
+        this.surfaceGameView = surfaceGameView;
         //
         this.gameEntities = new ArrayList<>();
         this.entitiesToAdd = new ArrayList<>();
@@ -73,48 +74,18 @@ public class GameEngine {
         }
         this.gameDrawables = new ArrayList<>();
         this.debugDrawables = new ArrayList<>();
-        this.gameView.setGameEntities(this.gameEntities, this.gameDrawables, this.debugDrawables);
+        this.surfaceGameView.setGameEntities(this.gameDrawables, this.debugDrawables);
         //
-        this.deviceWidth = gameView.getWidth();
-        this.deviceHeight = gameView.getHeight();
+        this.typeface = ResourcesCompat.getFont(this.getContext(), R.font.truetypefont);
+        this.deviceWidth = surfaceGameView.getWidth();
+        this.deviceHeight = surfaceGameView.getHeight();
         this.engineClock = new GameClock(1, 1);
         this.gameLogic = GameLogic.initialize(this);
         this.debugHelper = new DebugHelper(this);
         this.activity.setDebugHelper(debugHelper);
         this.pendingSceneChange = null;
-        this.typeface = ResourcesCompat.getFont(this.getContext(), R.font.truetypefont);
         // Se calculan los tamaños de la pantalla
         this.adjustScreenAspectRatio();
-    }
-
-    public void adjustScreenAspectRatio() {
-        if (!equalDoubleDivisions(this.deviceWidth, this.deviceHeight, 16, 9)) {
-            if ((float) this.deviceWidth / this.deviceHeight < 16 / 9.) {
-                // Si la relación es menor, tenemos bandas negras arriba y abajo
-                this.adaptedWidth = this.deviceWidth;
-                this.adaptedHeight = this.deviceWidth * 9 / 16;
-                this.aspectRatioMargin = (this.deviceHeight - this.adaptedHeight) / 2;
-                this.hasBlackStripes = BLACK_STRIPE_TYPES.TOP_BOTTOM;
-            } else {
-                // Si la relación es mayor, tenemos bandas negras a derecha e izquierda
-                this.adaptedHeight = this.deviceHeight;
-                this.adaptedWidth = this.deviceHeight * 16 / 9;
-                this.aspectRatioMargin = (this.deviceWidth - this.adaptedWidth) / 2;
-                this.hasBlackStripes = BLACK_STRIPE_TYPES.LEFT_RIGHT;
-            }
-        } else {
-            // Si la relación de pantalla es de 16/9, las medidas utilizadas son las naturales
-            this.adaptedWidth = this.deviceWidth;
-            this.adaptedHeight = this.deviceHeight;
-            this.aspectRatioMargin = 0;
-            this.hasBlackStripes = BLACK_STRIPE_TYPES.FALSE;
-        }
-        // Después de calcular las medidas, se ajustan los parámetros de dibujado
-        ((SurfaceGameView) (this.gameView)).setAspectRatio(this.deviceWidth, this.deviceHeight, this);
-    }
-
-    public boolean equalDoubleDivisions(double a, double b, double c, double d) {
-        return Math.abs(((double) a / b) - ((double) c / d)) < 0.01;
     }
 
     public int getAdaptedWidth() {
@@ -166,6 +137,36 @@ public class GameEngine {
         return this.hasBlackStripes;
     }
 
+    public void adjustScreenAspectRatio() {
+        if (!equalDoubleDivisions(this.deviceWidth, this.deviceHeight, 16, 9)) {
+            if ((float) this.deviceWidth / this.deviceHeight < 16 / 9.) {
+                // Si la relación es menor, tenemos bandas negras arriba y abajo
+                this.adaptedWidth = this.deviceWidth;
+                this.adaptedHeight = this.deviceWidth * 9 / 16;
+                this.aspectRatioMargin = (this.deviceHeight - this.adaptedHeight) / 2;
+                this.hasBlackStripes = BLACK_STRIPE_TYPES.TOP_BOTTOM;
+            } else {
+                // Si la relación es mayor, tenemos bandas negras a derecha e izquierda
+                this.adaptedHeight = this.deviceHeight;
+                this.adaptedWidth = this.deviceHeight * 16 / 9;
+                this.aspectRatioMargin = (this.deviceWidth - this.adaptedWidth) / 2;
+                this.hasBlackStripes = BLACK_STRIPE_TYPES.LEFT_RIGHT;
+            }
+        } else {
+            // Si la relación de pantalla es de 16/9, las medidas utilizadas son las naturales
+            this.adaptedWidth = this.deviceWidth;
+            this.adaptedHeight = this.deviceHeight;
+            this.aspectRatioMargin = 0;
+            this.hasBlackStripes = BLACK_STRIPE_TYPES.FALSE;
+        }
+        // Después de calcular las medidas, se ajustan los parámetros de dibujado
+        ((SurfaceGameView) (this.surfaceGameView)).setAspectRatio(this.deviceWidth, this.deviceHeight, this);
+    }
+
+    public boolean equalDoubleDivisions(double a, double b, double c, double d) {
+        return Math.abs(((double) a / b) - ((double) c / d)) < 0.01;
+    }
+
     public void startGame() {
         // Si el juego está en marcha, se detiene
         this.stopGame();
@@ -184,7 +185,7 @@ public class GameEngine {
         // Se inicia el gestor de controles
         this.inputController.start();
         //
-        this.gameView.setGameEngine(this);
+        this.surfaceGameView.setGameEngine(this);
     }
 
     public void stopGame() {
@@ -318,7 +319,7 @@ public class GameEngine {
     }
 
     public void drawGame() {
-        this.gameView.draw();
+        this.surfaceGameView.draw();
     }
 
     public boolean isRunning() {
@@ -330,15 +331,15 @@ public class GameEngine {
     }
 
     public Context getContext() {
-        return gameView.getContext();
+        return this.surfaceGameView.getContext();
     }
 
-    public Activity getActivity() {
+    public GameActivity getGameActivity() {
         return this.activity;
     }
 
-    public GameView getGameView() {
-        return this.gameView;
+    public SurfaceGameView getSurfaceGameView() {
+        return this.surfaceGameView;
     }
 
     public InputController getInputController() {
@@ -364,11 +365,25 @@ public class GameEngine {
     public void doSwitchToScene() {
         SCENES scene = this.pendingSceneChange;
         SCENES oldScene = this.getCurrentScene();
-        switch (scene) {
+        switch (oldScene) {
             case GAME:
-                this.clearDialog();
+
                 // la idea es que al final del fragmento ejecutable correspondiente, siempre se
                 // acuda a este metodo para hacer efectivo el cambio de escena
+                break;
+            case DIALOG:
+                this.getSurfaceGameView().clearDialog();
+                break;
+            case PAUSE_MENU:
+                this.getSurfaceGameView().clearLastGameFrame();
+                break;
+            default:
+                throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
+                        + ", pero no es válida.");
+        }
+        switch (scene) {
+            case GAME:
+                // this.clearDialog();
                 break;
             case DIALOG:
                 break;
@@ -379,35 +394,7 @@ public class GameEngine {
                         + ", pero no es válida.");
         }
         this.currentScene = scene;
-    }
-
-    public void showConfirmationDialog(String message, Runnable action) {
-        this.showConfirmationDialog(message, null, action);
-    }
-
-    public void showConfirmationDialog(String message, String details, Runnable action) {
-        this.activeDialog = new DialogScreen(this, message, details, action);
-        this.addGameEntity(this.activeDialog, GAME_LAYERS.FRONT);
-        this.switchToScene(GameEngine.SCENES.DIALOG);
-    }
-
-    public void showAlertDialog(String message) {
-        this.showAlertDialog(message, null);
-    }
-
-    public void showAlertDialog(String message, String details) {
-        this.activeDialog = new DialogScreen(this, message, details);
-        this.addGameEntity(this.activeDialog, GAME_LAYERS.FRONT);
-        this.switchToScene(GameEngine.SCENES.DIALOG);
-    }
-
-    public DialogScreen getDialog() {
-        return this.activeDialog;
-    }
-
-    public void clearDialog() {
-        this.removeGameEntity(this.activeDialog);
-        this.activeDialog = null;
+        this.pendingSceneChange = null;
     }
 
     public static GameEngine getInstance() {

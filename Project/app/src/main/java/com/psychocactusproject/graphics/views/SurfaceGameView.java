@@ -14,11 +14,12 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.engine.InitialScreen;
+import com.psychocactusproject.engine.PauseScreen;
+import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.controllers.DebugDrawable;
 import com.psychocactusproject.graphics.controllers.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
-import com.psychocactusproject.input.TouchInputController;
 import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
@@ -29,13 +30,16 @@ import com.psychocactusproject.engine.Hitbox;
 import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
 import static com.psychocactusproject.engine.GameEngine.SCENES;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Provisional: Me tengo que resignar a que esta clase centralice lo que tenga que ver con
+ * renderizar, visualizar o organizar layouts escritos en java
+ */
+public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback {
 
-public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback, GameView {
-
-    private List<GameEntity> gameEntities;
     private List<Drawable> gameSprites;
     private List<DebugDrawable> debugSprites;
     private GameEngine gameEngine;
@@ -47,18 +51,28 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     // Medidas de la pantalla física adaptadas a las medidas del videojuego
     private int adaptedWidth;
     private int adaptedHeight;
-    // Medidas naturales de la pantalla física
-    private int deviceWidth;
-    private int deviceHeight;
     // InanimateSprite que imita las bandas negras. Será mostrado si la relación de pantalla no es de 16/9
     private InanimateSprite backgroundSprite;
     // Efectos de imagen
     private static int filterLevels = 20;
     private static Paint[] colorFilters;
     private static GameClock filterClock;
+    //
 
-    private HashMap<SCENES, Drawable> drawableScenesMap;
+    private InitialScreen initialScreen;
+    private PauseScreen pauseScreen;
+    private DialogScreen activeDialog;
+    //
+    private final List<ClickableDirectSprite> pauseEntities;
+    private final List<ClickableDirectSprite> initialEntities;
+    //
+    private final HashMap<SCENES, Drawable> drawableScenesMap;
 
+    /**
+     * PROVISIONAL: Este constructor es llamado nada más crearse la vista
+     * @param context
+     * @param attributeSet
+     */
     public SurfaceGameView(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
         // Permite conocer el estado del surface creado en fragment_game
@@ -77,12 +91,28 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         colorFilters = generateColorFilters();
         filterClock = new GameClock(filterLevels, 0.6, true);
 
+        this.pauseEntities = new ArrayList<>();
+        this.initialEntities = new ArrayList<>();
+        this.pauseScreen = new PauseScreen();
+        this.initialScreen = new InitialScreen();
+        this.pauseScreen.setPauseEntities(this.pauseEntities);
+        this.initialScreen.setInitialEntities(this.initialEntities);
+
         this.drawableScenesMap = new HashMap<>();
         this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
         this.drawableScenesMap.put(SCENES.DIALOG, this.definedDialogDrawable());
-        // this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
+        this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedInitialDrawable());
+        this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedPauseDrawable());
     }
 
+
+    public InitialScreen getInitialScreen() {
+        return this.initialScreen;
+    }
+
+    public PauseScreen getPauseScreen() {
+        return this.pauseScreen;
+    }
 
     /*
     * YA QUE LOS FRAGMENTOS DE CÓDIGOS HAN SIDO ESCRITOS COMO FUNCIONALES, PODRÍA APLICARSE
@@ -94,15 +124,15 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         // Dibuja todos los elementos del juego por capas de prioridades
         return (canvas) -> {
             // Prioridad 3: Personajes
-            synchronized (GameEntity.entitiesLock) {
+            //synchronized (GameEntity.entitiesLock) {
                 for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
                     for (Drawable drawableEntity : drawableLayers) {
                         drawableEntity.draw(canvas);
                     }
                 }
-            }
+            //}
             // Prioridad 2: Menús
-            synchronized (GameEntity.entitiesLock) {
+            //synchronized (GameEntity.entitiesLock) {
                 for (int i = 0; i < this.gameSprites.size(); i++) {
                     if (this.gameSprites.get(i) instanceof MenuDisplay) {
                         MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
@@ -126,9 +156,9 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                         }
                     }
                 }
-            }
+            //}
             // Prioridad 1: Interfaz de usuario
-            synchronized (GameEntity.entitiesLock) {
+            //synchronized (GameEntity.entitiesLock) {
                 if (GameEngine.DEBUGGING) {
                     for (int i = 0; i < this.debugSprites.size(); i++) {
                         this.debugSprites.get(i).debugDraw(canvas);
@@ -139,13 +169,13 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                         Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
                     }
                 }
-            }
+            //}
         };
     }
 
     public Drawable definedDialogDrawable() {
         return (canvas) -> {
-            synchronized (GameEntity.entitiesLock) {
+            //synchronized (GameEntity.entitiesLock) {
                 // Dibuja de fondo el juego en su estado actual
                 definedGameDrawable().draw(canvas);
                 // Imprime la ventana de diálogo
@@ -155,34 +185,17 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                 // int left, int top, int right, int bottom
                 canvas.drawRect(new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y), paint);
 
-
-                DialogScreen dialogScreen = GameEngine.getInstance().getDialog();
                 // Ahora se dibuja como tal el menú de diálogo
-                dialogScreen.draw(canvas);
+                this.activeDialog.draw(canvas);
                 if (GameEngine.DEBUGGING) {
-                    Hitbox.drawHitboxes(dialogScreen.getHitboxes(), canvas);
+                    Hitbox.drawHitboxes(this.activeDialog.getHitboxes(), canvas);
                 }
-            }
+            //}
         };
-
-        /*
-        GameEngine engine = GameEngine.getInstance();
-        if (engine.getDialog() == null) {
-            return;
-        }
-        GameDialog dialog = engine.getDialog();
-        if (dialog.getType() == DIALOG_TYPE.ALERT) {
-
-        } else if (dialog.getType() == DIALOG_TYPE.CONFIRMATION) {
-
-        }
-        * */
     }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
         // Se informan a la clase los parámetros de tamaño natural de la pantalla
-        this.deviceWidth = deviceWidth;
-        this.deviceHeight = deviceHeight;
         // Se obtiene el tamaño adaptado de la pantalla calculado por el motor
         this.adaptedWidth = gameEngine.getAdaptedWidth();
         this.adaptedHeight = gameEngine.getAdaptedHeight();
@@ -223,19 +236,44 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.ready = false;
     }
 
-    @Override
-    public void setGameEntities(List<GameEntity> gameEntities, List<Drawable> gameSprites, List<DebugDrawable> debugSprites) {
-        this.gameEntities = gameEntities;
+    public void setGameEntities(List<Drawable> gameSprites, List<DebugDrawable> debugSprites) {
         this.gameSprites = gameSprites;
         this.debugSprites = debugSprites;
     }
 
-    @Override
     public void setGameEngine(GameEngine gameEngine) {
         this.gameEngine = gameEngine;
     }
 
-    @Override
+    public void showConfirmationDialog(String message, Runnable action) {
+        this.showConfirmationDialog(message, null, action);
+    }
+
+    public void showConfirmationDialog(String message, String details, Runnable action) {
+        this.activeDialog = new DialogScreen(this.gameEngine, message, details, action);
+        this.gameEngine.addGameEntity(this.activeDialog, GameEngine.GAME_LAYERS.FRONT);
+        this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
+    }
+
+    public void showAlertDialog(String message) {
+        this.showAlertDialog(message, null);
+    }
+
+    public void showAlertDialog(String message, String details) {
+        this.activeDialog = new DialogScreen(this.gameEngine, message, details);
+        this.gameEngine.addGameEntity(this.activeDialog, GameEngine.GAME_LAYERS.FRONT);
+        this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
+    }
+
+    public DialogScreen getDialog() {
+        return this.activeDialog;
+    }
+
+    public void clearDialog() {
+        this.gameEngine.removeGameEntity(this.activeDialog);
+        this.activeDialog = null;
+    }
+
     public void draw() {
         if (!this.ready) {
             return;
@@ -250,8 +288,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         if (GameEngine.DEBUGGING) {
             this.frameCanvas.drawRGB(0, 0, 0);
         }
-        // Dibuja la escena actual
-        this.drawableScenesMap.get(GameEngine.getInstance().getCurrentScene()).draw(this.frameCanvas);
+        synchronized (GameEntity.entitiesLock) {
+            // Dibuja la escena actual
+            this.drawableScenesMap.get(GameEngine.getInstance().getCurrentScene()).draw(this.frameCanvas);
+        }
         // Reescala el frame de juego y lo posiciona en la pantalla del dispositivo
         Bitmap scaledBitmap = Bitmap.createScaledBitmap(this.frameBitmap,
                 this.adaptedWidth, this.adaptedHeight, false);
@@ -260,26 +300,11 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         getHolder().unlockCanvasAndPost(screen);
     }
 
-    // Método auxiliar utilizado para comprobar que las proporciones son iguales en todos los dispositivos
-    private void frameDrawTest() {
-        this.basicPaint.setColor(Color.GREEN);
-        frameCanvas.drawRect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y, this.basicPaint);
-        this.basicPaint.setColor(Color.WHITE);
-        frameCanvas.drawRect(0, 0, 800, 800, this.basicPaint);
-        this.basicPaint.setColor(Color.CYAN);
-        frameCanvas.drawRect(0, 0, 700, 700, this.basicPaint);
-        this.basicPaint.setColor(Color.MAGENTA);
-        frameCanvas.drawRect(0, 0, 600, 600, this.basicPaint);
-        this.basicPaint.setColor(Color.GRAY);
-        frameCanvas.drawRect(0, 0, 500, 500, this.basicPaint);
-        this.basicPaint.setColor(Color.GREEN);
-        frameCanvas.drawRect(0, 0, 400, 400, this.basicPaint);
-        this.basicPaint.setColor(Color.YELLOW);
-        frameCanvas.drawRect(0, 0, 300, 300, this.basicPaint);
-        this.basicPaint.setColor(Color.BLUE);
-        frameCanvas.drawRect(0, 0, 200, 200, this.basicPaint);
-        this.basicPaint.setColor(Color.BLACK);
-        frameCanvas.drawRect(0, 0, 100, 100, this.basicPaint);
+    public Bitmap getFrameBitmap() {
+        return this.frameBitmap;
+    }
+
+    public void clearLastGameFrame() {
     }
 
     private static Paint generateColorFilter(float contrast, float brightness) {
