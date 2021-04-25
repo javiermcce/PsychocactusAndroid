@@ -36,16 +36,26 @@ public class ClickableDirectSprite extends InanimateSprite implements Clickable 
 
     @Override
     public boolean isAvailable(int index) {
-        return false;
+        return this.available;
     }
 
     @Override
     public void enableClickable(int index) {
-
+        if (index == 0) {
+            this.available = true;
+        } else {
+            throw new IllegalArgumentException("La clase ClickableDirectSprite solo permite " +
+                    "activarse con índice igual a 0");
+        }
     }
 
     @Override
     public void disableClickable(int index) {
-
+        if (index == 0) {
+            this.available = false;
+        } else {
+            throw new IllegalArgumentException("La clase ClickableDirectSprite solo permite " +
+                    "activarse con índice igual a 0");
+        }
     }
 }

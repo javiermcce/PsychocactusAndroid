@@ -3,6 +3,7 @@ package com.psychocactusproject.graphics.controllers;
 import android.graphics.Canvas;
 
 import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.graphics.interfaces.Checker;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.engine.GameEngine;

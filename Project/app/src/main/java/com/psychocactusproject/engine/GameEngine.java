@@ -8,12 +8,10 @@ import androidx.core.content.res.ResourcesCompat;
 import com.psychocactusproject.R;
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
-import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.DebugDrawable;
-import com.psychocactusproject.graphics.controllers.Drawable;
+import com.psychocactusproject.graphics.interfaces.DebugDrawable;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
-import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
@@ -33,6 +31,7 @@ public class GameEngine {
     private final List<Drawable> gameDrawables;
     private final List<DebugDrawable> debugDrawables;
     private final HashMap<GAME_LAYERS, List<Drawable>> drawablesByLayer;
+    private List<List<Drawable>> drawableLayersOrdered;
     private InputController inputController;
     private final GameActivity activity;
     private final SurfaceGameView surfaceGameView;
@@ -48,14 +47,13 @@ public class GameEngine {
     private SCENES pendingSceneChange;
     public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU }
     public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
-    public enum GAME_LAYERS { BACKGROUND, UNSPECIFIED, FRONT }
+    public enum GAME_LAYERS { BACKGROUND, OBJECTS, CHARACTERS, FRONT, USER_INTERFACE, DEBUG }
     private SCENES currentScene = SCENES.GAME;
 
     // Resources
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
     //
-    private final Typeface typeface;
     //
     public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
@@ -76,7 +74,6 @@ public class GameEngine {
         this.debugDrawables = new ArrayList<>();
         this.surfaceGameView.setGameEntities(this.gameDrawables, this.debugDrawables);
         //
-        this.typeface = ResourcesCompat.getFont(this.getContext(), R.font.truetypefont);
         this.deviceWidth = surfaceGameView.getWidth();
         this.deviceHeight = surfaceGameView.getHeight();
         this.engineClock = new GameClock(1, 1);
@@ -112,21 +109,14 @@ public class GameEngine {
         return this.drawablesByLayer.get(layer);
     }
 
-    public Typeface getTypeface() {
-        return this.typeface;
-    }
-
-    // Esto debe ser AbstractSprite
     public List<List<Drawable>> getDrawableLayers() {
-        // Optimizar. La creación de objetos no está permitida en el bucle de dibujado.
-        List<List<Drawable>> listaDeListas = new LinkedList<>();
-
-        for (int i = 0; i < this.drawablesByLayer.size(); i++) {
-            listaDeListas.add(this.drawablesByLayer.get(GAME_LAYERS.values()[i]));
+        if (this.drawableLayersOrdered == null) {
+            this.drawableLayersOrdered = new LinkedList<>();
+            for (int i = 0; i < this.drawablesByLayer.size(); i++) {
+                this.drawableLayersOrdered.add(this.drawablesByLayer.get(GAME_LAYERS.values()[i]));
+            }
         }
-
-        //return new LinkedList<>(this.entitiesByLayer.values());
-        return listaDeListas;
+        return this.drawableLayersOrdered;
     }
 
     public int getAspectRatioMargin() {
@@ -199,6 +189,15 @@ public class GameEngine {
         this.inputController.stop();
     }
 
+    public void resumeGame() {
+        this.switchToScene(SCENES.GAME);
+    }
+
+    public void pauseGame() {
+        this.switchToScene(SCENES.PAUSE_MENU);
+    }
+
+    /*
     public void pauseGame() {
         if (this.updateThread != null) {
             this.updateThread.pauseUpdate();
@@ -220,6 +219,7 @@ public class GameEngine {
         // Se reanuda el gestor de controles
         this.inputController.resume();
     }
+    */
 
     public void addGameEntity(GameEntity gameEntity) {
         if (this.isRunning()) {
@@ -234,6 +234,18 @@ public class GameEngine {
             this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
         } else {
             this.doAddGameEntity(gameEntity, layer);
+        }
+    }
+
+    public void addGameEntities(GameEntity[] gameEntities, GAME_LAYERS layer) {
+        if (this.isRunning()) {
+            for (GameEntity gameEntity : gameEntities) {
+                this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
+            }
+        } else {
+            for (GameEntity gameEntity : gameEntities) {
+                this.doAddGameEntity(gameEntity, layer);
+            }
         }
     }
 
@@ -375,7 +387,7 @@ public class GameEngine {
                 this.getSurfaceGameView().clearDialog();
                 break;
             case PAUSE_MENU:
-                this.getSurfaceGameView().clearLastGameFrame();
+                this.getSurfaceGameView().getPauseScreen().clearLastGameFrame();
                 break;
             default:
                 throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
@@ -413,7 +425,7 @@ public class GameEngine {
 
         private EntityToAdd(GameEntity gameEntity) {
             this.gameEntity = gameEntity;
-            this.layer = GAME_LAYERS.UNSPECIFIED;
+            this.layer = GAME_LAYERS.OBJECTS;
         }
     }
 

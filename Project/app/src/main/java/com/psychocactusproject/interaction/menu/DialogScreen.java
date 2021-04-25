@@ -12,6 +12,7 @@ import com.psychocactusproject.engine.GameEngine.SCENES;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 import java.util.ArrayList;
@@ -84,7 +85,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         //
         this.dialogPaint.setColor(Color.argb(200, 150, 150, 150));
         this.textPaint.setColor(Color.WHITE);
-        this.textPaint.setTypeface(GameEngine.getInstance().getTypeface());
+        this.textPaint.setTypeface(ResourceLoader.getTypeface());
         //
         this.setBitmap(this.buildDialogScreen());
         int xOffset = (GameEngine.RESOLUTION_X - this.getSpriteWidth()) / 2;

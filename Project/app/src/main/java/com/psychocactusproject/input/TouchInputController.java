@@ -10,8 +10,13 @@ import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
 import com.psychocactusproject.engine.GameEngine.SCENES;
 import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.GameEntityManager;
+import com.psychocactusproject.engine.GameLogic;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
+import com.psychocactusproject.graphics.controllers.CustomClickableEntity;
+import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.ContextMenu.MenuOption;
 import com.psychocactusproject.interaction.menu.DialogScreen;
@@ -88,6 +93,8 @@ public class TouchInputController extends InputController implements View.OnKeyL
                         DebugHelper.printMessage("Aquí debería decir 'la acción "
                                 + option.getOptionName() + " no se encuentra disponible'");
                     }
+                } else {
+                    clickableHolder.executeClick(0);
                 }
             // Si no es seleccionada ninguna hitbox, cierra menús
             } else {
@@ -122,10 +129,18 @@ public class TouchInputController extends InputController implements View.OnKeyL
     public Touchable definedPauseTouchable() {
         return (point) -> {
             // Comprueba si hay una colisión con alguna hitbox
-            Hitbox selected = checkMenuHitboxes(point.getX(), point.getY());
+            Hitbox selected = checkPauseHitboxes(point.getX(), point.getY());
             // this.closeAllMenus();
             // Si ha habido colisión, ejecuta su acción asignada
             if (selected != null) {
+                SurfaceGameView gameView = GameEngine.getInstance().getSurfaceGameView();
+
+                for (CustomClickableEntity menuOption : gameView.getPauseScreen().getOptions()) {
+                    continue;
+                }
+                GameEngine.getInstance().resumeGame();
+
+                /*
                 Clickable clickableHolder = selected.getFather();
                 // Se trata de un personaje
                 if (clickableHolder instanceof MenuDisplay) {
@@ -152,9 +167,11 @@ public class TouchInputController extends InputController implements View.OnKeyL
                                 + option.getOptionName() + " no se encuentra disponible'");
                     }
                 }
+
+                 */
                 // Si no es seleccionada ninguna hitbox, cierra menús
             } else {
-                closeAllMenus();
+                GameEngine.getInstance().resumeGame();
             }
         };
     }
@@ -262,9 +279,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
     }
 
     private Hitbox checkGameHitboxes(int xTouch, int yTouch) {
-        // Prioridad nivel 1: interfaz
-
-        // Prioridad nivel 2: menús
+        // Prioridad nivel 1: menús
         for (GameEntity entity : this.gameEntities) {
             if (entity instanceof MenuDisplay) {
                 MenuDisplay menuHolder = ((MenuDisplay) entity);
@@ -281,6 +296,15 @@ public class TouchInputController extends InputController implements View.OnKeyL
                         }
                     }
                 }
+            }
+        }
+        // Prioridad nivel 2: interfaz
+        GameEntityManager entityManager = GameLogic.getInstance().getGameEntityManager();
+        // Pause menu
+        Hitbox[] pauseHitboxes = entityManager.getPauseButton().getHitboxes();
+        for (Hitbox hitbox : pauseHitboxes) {
+            if (hitboxCollision(xTouch, yTouch, hitbox)) {
+                return hitbox;
             }
         }
         // Prioridad nivel 3: personajes
@@ -309,7 +333,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
      * @param yTouch
      * @return
      */
-    private Hitbox checkMenuHitboxes(int xTouch, int yTouch) {
+    private Hitbox checkPauseHitboxes(int xTouch, int yTouch) {
         // Prioridad nivel 3: personajes
         /*for (MenuEntity menu : this.menuEntities) {
             Hitbox[] hitboxesCheck = menu.getHitboxes();
@@ -325,7 +349,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
          */return null;
     }
 
-    private boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {//Point upLeft, Point downRight){
+    private boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {
         return(xTouch > hitbox.getUpLeftX()
                 && xTouch < hitbox.getDownRightX()
                 && yTouch > hitbox.getUpLeftY()

@@ -8,6 +8,7 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
@@ -15,10 +16,11 @@ import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.InitialScreen;
-import com.psychocactusproject.engine.PauseScreen;
+import com.psychocactusproject.engine.PauseScreen;;
+import com.psychocactusproject.engine.GameEngine.GAME_LAYERS;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.DebugDrawable;
-import com.psychocactusproject.graphics.controllers.Drawable;
+import com.psychocactusproject.graphics.interfaces.DebugDrawable;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
@@ -48,6 +50,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private final Paint basicPaint;
     private final Bitmap frameBitmap;
     private final Matrix basicMatrix;
+    private final Paint dialogPaint;
     // Medidas de la pantalla física adaptadas a las medidas del videojuego
     private int adaptedWidth;
     private int adaptedHeight;
@@ -81,6 +84,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.frameCanvas = new Canvas();
         this.basicPaint = new Paint();
         this.basicMatrix = new Matrix();
+        this.dialogPaint = new Paint();
+        this.dialogPaint.setColor(Color.argb(100, 20, 20, 50));
         // Sobre este canvas y bitmap se dibujará en su totalidad el juego, a una resolución fija
         this.frameBitmap = Bitmap.createBitmap(
                 GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y,
@@ -121,55 +126,57 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     * MIENTRAS DIBUJAMOS UNA NUEVA ESCENA
     * */
     public Drawable definedGameDrawable() {
+        return this.definedGameDrawable(false);
+    }
+
+    public Drawable definedGameDrawable(boolean isSnapshotRender) {
         // Dibuja todos los elementos del juego por capas de prioridades
         return (canvas) -> {
             // Prioridad 3: Personajes
-            //synchronized (GameEntity.entitiesLock) {
-                for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
-                    for (Drawable drawableEntity : drawableLayers) {
-                        drawableEntity.draw(canvas);
-                    }
+            for (GAME_LAYERS layer : GAME_LAYERS.values()) {
+                // Si es llamado como snapshot se detiene al llegar a los objetos de interfaz
+                if (isSnapshotRender && layer == GAME_LAYERS.USER_INTERFACE) {
+                    return;
                 }
-            //}
+                for (Drawable drawableEntity : this.gameEngine.getEntitiesByLayer(layer)) {
+                    drawableEntity.draw(canvas);
+                }
+            }
             // Prioridad 2: Menús
-            //synchronized (GameEntity.entitiesLock) {
-                for (int i = 0; i < this.gameSprites.size(); i++) {
-                    if (this.gameSprites.get(i) instanceof MenuDisplay) {
-                        MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
-                        if (menuHolder.isMenuOpen()) {
-                            menuHolder.renderMenu(canvas);
-                            if (GameEngine.DEBUGGING) {
-                                Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
-                                // El fragmento de aquí abajo omite mostrar las hitboxes no activadas
-                                // cuando realmente lo que deseo es mostrarlas desactivadas y seguir
-                                // interactuando con ellas, pero de otra forma distinta
-                            /*
-                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
-                            for (int j = 0; j < availableHitboxes.length; j++) {
-                                if (menuHolder.getMenu().isAvailable(j)) {
-                                    availableHitboxes[j] = menuHitboxes[j];
-                                }
-                            }*/
-                                // Hitbox.drawHitboxes(availableHitboxes, canvas);
-                                Hitbox.drawHitboxes(menuHitboxes, canvas);
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                if (this.gameSprites.get(i) instanceof MenuDisplay) {
+                    MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
+                    if (menuHolder.isMenuOpen()) {
+                        menuHolder.renderMenu(canvas);
+                        if (GameEngine.DEBUGGING) {
+                            Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
+                            // El fragmento de aquí abajo omite mostrar las hitboxes no activadas
+                            // cuando realmente lo que deseo es mostrarlas desactivadas y seguir
+                            // interactuando con ellas, pero de otra forma distinta
+                        /*
+                        Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
+                        for (int j = 0; j < availableHitboxes.length; j++) {
+                            if (menuHolder.getMenu().isAvailable(j)) {
+                                availableHitboxes[j] = menuHitboxes[j];
                             }
+                        }*/
+                            // Hitbox.drawHitboxes(availableHitboxes, canvas);
+                            Hitbox.drawHitboxes(menuHitboxes, canvas);
                         }
                     }
                 }
-            //}
+            }
             // Prioridad 1: Interfaz de usuario
-            //synchronized (GameEntity.entitiesLock) {
-                if (GameEngine.DEBUGGING) {
-                    for (int i = 0; i < this.debugSprites.size(); i++) {
-                        this.debugSprites.get(i).debugDraw(canvas);
-                    }
+            if (GameEngine.DEBUGGING) {
+                for (int i = 0; i < this.debugSprites.size(); i++) {
+                    this.debugSprites.get(i).debugDraw(canvas);
                 }
-                for (int i = 0; i < this.gameSprites.size(); i++) {
-                    if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
-                        Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
-                    }
+            }
+            for (int i = 0; i < this.gameSprites.size(); i++) {
+                if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
+                    Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
                 }
-            //}
+            }
         };
     }
 
@@ -180,10 +187,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
                 definedGameDrawable().draw(canvas);
                 // Imprime la ventana de diálogo
                 // REFACTORIZAR: PROHIBIDO LLAMAR CONSTRUCTORES EN EL BUCLE DE DIBUJADO
-                Paint paint = new Paint();
-                paint.setColor(Color.argb(100, 20, 20, 50));
                 // int left, int top, int right, int bottom
-                canvas.drawRect(new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y), paint);
+                canvas.drawRect(
+                        new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y),
+                        this.dialogPaint);
 
                 // Ahora se dibuja como tal el menú de diálogo
                 this.activeDialog.draw(canvas);
@@ -304,7 +311,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         return this.frameBitmap;
     }
 
-    public void clearLastGameFrame() {
+    public static void clearCanvas(Canvas canvas) {
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
     }
 
     private static Paint generateColorFilter(float contrast, float brightness) {

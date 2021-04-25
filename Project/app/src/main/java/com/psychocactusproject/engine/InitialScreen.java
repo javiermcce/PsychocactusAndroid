@@ -1,9 +1,7 @@
 package com.psychocactusproject.engine;
 
-import android.graphics.Canvas;
-
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.Drawable;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.input.TouchInputController.Touchable;
 
 import java.util.List;

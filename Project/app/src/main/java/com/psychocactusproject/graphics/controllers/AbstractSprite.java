@@ -6,6 +6,9 @@ import android.graphics.Matrix;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameEntity;
 import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.graphics.interfaces.DebugDrawable;
+import com.psychocactusproject.graphics.interfaces.Dimensions;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 
 public abstract class AbstractSprite extends GameEntity implements Dimensions, Drawable, DebugDrawable {
 

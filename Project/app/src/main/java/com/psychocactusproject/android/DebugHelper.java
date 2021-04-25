@@ -1,15 +1,16 @@
 package com.psychocactusproject.android;
 
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.GameEngine.GAME_LAYERS;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.Drawable;
-import com.psychocactusproject.graphics.controllers.DrawableEntity;
+import com.psychocactusproject.graphics.interfaces.Drawable;
+import com.psychocactusproject.graphics.controllers.CustomDrawableEntity;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -21,7 +22,7 @@ public class DebugHelper {
     // RECORDAR REVISAR Y LIMPIAR LOS EFECTOS NO DESEADOS DEL COMMIT 7d7cf63
 
     private GameEngine gameEngine;
-    private DrawableEntity debugTerminal;
+    private CustomDrawableEntity debugTerminal;
     private HashMap<String, Runnable> commands;
     private String hiddenCommandInput;
     private LinkedList<String> pastCommands;
@@ -42,6 +43,9 @@ public class DebugHelper {
         this.commandIndex = -1;
     }
 
+    /**
+     * @deprecated no es necesario, lo sustituye el gameTerminal
+     */
     private void addEnterCommandButton() {
         // Debug button
         Runnable enterCommandAction = () -> { this.executeCommand(); };
@@ -49,31 +53,29 @@ public class DebugHelper {
                 R.drawable.debug_enter, "Debug enter command",
                 enterCommandAction, new Point(400, 200));
         gameEngine.addGameEntity(commandDebug, GameEngine.GAME_LAYERS.FRONT);
-
-        Drawable test = (Canvas canvas) -> {};
-        DrawableEntity customEntity = new DrawableEntity(test, "debug");
     }
 
     private void addGameTerminal() {
         final Paint terminalTextPaint = new Paint();
         terminalTextPaint.setColor(Color.WHITE);
         terminalTextPaint.setTextSize(32);
-        terminalTextPaint.setTypeface(GameEngine.getInstance().getTypeface());
+        terminalTextPaint.setTypeface(ResourceLoader.getTypeface());
         final Paint terminalBackgroundPaint = new Paint();
         terminalBackgroundPaint.setColor(Color.argb(122, 53, 53, 47));
         Drawable terminalDrawable = (canvas) -> {
             canvas.drawRect(
-                    this.debugTerminal.getPositionX(), this.debugTerminal.getPositionY(),
-                    this.debugTerminal.getDownLeftCoordX(), this.debugTerminal.getDownLeftCoordY(),
+                    0, 0,
+                    this.debugTerminal.getSpriteWidth(), this.debugTerminal.getSpriteHeight(),
                     terminalBackgroundPaint);
             canvas.drawText(this.commandLine,
-                    this.debugTerminal.getPositionX() + 20, this.debugTerminal.getPositionY() + 35,
+                    // this.debugTerminal.getPositionX() + 20, this.debugTerminal.getPositionY() + 35,
+                    20, 35,
                     terminalTextPaint);
         };
         // Es creado el terminal, que solo se muestra si el modo debug está activado
-        this.debugTerminal = new DrawableEntity(null, terminalDrawable, "Debug Terminal",
+        this.debugTerminal = new CustomDrawableEntity(null, terminalDrawable, "Debug Terminal",
                 new Point(20, 650), new Point(820, 700));
-        gameEngine.addGameEntity(this.debugTerminal, GameEngine.GAME_LAYERS.FRONT);
+        gameEngine.addGameEntity(this.debugTerminal, GAME_LAYERS.DEBUG);
     }
 
     // Inserta todos los posibles comandos
@@ -143,7 +145,7 @@ public class DebugHelper {
 
     public void addCharacterToTerminal(char key) {
         // Si el terminal no está mostrando ya el máximo número de caracteres, inserta uno nuevo
-        if (this.commandLine.length() < 44) {
+        if (this.commandLine.length() < 38) {
             this.commandLine += key;
         }
         // Guarda el comando que se está escribiendo

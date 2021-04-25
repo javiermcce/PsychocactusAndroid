@@ -1,4 +1,4 @@
-package com.psychocactusproject.graphics.controllers;
+package com.psychocactusproject.graphics.interfaces;
 
 import com.psychocactusproject.engine.Point;
 

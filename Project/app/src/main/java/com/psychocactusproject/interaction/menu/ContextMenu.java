@@ -16,6 +16,7 @@ import com.psychocactusproject.engine.GameLogic;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 public class ContextMenu extends InanimateSprite implements Clickable {
@@ -54,7 +55,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
         this.textPaint = new TextPaint();
         this.textPaint.setTextSize(42);
         this.textPaint.setColor(Color.WHITE);
-        this.textPaint.setTypeface(GameEngine.getInstance().getTypeface());
+        this.textPaint.setTypeface(ResourceLoader.getTypeface());
         this.setBitmap(this.buildMenu(this.createMenuOptions(father)));
     }
 

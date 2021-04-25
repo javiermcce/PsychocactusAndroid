@@ -1,4 +1,4 @@
-package com.psychocactusproject.graphics.controllers;
+package com.psychocactusproject.graphics.interfaces;
 
 @FunctionalInterface
 public interface Checker {
