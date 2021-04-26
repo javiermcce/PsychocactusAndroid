@@ -28,7 +28,7 @@ import java.util.List;
 
 public class GameEntityManager {
 
-    private List<AbstractSprite> entityManagerList;
+    private final List<AbstractSprite> entityManagerList;
     private Musician[] musicians;
     private Police[] police;
     private Barry barry;

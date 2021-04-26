@@ -10,6 +10,7 @@ import android.view.ViewTreeObserver;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.TouchInputController;
 
@@ -37,10 +38,12 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
             public void onGlobalLayout() {
                 // Tan pronto como se acceda al código del listener, se borra la escucha
                 observer.removeOnGlobalLayoutListener(this);
-                // Interfaz GameView implementada por la clase que extiende SurfaceView
+                // Es obtenida la instancia de activity, y su conversión al tipo del proyecto
+                GameActivity gameActivity = (GameActivity) getActivity();
+                // Controlador principal de la impresión de los gráficos
                 SurfaceGameView surfaceGameView = getView().findViewById(R.id.gameView);
                 // El motor es creado con la actividad y la vista
-                gameEngine = new GameEngine((GameActivity) getActivity(), surfaceGameView);
+                gameEngine = new GameEngine(gameActivity, surfaceGameView);
                 // El gestor de controles es vinculado al motor
                 gameEngine.setInputController(new TouchInputController(gameEngine, getView()));
                 // Arranca el juego

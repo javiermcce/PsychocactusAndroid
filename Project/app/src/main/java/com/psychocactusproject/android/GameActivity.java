@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.psychocactusproject.R;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -18,7 +19,11 @@ public class GameActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //
         setContentView(R.layout.activity_game);
+        // Es inicializada la clase que centraliza la gestión de los recursos externos
+        ResourceLoader.initializeResourceLoader(this);
+        //
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)

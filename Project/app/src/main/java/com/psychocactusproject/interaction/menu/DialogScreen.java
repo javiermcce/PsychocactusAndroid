@@ -12,11 +12,10 @@ import com.psychocactusproject.engine.GameEngine.SCENES;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
+import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight.MenuType;
 import com.psychocactusproject.interaction.scripts.Clickable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.ALERT;
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.CONFIRMATION;
@@ -27,7 +26,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
     private static final int CONFIRMATION_CANCEL = 1;
     private static final int ALERT_ACCEPT = 2;
 
-    private final MenuFlyweight pieces;
+    private final MenuBitmapFlyweight.DialogMenuFlyweight pieces;
     private final Canvas dialogCanvas;
     private final Matrix dialogMatrix;
     private final Paint dialogPaint;
@@ -77,7 +76,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
                     this, CONFIRMATION_CANCEL);
         }
         //
-        this.pieces = MenuFlyweight.getInstance(gameEngine, MenuFlyweight.DIALOG_MENU_TYPE);
+        this.pieces = MenuBitmapFlyweight.getDialogMenuInstance();
         this.dialogCanvas = new Canvas();
         this.dialogMatrix = new Matrix();
         this.dialogPaint = new Paint();

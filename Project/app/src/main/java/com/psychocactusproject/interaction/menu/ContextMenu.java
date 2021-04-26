@@ -5,23 +5,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.text.TextPaint;
 
-import androidx.core.content.res.ResourcesCompat;
-
-import com.psychocactusproject.R;
 import com.psychocactusproject.engine.GameEngine;
 import com.psychocactusproject.engine.GameLogic;
 import com.psychocactusproject.engine.Hitbox;
 import com.psychocactusproject.engine.Point;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
+import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight.MenuType;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 public class ContextMenu extends InanimateSprite implements Clickable {
 
-    private final MenuFlyweight pieces;
+    private final MenuBitmapFlyweight.ContextMenuFlyweight pieces;
     private final MenuDisplay father;
     private final Canvas menuCanvas;
     private final Matrix menuMatrix;
@@ -46,7 +44,7 @@ public class ContextMenu extends InanimateSprite implements Clickable {
     public ContextMenu(GameEngine gameEngine, MenuDisplay father) {
         super(gameEngine, father.getRoleName() + " menu");
         this.father = father;
-        this.pieces = MenuFlyweight.getInstance(gameEngine, MenuFlyweight.CONTEXT_MENU_TYPE);
+        this.pieces = MenuBitmapFlyweight.getContextMenuInstance();
         this.menuCanvas = new Canvas();
         this.menuMatrix = new Matrix();
         this.menuPaint = new Paint();
