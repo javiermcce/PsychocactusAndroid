@@ -2,11 +2,11 @@ package com.psychocactusproject.engine.screens;
 
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.interfaces.Drawable;
-import com.psychocactusproject.input.TouchInputController.Touchable;
+import com.psychocactusproject.input.Touchable;
 
 import java.util.List;
 
-public class InitialScreen implements ScreenModel {
+public class InitialScreen implements Scene {
 
     private Drawable initialDrawable;
     private Touchable initialTouchable;
@@ -22,5 +22,10 @@ public class InitialScreen implements ScreenModel {
             //synchronized (GameEntity.entitiesLock) {
             //}
         });
+    }
+
+    @Override
+    public Touchable definedTouchable() {
+        return null;
     }
 }

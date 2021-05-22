@@ -93,6 +93,11 @@ public class InanimateSprite extends AbstractSprite {
         return this.imageHeight;
     }
 
+    public void setSize(int width, int height) {
+        this.imageWidth = width;
+        this.imageHeight = height;
+    }
+
     @Override
     public Bitmap getSpriteImage() {
         return this.bitmap;

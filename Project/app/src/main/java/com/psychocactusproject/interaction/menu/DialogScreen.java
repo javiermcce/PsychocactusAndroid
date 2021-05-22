@@ -9,45 +9,134 @@ import android.graphics.Rect;
 
 import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.engine.manager.GameEngine.SCENES;
+import com.psychocactusproject.engine.screens.GameScreen;
+import com.psychocactusproject.engine.screens.Scene;
 import com.psychocactusproject.engine.util.Hitbox;
 import com.psychocactusproject.engine.util.Point;
+import com.psychocactusproject.engine.util.SpaceBox;
 import com.psychocactusproject.engine.util.TextUtil;
-import com.psychocactusproject.graphics.controllers.InanimateSprite;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
+import com.psychocactusproject.input.Touchable;
 import com.psychocactusproject.interaction.scripts.Clickable;
+
+import static com.psychocactusproject.input.TouchInputController.hitboxCollision;
 
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.ALERT;
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.CONFIRMATION;
 
-public class DialogScreen extends InanimateSprite implements Clickable {
+public class DialogScreen implements Clickable, Scene {
 
     private static final int CONFIRMATION_ACCEPT = 0;
     private static final int CONFIRMATION_CANCEL = 1;
     private static final int ALERT_ACCEPT = 2;
 
-    private final MenuBitmapFlyweight.DialogMenuFlyweight pieces;
-    private final Canvas dialogCanvas;
-    private final Matrix dialogMatrix;
-    private final Paint dialogPaint;
-    private final Paint textPaint;
-    private final Hitbox[] dialogHitboxes;
+    private MenuBitmapFlyweight.DialogMenuFlyweight pieces;
+    private Canvas dialogCanvas;
+    private Matrix dialogMatrix;
+    private Matrix dialogBuildingMatrix;
+    private Paint dialogPaint;
+    private Paint textPaint;
+    private Hitbox[] dialogHitboxes;
+    private Bitmap dialogBitmap;
+    //
+    private int width;
+    private int height;
+    private final Point dialogPosition;
+
 
     public enum DIALOG_TYPE {
         CONFIRMATION, ALERT
     }
 
-    private final DIALOG_TYPE type;
-    private final String message;
-    private final String details;
-    private final Runnable action;
+    private DIALOG_TYPE type;
+    private String message;
+    private String details;
+    private Runnable action;
 
-    public DialogScreen(GameEngine gameEngine, String message, String details) {
-        this(gameEngine, message, details, null);
+    public DialogScreen() {
+        this.dialogPosition = new Point();
     }
 
-    public DialogScreen(GameEngine gameEngine, String message, String details, Runnable action) {
-        super(gameEngine, "Screen dialog");
+    @Override
+    public Drawable definedDrawable() {
+        return (canvas) -> {
+            //synchronized (GameEntity.entitiesLock) {
+            // Dibuja de fondo el juego en su estado actual
+            GameScreen.getInstance().definedDrawable().draw(canvas);
+            // Imprime la ventana de diálogo
+            // REFACTORIZAR: PROHIBIDO LLAMAR CONSTRUCTORES EN EL BUCLE DE DIBUJADO
+            // int left, int top, int right, int bottom
+            canvas.drawRect(
+                    new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y),
+                    this.dialogPaint);
+
+            // Ahora se dibuja como tal el menú de diálogo
+            // this.draw(canvas);
+            // equivalente a this.draw(canvas);
+            canvas.drawBitmap(this.dialogBitmap, this.dialogMatrix, null);
+
+            if (GameEngine.DEBUGGING) {
+                Hitbox.drawHitboxes(this.getHitboxes(), canvas);
+            }
+            //}
+        };
+    }
+
+    @Override
+    public Touchable definedTouchable() {
+        return (point) -> {
+            // Comprueba si la pantalla de diálogo ha sido creada
+            DialogScreen dialog = GameEngine.getInstance().getSurfaceGameView().getDialog();
+            if (dialog == null) {
+                throw new IllegalStateException("La pantalla de diálogo debía estar abierta.");
+            }
+            // Busca si existe colisión con alguna hitbox del diálogo
+            Hitbox selected = null;
+            for (Hitbox hitbox : dialog.getHitboxes()) {
+                if (hitboxCollision(point.getX(), point.getY(), hitbox)) {
+                    selected = hitbox;
+                }
+            }
+            // Si ha habido colisión, ejecuta su acción asignada
+            if (selected != null) {
+                Clickable clickableHolder = selected.getFather();
+                clickableHolder.executeClick(selected.getIndex());
+            }
+        };
+    }
+
+    @Override
+    public int getPositionX() {
+        return this.dialogPosition.getX();
+    }
+
+    @Override
+    public int getPositionY() {
+        return this.dialogPosition.getY();
+    }
+
+    @Override
+    public Point getPosition() {
+        return this.dialogPosition;
+    }
+
+    @Override
+    public int getSpriteWidth() {
+        return this.width;
+    }
+
+    @Override
+    public int getSpriteHeight() {
+        return this.height;
+    }
+
+    public void initializeDialog(String message, String details) {
+        this.initializeDialog(message, details, null);
+    }
+
+    public void initializeDialog(String message, String details, Runnable action) {
         //
         this.message = message;
         this.details = details;
@@ -59,6 +148,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         int middleOptionX = 35;
         int rightOptionX = 57;
         int optionY = 67;
+        //
         if (action == null) {
             this.type = ALERT;
             this.dialogHitboxes = new Hitbox[1];
@@ -79,6 +169,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         this.pieces = MenuBitmapFlyweight.getDialogMenuInstance();
         this.dialogCanvas = new Canvas();
         this.dialogMatrix = new Matrix();
+        this.dialogBuildingMatrix = new Matrix();
         this.dialogPaint = new Paint();
         this.textPaint = new Paint();
         //
@@ -86,10 +177,12 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         this.textPaint.setColor(Color.WHITE);
         this.textPaint.setTypeface(ResourceLoader.getTypeface());
         //
-        this.setBitmap(this.buildDialogScreen());
+        this.dialogBitmap = this.buildDialogScreen();
+        this.dialogMatrix.reset();
         int xOffset = (GameEngine.RESOLUTION_X - this.getSpriteWidth()) / 2;
         int yOffset = (GameEngine.RESOLUTION_Y - this.getSpriteHeight()) / 2;
-        this.setPosition(new Point(xOffset, yOffset));
+        this.dialogPosition.set(xOffset, yOffset);
+        this.dialogMatrix.postTranslate(xOffset, yOffset);
     }
 
     public DIALOG_TYPE getType() {
@@ -170,6 +263,8 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         int computedHeight = this.pieces.getTopLeftPiece().getHeight() +
                 this.pieces.getBottomLeftPiece().getHeight() +
                 (this.pieces.getCenterPiece().getHeight() * piezasVertical);
+        this.width = computedWidth;
+        this.height = computedHeight;
         // Crea la imagen del diálogo y la vincula con el canvas
         Bitmap dialogBitmap = Bitmap.createBitmap(
                 computedWidth, computedHeight, Bitmap.Config.ARGB_8888);
@@ -183,60 +278,60 @@ public class DialogScreen extends InanimateSprite implements Clickable {
                 backgroundColor
         );
         // Comienza el dibujado de la ventana de diálogo
-        this.dialogMatrix.reset();
+        this.dialogBuildingMatrix.reset();
         Bitmap nextPiece;
         // Arriba izquierda
         nextPiece = this.pieces.getTopLeftPiece();
-        this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-        this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+        this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+        this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
 
         // Arriba centro
         nextPiece = this.pieces.getTopPiece();
         for (int i = 0; i < piezasHorizontal; i++) {
-            this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-            this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+            this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+            this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
         }
         // Arriba derecha
         nextPiece = this.pieces.getTopRightPiece();
-        this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-        this.dialogMatrix.reset();
-        this.dialogMatrix.postTranslate(0, nextPiece.getHeight());
+        this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+        this.dialogBuildingMatrix.reset();
+        this.dialogBuildingMatrix.postTranslate(0, nextPiece.getHeight());
         // Espacio para text
         for (int i = 0; i < piezasVertical; i++) {
             // Centro izquierda
             nextPiece = this.pieces.getLeftPiece();
-            this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-            this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+            this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+            this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
             // Cálculo de la posición de las opciones
             float[] values = new float[9];
-            this.dialogMatrix.getValues(values);
+            this.dialogBuildingMatrix.getValues(values);
             int yCoord = (int) values[Matrix.MTRANS_Y];
             // Centro
             nextPiece = this.pieces.getCenterPiece();
             for (int j = 0; j < piezasHorizontal; j++) {
-                this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-                this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+                this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+                this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
             }
             // Centro derecha
             nextPiece = this.pieces.getRightPiece();
-            this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-            this.dialogMatrix.reset();
-            this.dialogMatrix.postTranslate(0, yCoord + nextPiece.getHeight());
+            this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+            this.dialogBuildingMatrix.reset();
+            this.dialogBuildingMatrix.postTranslate(0, yCoord + nextPiece.getHeight());
         }
         // Arriba izquierda
         nextPiece = this.pieces.getBottomLeftPiece();
-        this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-        this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+        this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+        this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
         // Arriba centro
         nextPiece = this.pieces.getBottomPiece();
         for (int i = 0; i < piezasHorizontal; i++) {
-            this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-            this.dialogMatrix.postTranslate(nextPiece.getWidth(), 0);
+            this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+            this.dialogBuildingMatrix.postTranslate(nextPiece.getWidth(), 0);
         }
         // Arriba derecha
         nextPiece = this.pieces.getBottomRightPiece();
-        this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
-        this.dialogMatrix.reset();
+        this.dialogCanvas.drawBitmap(nextPiece, this.dialogBuildingMatrix, this.dialogPaint);
+        this.dialogBuildingMatrix.reset();
         // Comienza a dibujar el texto vinculado al diálogo
         TextUtil.drawCenteredText(this.dialogCanvas, this.message, computedWidth, this.textPaint);
         // Se ajustan los colores del botón (interior y exterior)
@@ -262,21 +357,23 @@ public class DialogScreen extends InanimateSprite implements Clickable {
                     throw new IllegalStateException("El texto para la opción de pantalla de " +
                             "diálogo encontrada no existe");
             }
-            this.drawButton(optionText, optionButton, computedWidth, computedHeight, outsideButtonOptionPaint, insideButtonOptionPaint);
+            this.drawButton(optionText, optionButton, outsideButtonOptionPaint, insideButtonOptionPaint);
         }
         // Es devuelta la imagen generada
         return dialogBitmap;
     }
 
-    public void drawButton(String optionText, Hitbox optionButton, int computedWidth, int computedHeight, Paint outsideButtonOptionPaint, Paint insideButtonOptionPaint) {
+    public void drawButton(String optionText, SpaceBox optionButton, Paint outsideButtonOptionPaint, Paint insideButtonOptionPaint) {
+        int computedWidth = optionButton.getDimensionsFather().getSpriteWidth();
+        int computedHeight = optionButton.getDimensionsFather().getSpriteHeight();
         // Posición de esquina arriba a la izquierda
-        Point relativeUpLeft = Hitbox.percentagesToRelativePoint(
+        Point relativeUpLeft = SpaceBox.percentagesToRelativePoint(
                 optionButton.getXUpLeftPercentage(),
                 optionButton.getYUpLeftPercentage(),
                 computedWidth, computedHeight
         );
         // Posición de esquina abajo a la derecha
-        Point relativeDownRight = Hitbox.percentagesToRelativePoint(
+        Point relativeDownRight = SpaceBox.percentagesToRelativePoint(
                 optionButton.getXDownRightPercentage(),
                 optionButton.getYDownRightPercentage(),
                 computedWidth, computedHeight

@@ -5,22 +5,13 @@ import android.view.MotionEvent;
 import android.view.View;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.engine.manager.GameEngine.BLACK_STRIPE_TYPES;
 import com.psychocactusproject.engine.manager.GameEngine.SCENES;
 import com.psychocactusproject.engine.manager.GameEntity;
-import com.psychocactusproject.engine.manager.GameEntityManager;
-import com.psychocactusproject.engine.manager.GameLogic;
 import com.psychocactusproject.engine.util.Hitbox;
 import com.psychocactusproject.engine.util.Point;
-import com.psychocactusproject.graphics.controllers.CustomClickableEntity;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
-import com.psychocactusproject.interaction.menu.ContextMenu;
-import com.psychocactusproject.interaction.menu.ContextMenu.MenuOption;
-import com.psychocactusproject.interaction.menu.DialogScreen;
-import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.interaction.scripts.Clickable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +29,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
     private List<GameEntity> gameEntities;
-    private HashMap<SCENES, Touchable> touchableScenesMap;
+    private HashMap<SCENES, com.psychocactusproject.input.Touchable> touchableScenesMap;
 
 
     public TouchInputController(GameEngine gameEngine, View view) {
@@ -54,125 +45,13 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.hasBlackStripes = gameEngine.hasBlackStripes();
         this.gameEntities = gameEngine.getGameEntities();
         this.touchableScenesMap = new HashMap<>();
-        this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
-        this.touchableScenesMap.put(SCENES.DIALOG, this.definedDialogTouchable());
-        this.touchableScenesMap.put(SCENES.PAUSE_MENU, this.definedPauseTouchable());
+        this.touchableScenesMap.put(SCENES.GAME,
+                SurfaceGameView.getInstance().getGameScreen().definedTouchable());
+        this.touchableScenesMap.put(SCENES.DIALOG,
+                SurfaceGameView.getInstance().getDialog().definedTouchable());
+        this.touchableScenesMap.put(SCENES.PAUSE_MENU,
+                SurfaceGameView.getInstance().getPauseScreen().definedTouchable());
         // this.touchableScenesMap.put(SCENES.GAME, this.definedGameTouchable());
-    }
-
-    public Touchable definedGameTouchable() {
-        return (point) -> {
-            // Comprueba si hay una colisión con alguna hitbox
-            Hitbox selected = checkGameHitboxes(point.getX(), point.getY());
-            // this.closeAllMenus();
-            // Si ha habido colisión, ejecuta su acción asignada
-            if (selected != null) {
-                Clickable clickableHolder = selected.getFather();
-                // Se trata de un personaje
-                if (clickableHolder instanceof MenuDisplay) {
-                    // Cierra los menús ya abiertos
-                    closeAllMenus();
-                    // Abre el nuevo menú
-                    clickableHolder.executeClick(selected.getIndex());
-                // Se trata de un menú
-                } else if (clickableHolder instanceof ContextMenu) {
-                    ContextMenu clickedMenu = (ContextMenu) clickableHolder;
-                    MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
-                    if (option.isAvailable()) {
-                        // Cierra los menús ya abiertos
-                        closeAllMenus();
-                        // Ejecuta la acción de la instancia Clickable seleccionada
-                        clickableHolder.executeClick(selected.getIndex());
-                    } else {
-                        String alertMessage = "The '" + option.getOptionName() + "' action of "
-                                + clickedMenu.getFatherRole() + " cannot be performed.";
-                        // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
-                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
-                        // this.gameEngine.showAlertDialog(alertMessage, reason);
-                        DebugHelper.printMessage("Aquí debería decir 'la acción "
-                                + option.getOptionName() + " no se encuentra disponible'");
-                    }
-                } else {
-                    clickableHolder.executeClick(0);
-                }
-            // Si no es seleccionada ninguna hitbox, cierra menús
-            } else {
-                closeAllMenus();
-            }
-        };
-    }
-
-    public Touchable definedDialogTouchable() {
-
-        return (point) -> {
-            // Comprueba si la pantalla de diálogo ha sido creada
-            DialogScreen dialog = GameEngine.getInstance().getSurfaceGameView().getDialog();
-            if (dialog == null) {
-                throw new IllegalStateException("La pantalla de diálogo debía estar abierta.");
-            }
-            // Busca si existe colisión con alguna hitbox del diálogo
-            Hitbox selected = null;
-            for (Hitbox hitbox : dialog.getHitboxes()) {
-                if (hitboxCollision(point.getX(), point.getY(), hitbox)) {
-                    selected = hitbox;
-                }
-            }
-            // Si ha habido colisión, ejecuta su acción asignada
-            if (selected != null) {
-                Clickable clickableHolder = selected.getFather();
-                clickableHolder.executeClick(selected.getIndex());
-            }
-        };
-    }
-
-    public Touchable definedPauseTouchable() {
-        return (point) -> {
-            // Comprueba si hay una colisión con alguna hitbox
-            Hitbox selected = checkPauseHitboxes(point.getX(), point.getY());
-            // this.closeAllMenus();
-            // Si ha habido colisión, ejecuta su acción asignada
-            if (selected != null) {
-                SurfaceGameView gameView = GameEngine.getInstance().getSurfaceGameView();
-
-                for (CustomClickableEntity menuOption : gameView.getPauseScreen().getOptions()) {
-                    continue;
-                }
-                GameEngine.getInstance().resumeGame();
-
-                /*
-                Clickable clickableHolder = selected.getFather();
-                // Se trata de un personaje
-                if (clickableHolder instanceof MenuDisplay) {
-                    // Cierra los menús ya abiertos
-                    closeAllMenus();
-                    // Abre el nuevo menú
-                    clickableHolder.executeClick(selected.getIndex());
-                    // Se trata de un menú
-                } else if (clickableHolder instanceof ContextMenu) {
-                    ContextMenu clickedMenu = (ContextMenu) clickableHolder;
-                    MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
-                    if (option.isAvailable()) {
-                        // Cierra los menús ya abiertos
-                        closeAllMenus();
-                        // Ejecuta la acción de la instancia Clickable seleccionada
-                        clickableHolder.executeClick(selected.getIndex());
-                    } else {
-                        String alertMessage = "The '" + option.getOptionName() + "' action of "
-                                + clickedMenu.getFatherRole() + " cannot be performed.";
-                        // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
-                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
-                        // this.gameEngine.showAlertDialog(alertMessage, reason);
-                        DebugHelper.printMessage("Aquí debería decir 'la acción "
-                                + option.getOptionName() + " no se encuentra disponible'");
-                    }
-                }
-
-                 */
-                // Si no es seleccionada ninguna hitbox, cierra menús
-            } else {
-                GameEngine.getInstance().resumeGame();
-            }
-        };
     }
 
     public int getX() {
@@ -229,16 +108,6 @@ public class TouchInputController extends InputController implements View.OnKeyL
         return false;
     }
 
-    private void closeAllMenus() {
-        // Cierra los menús
-        for (GameEntity entity : this.gameEntities) {
-            // Los que tienen menu, los cierran
-            if (entity instanceof MenuDisplay) {
-                ((MenuDisplay) entity).closeMenu();
-            }
-        }
-    }
-
     @Override
     public void update() {
         Point click = getPendingClick();
@@ -277,87 +146,10 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.setYCoordinate((int)((double) adjustedYTouch / borderlessDeviceHeight * GameEngine.RESOLUTION_Y));
     }
 
-    private Hitbox checkGameHitboxes(int xTouch, int yTouch) {
-        // Prioridad nivel 1: menús
-        for (GameEntity entity : this.gameEntities) {
-            if (entity instanceof MenuDisplay) {
-                MenuDisplay menuHolder = ((MenuDisplay) entity);
-                if (menuHolder.isMenuOpen()) {
-                    MenuOption[] entityOptions = ((MenuDisplay) entity).getMenu().getMenuOptions();
-                    Hitbox[] hitboxesCheck = menuHolder.getMenu().getHitboxes();
-                    for (int i = 0; i < entityOptions.length; i++) {
-                        // la idea es quitar este filtro, y sí seleccionar la hitbox esté
-                        // activada o no, controlar la respuesta desde un fragmento
-                        // superior de código
-                        Hitbox hitbox = hitboxesCheck[i];
-                        if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
-                            return hitbox;
-                        }
-                    }
-                }
-            }
-        }
-        // Prioridad nivel 2: interfaz
-        GameEntityManager entityManager = GameLogic.getInstance().getGameEntityManager();
-        // Pause menu
-        Hitbox[] pauseHitboxes = entityManager.getPauseButton().getHitboxes();
-        for (Hitbox hitbox : pauseHitboxes) {
-            if (hitboxCollision(xTouch, yTouch, hitbox)) {
-                return hitbox;
-            }
-        }
-        // Prioridad nivel 3: personajes
-        for (GameEntity entity : this.gameEntities) {
-            if (entity instanceof Clickable) {
-                if (((Clickable) entity).isAvailable(0)) {
-                    Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
-                    if (hitboxesCheck != null) {
-                        for (Hitbox hitbox : hitboxesCheck) {
-                            if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
-                                return hitbox;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Utilizar tanto para la pantalla de inicio como para el menú de pausa dentro del juego
-     *
-     * @param xTouch
-     * @param yTouch
-     * @return
-     */
-    private Hitbox checkPauseHitboxes(int xTouch, int yTouch) {
-        // Prioridad nivel 3: personajes
-        /*for (MenuEntity menu : this.menuEntities) {
-            Hitbox[] hitboxesCheck = menu.getHitboxes();
-            if (hitboxesCheck != null) {
-                for (Hitbox hitbox : hitboxesCheck) {
-                    if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
-                        return hitbox;
-                    }
-                }
-            }
-        }
-
-         */return null;
-    }
-
-    private boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {
+    public static boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {
         return(xTouch > hitbox.getUpLeftX()
                 && xTouch < hitbox.getDownRightX()
                 && yTouch > hitbox.getUpLeftY()
                 && yTouch < hitbox.getDownRightY());
-    }
-
-    @FunctionalInterface
-    public interface Touchable {
-
-        public void search(Point point);
     }
 }

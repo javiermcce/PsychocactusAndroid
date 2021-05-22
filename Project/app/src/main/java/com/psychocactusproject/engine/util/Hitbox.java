@@ -6,23 +6,19 @@ import android.graphics.Paint;
 
 import com.psychocactusproject.interaction.scripts.Clickable;
 
-public class Hitbox extends Space {
+public class Hitbox extends SpaceBox {
 
-    // Posición relativa respecto a la ubicación del padre, en porcentajes
-    private final int xUpLeft;
-    private final int yUpLeft;
-    private final int xDownRight;
-    private final int yDownRight;
     // Referencia al padre en posesión de la hitbox
     private final Clickable father;
     // Índice de la acción a realizar
     private final int index;
     // Referencia a paint para el dibujado de hitboxes
-    private static Paint hitboxPaint = new Paint();
+    private static final Paint hitboxPaint = new Paint();
 
     public Hitbox(int xPercUpLeft, int yPercUpLeft,
                   int xPercDownRight, int yPercDownRight,
                   Clickable father, int index){
+        super(xPercUpLeft, yPercUpLeft, xPercDownRight, yPercDownRight, father);
         if((xPercUpLeft < 0 || xPercUpLeft > 100)
                 || yPercUpLeft < 0 || yPercUpLeft > 100
                 || xPercDownRight < 0 || xPercDownRight > 100
@@ -30,65 +26,14 @@ public class Hitbox extends Space {
             throw new IllegalArgumentException("Percentage given at Hitbox"
                     + "constructor is out of bounds");
         }
-        this.xUpLeft = xPercUpLeft;
-        this.yUpLeft = yPercUpLeft;
-        this.xDownRight = xPercDownRight;
-        this.yDownRight = yPercDownRight;
         this.father = father;
         this.index = index;
     }
 
     public Hitbox(Clickable father, int index) {
-        this.xUpLeft = 0;
-        this.yUpLeft = 0;
-        this.xDownRight = 100;
-        this.yDownRight = 100;
+        super(0, 0, 100, 100, father);
         this.father = father;
         this.index = index;
-    }
-
-    public int getUpLeftX(){
-        return this.father.getPositionX() +
-                this.father.getSpriteWidth() * xUpLeft / 100;
-    }
-
-    public int getUpLeftY(){
-        return this.father.getPositionY() +
-                this.father.getSpriteHeight() * yUpLeft / 100;
-    }
-
-    public int getDownRightX(){
-        return this.father.getPositionX() +
-                this.father.getSpriteWidth() * xDownRight / 100;
-    }
-
-    public int getDownRightY(){
-        return this.father.getPositionY() +
-                this.father.getSpriteHeight() * yDownRight / 100;
-    }
-
-    public Point getUpLeftPoint(){
-        return new Point(getUpLeftX(), getUpLeftY());
-    }
-
-    public Point getDownRightPoint(){
-        return new Point(getDownRightX(), getDownRightY());
-    }
-
-    public int getXUpLeftPercentage() {
-        return this.xUpLeft;
-    }
-
-    public int getYUpLeftPercentage() {
-        return this.yUpLeft;
-    }
-
-    public int getXDownRightPercentage() {
-        return this.xDownRight;
-    }
-
-    public int getYDownRightPercentage() {
-        return this.yDownRight;
     }
 
     public Clickable getFather() {
@@ -97,12 +42,6 @@ public class Hitbox extends Space {
 
     public int getIndex() {
         return this.index;
-    }
-
-    public static Point percentagesToRelativePoint(int xPercentage, int yPercentage, int elementWidth, int elementHeight) {
-        int xCoord = elementWidth * xPercentage / 100;
-        int yCoord = elementHeight * yPercentage / 100;
-        return new Point(xCoord, yCoord);
     }
 
     public static void drawHitboxes(Hitbox[] hitboxes, Canvas canvas) {

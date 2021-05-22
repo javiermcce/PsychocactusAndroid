@@ -9,6 +9,7 @@ import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
@@ -104,6 +105,14 @@ public class GameEngine {
 
     public List<Drawable> getEntitiesByLayer(GAME_LAYERS layer) {
         return this.drawablesByLayer.get(layer);
+    }
+
+    public List<Drawable> getGameDrawables() {
+        return gameDrawables;
+    }
+
+    public List<DebugDrawable> getDebugDrawables() {
+        return debugDrawables;
     }
 
     public List<List<Drawable>> getDrawableLayers() {
@@ -217,6 +226,16 @@ public class GameEngine {
         this.inputController.resume();
     }
     */
+
+    public void closeAllMenus() {
+        // Cierra los menús
+        for (GameEntity entity : this.gameEntities) {
+            // Los que tienen menu, los cierran
+            if (entity instanceof MenuDisplay) {
+                ((MenuDisplay) entity).closeMenu();
+            }
+        }
+    }
 
     public void addGameEntity(GameEntity gameEntity) {
         if (this.isRunning()) {

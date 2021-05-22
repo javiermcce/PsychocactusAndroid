@@ -8,18 +8,20 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 
 import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.util.Hitbox;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.controllers.CustomClickableEntity;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
-import com.psychocactusproject.input.TouchInputController;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
+import com.psychocactusproject.graphics.views.SurfaceGameView;
+import com.psychocactusproject.input.Touchable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PauseScreen implements ScreenModel {
+public class PauseScreen implements Scene {
 
     private final MenuBitmapFlyweight.PauseMenuFlyweight pieces;
     private int randomMusicIndex;
@@ -28,7 +30,7 @@ public class PauseScreen implements ScreenModel {
     public enum PAUSE_LAYERS { FIRST, SECOND }
     private PAUSE_LAYERS activeLayer;
     private Drawable initialDrawable;
-    private TouchInputController.Touchable initialTouchable;
+    private Touchable initialTouchable;
     private List<ClickableDirectSprite> pauseEntities;
     private final HashMap<PAUSE_LAYERS, List<CustomClickableEntity>> optionsByLayer;
     private final Matrix pauseMatrix;
@@ -73,6 +75,7 @@ public class PauseScreen implements ScreenModel {
         this.activeLayer = PAUSE_LAYERS.FIRST;
     }
 
+    @Override
     public Drawable definedDrawable() {
         return (canvas) -> {
             // En el primer ciclo de dibujado de pausa...
@@ -84,7 +87,7 @@ public class PauseScreen implements ScreenModel {
                         Bitmap.Config.ARGB_8888
                 );
                 copyCanvas.setBitmap(this.lastFrameBitmap);
-                GameEngine.getInstance().getSurfaceGameView().definedGameDrawable(true).draw(copyCanvas);
+                SurfaceGameView.getInstance().getGameScreen().definedDrawable(true).draw(copyCanvas);
                 // Se construye el marco de pausa
                 this.pauseFrameCanvas = new Canvas();
                 this.pauseBaseFrame = Bitmap.createBitmap(
@@ -133,6 +136,80 @@ public class PauseScreen implements ScreenModel {
             this.pauseMatrix.reset();
 
         };
+    }
+
+    @Override
+    public Touchable definedTouchable() {
+        return (point) -> {
+            // Comprueba si hay una colisión con alguna hitbox
+            Hitbox selected = checkPauseHitboxes(point.getX(), point.getY());
+            // this.closeAllMenus();
+            // Si ha habido colisión, ejecuta su acción asignada
+            if (selected != null) {
+                SurfaceGameView gameView = GameEngine.getInstance().getSurfaceGameView();
+
+                for (CustomClickableEntity menuOption : gameView.getPauseScreen().getOptions()) {
+                    continue;
+                }
+                GameEngine.getInstance().resumeGame();
+
+                /*
+                Clickable clickableHolder = selected.getFather();
+                // Se trata de un personaje
+                if (clickableHolder instanceof MenuDisplay) {
+                    // Cierra los menús ya abiertos
+                    closeAllMenus();
+                    // Abre el nuevo menú
+                    clickableHolder.executeClick(selected.getIndex());
+                    // Se trata de un menú
+                } else if (clickableHolder instanceof ContextMenu) {
+                    ContextMenu clickedMenu = (ContextMenu) clickableHolder;
+                    MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
+                    if (option.isAvailable()) {
+                        // Cierra los menús ya abiertos
+                        closeAllMenus();
+                        // Ejecuta la acción de la instancia Clickable seleccionada
+                        clickableHolder.executeClick(selected.getIndex());
+                    } else {
+                        String alertMessage = "The '" + option.getOptionName() + "' action of "
+                                + clickedMenu.getFatherRole() + " cannot be performed.";
+                        // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
+                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
+                        // this.gameEngine.showAlertDialog(alertMessage, reason);
+                        DebugHelper.printMessage("Aquí debería decir 'la acción "
+                                + option.getOptionName() + " no se encuentra disponible'");
+                    }
+                }
+
+                 */
+                // Si no es seleccionada ninguna hitbox, cierra menús
+            } else {
+                GameEngine.getInstance().resumeGame();
+            }
+        };
+    }
+
+    /**
+     * Utilizar tanto para la pantalla de inicio como para el menú de pausa dentro del juego
+     *
+     * @param xTouch
+     * @param yTouch
+     * @return
+     */
+    private Hitbox checkPauseHitboxes(int xTouch, int yTouch) {
+        // Prioridad nivel 3: personajes
+        /*for (MenuEntity menu : this.menuEntities) {
+            Hitbox[] hitboxesCheck = menu.getHitboxes();
+            if (hitboxesCheck != null) {
+                for (Hitbox hitbox : hitboxesCheck) {
+                    if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
+                        return hitbox;
+                    }
+                }
+            }
+        }
+
+         */return null;
     }
 
     private void createOptions() {
