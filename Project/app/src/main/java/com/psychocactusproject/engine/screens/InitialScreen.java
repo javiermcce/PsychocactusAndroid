@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.screens;
 
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.interfaces.Drawable;
@@ -6,7 +6,7 @@ import com.psychocactusproject.input.TouchInputController.Touchable;
 
 import java.util.List;
 
-public class InitialScreen {
+public class InitialScreen implements ScreenModel {
 
     private Drawable initialDrawable;
     private Touchable initialTouchable;
@@ -17,7 +17,7 @@ public class InitialScreen {
         this.initialEntities = initialEntities;
     }
 
-    public Drawable definedInitialDrawable() {
+    public Drawable definedDrawable() {
         return (canvas -> {
             //synchronized (GameEntity.entitiesLock) {
             //}

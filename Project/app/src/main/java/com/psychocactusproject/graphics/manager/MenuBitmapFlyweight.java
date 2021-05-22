@@ -164,12 +164,17 @@ public class MenuBitmapFlyweight {
         private PauseMenuFlyweight() {
             this.horizontalBarPiece = ResourceLoader.loadBitmap(R.drawable.pause_horizontal_frame);
             this.verticalBarPiece = ResourceLoader.loadBitmap(R.drawable.pause_vertical_frame);
-            this.faces = new Bitmap[5];
+            this.faces = new Bitmap[10];
             this.faces[0] = ResourceLoader.loadBitmap(R.drawable.face_bass);
             this.faces[1] = ResourceLoader.loadBitmap(R.drawable.face_guitar);
             this.faces[2] = ResourceLoader.loadBitmap(R.drawable.face_singer);
             this.faces[3] = ResourceLoader.loadBitmap(R.drawable.face_drums);
             this.faces[4] = ResourceLoader.loadBitmap(R.drawable.face_barry);
+            this.faces[5] = ResourceLoader.loadBitmap(R.drawable.face_bass_complete);
+            this.faces[6] = ResourceLoader.loadBitmap(R.drawable.face_guitar_complete);
+            this.faces[7] = ResourceLoader.loadBitmap(R.drawable.face_singer_complete);
+            this.faces[8] = ResourceLoader.loadBitmap(R.drawable.face_drums_complete);
+            this.faces[9] = ResourceLoader.loadBitmap(R.drawable.face_barry_complete);
         }
 
         public Bitmap getHorizontalBarPiece() {

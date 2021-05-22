@@ -3,9 +3,10 @@ package com.psychocactusproject.graphics.controllers;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.util.GameClock;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,10 +54,14 @@ public abstract class AnimatedEntity extends AbstractSprite {
             Bitmap[] bitmaps = new Bitmap[animationCodes.length];
             // Iteración sobre las imágenes que componen cada animación
             for (int j = 0; j < bitmaps.length; j++) {
+                bitmaps[j] = ResourceLoader.loadBitmap(animationCodes[j]);
+                /*
                 bitmaps[j] = BitmapFactory.decodeResource(
                         gameEngine.getContext().getResources(),
                         animationCodes[j],
                         options);
+
+                 */
             }
             this.animationImages.add(bitmaps);
             if (bitmaps.length < 1) {

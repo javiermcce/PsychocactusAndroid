@@ -5,9 +5,9 @@ import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEntity;
+import com.psychocactusproject.engine.util.Point;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Dimensions;
 import com.psychocactusproject.graphics.interfaces.Drawable;

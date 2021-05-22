@@ -9,8 +9,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.graphics.manager.ResourceLoader;
+import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.TouchInputController;
 
@@ -63,7 +62,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
     @Override
     public void onPause() {
         super.onPause();
-        if (gameEngine.isRunning()){
+        if (gameEngine.isRunning() && !gameEngine.isPaused()){
             pauseGameAndShowPauseDialog();
         }
     }
@@ -76,7 +75,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
 
     @Override
     public boolean onBackPressed() {
-        if (gameEngine.isRunning()) {
+        if (gameEngine.isRunning() && !gameEngine.isPaused()) {
             pauseGameAndShowPauseDialog();
             return true;
         }
@@ -85,6 +84,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
 
     private void pauseGameAndShowPauseDialog() {
         gameEngine.pauseGame();
+        /*
         new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.pause_dialog_title)
                 .setMessage(R.string.pause_dialog_message)
@@ -111,6 +111,7 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 })
                 .create()
                 .show();
+        */
 
     }
 

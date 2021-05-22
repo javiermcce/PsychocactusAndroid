@@ -1,9 +1,9 @@
 package com.psychocactusproject.interaction.scripts;
 
 import com.psychocactusproject.characters.band.Musician;
-import com.psychocactusproject.engine.GameEntityManager;
-import com.psychocactusproject.engine.GameEntityManager.MusicianTypes;
-import com.psychocactusproject.engine.GameLogic;
+import com.psychocactusproject.engine.manager.GameEntityManager;
+import com.psychocactusproject.engine.manager.GameEntityManager.MusicianTypes;
+import com.psychocactusproject.engine.manager.GameLogic;
 
 import java.util.LinkedList;
 import java.util.List;

@@ -2,7 +2,7 @@ package com.psychocactusproject.characters.police;
 
 import android.graphics.Canvas;
 
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine;
 
 public class ViolentAgent extends Police {
 

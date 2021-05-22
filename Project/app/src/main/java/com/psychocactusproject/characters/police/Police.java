@@ -3,7 +3,7 @@ package com.psychocactusproject.characters.police;
 import android.graphics.Canvas;
 
 import com.psychocactusproject.graphics.controllers.AnimatedEntity;
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine;
 
 public abstract class Police extends AnimatedEntity {
 

@@ -4,9 +4,9 @@ import android.graphics.Color;
 import android.graphics.Paint;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEngine.GAME_LAYERS;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine.GAME_LAYERS;
+import com.psychocactusproject.engine.util.Point;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.controllers.CustomDrawableEntity;

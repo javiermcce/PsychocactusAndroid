@@ -1,13 +1,10 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
 
 import android.content.Context;
-import android.graphics.Typeface;
 
-import androidx.core.content.res.ResourcesCompat;
-
-import com.psychocactusproject.R;
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
+import com.psychocactusproject.engine.util.GameClock;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
@@ -339,7 +336,8 @@ public class GameEngine {
     }
 
     public boolean isPaused() {
-        return this.updateThread != null && this.updateThread.isUpdatePaused();
+        return this.getCurrentScene().equals(SCENES.PAUSE_MENU);
+        // return this.updateThread != null && this.updateThread.isUpdatePaused();
     }
 
     public Context getContext() {

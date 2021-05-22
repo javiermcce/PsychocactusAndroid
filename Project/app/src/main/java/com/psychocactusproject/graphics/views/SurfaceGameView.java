@@ -15,9 +15,9 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.InitialScreen;
-import com.psychocactusproject.engine.PauseScreen;;
-import com.psychocactusproject.engine.GameEngine.GAME_LAYERS;
+import com.psychocactusproject.engine.screens.InitialScreen;
+import com.psychocactusproject.engine.screens.PauseScreen;;
+import com.psychocactusproject.engine.manager.GameEngine.GAME_LAYERS;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Drawable;
@@ -25,12 +25,12 @@ import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.DialogScreen;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
-import com.psychocactusproject.engine.Hitbox;
-import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
-import static com.psychocactusproject.engine.GameEngine.SCENES;
+import com.psychocactusproject.engine.util.GameClock;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEntity;
+import com.psychocactusproject.engine.util.Hitbox;
+import static com.psychocactusproject.engine.manager.GameEngine.BLACK_STRIPE_TYPES;
+import static com.psychocactusproject.engine.manager.GameEngine.SCENES;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -106,8 +106,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.drawableScenesMap = new HashMap<>();
         this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
         this.drawableScenesMap.put(SCENES.DIALOG, this.definedDialogDrawable());
-        this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedInitialDrawable());
-        this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedPauseDrawable());
+        this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedDrawable());
+        this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedDrawable());
     }
 
 

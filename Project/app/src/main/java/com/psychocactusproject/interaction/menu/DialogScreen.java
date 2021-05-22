@@ -7,14 +7,14 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEngine.SCENES;
-import com.psychocactusproject.engine.Hitbox;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine.SCENES;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.engine.util.Point;
+import com.psychocactusproject.engine.util.TextUtil;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
-import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight.MenuType;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.ALERT;
@@ -160,20 +160,21 @@ public class DialogScreen extends InanimateSprite implements Clickable {
     }
 
     private Bitmap buildDialogScreen() {
-        //
+        // Cantidad de piezas por las que está formado el marco del menú
         int piezasHorizontal = 20;
         int piezasVertical = 5;
-        //
+        // Cálculo del tamaño final de la imagen generada por esta instancia
         int computedWidth = this.pieces.getTopLeftPiece().getWidth() +
                 this.pieces.getTopRightPiece().getWidth() +
                 (this.pieces.getCenterPiece().getWidth() * piezasHorizontal);
         int computedHeight = this.pieces.getTopLeftPiece().getHeight() +
                 this.pieces.getBottomLeftPiece().getHeight() +
                 (this.pieces.getCenterPiece().getHeight() * piezasVertical);
-        // Pinta un fondo algo más opaco para facilitar la lectura del texto
+        // Crea la imagen del diálogo y la vincula con el canvas
         Bitmap dialogBitmap = Bitmap.createBitmap(
                 computedWidth, computedHeight, Bitmap.Config.ARGB_8888);
         this.dialogCanvas.setBitmap(dialogBitmap);
+        // Pinta un fondo más opaco sobre la imagen de diálogo para facilitar la lectura del texto
         int border = 18;
         Paint backgroundColor = new Paint();
         backgroundColor.setColor(Color.argb(100, 171, 171, 171));
@@ -181,7 +182,7 @@ public class DialogScreen extends InanimateSprite implements Clickable {
                 new Rect(border, border, computedWidth - border, computedHeight - border),
                 backgroundColor
         );
-        // Dibujado de la ventana de diálogo
+        // Comienza el dibujado de la ventana de diálogo
         this.dialogMatrix.reset();
         Bitmap nextPiece;
         // Arriba izquierda
@@ -209,7 +210,6 @@ public class DialogScreen extends InanimateSprite implements Clickable {
             // Cálculo de la posición de las opciones
             float[] values = new float[9];
             this.dialogMatrix.getValues(values);
-            // int xCoord = (int) values[Matrix.MTRANS_X];
             int yCoord = (int) values[Matrix.MTRANS_Y];
             // Centro
             nextPiece = this.pieces.getCenterPiece();
@@ -237,63 +237,16 @@ public class DialogScreen extends InanimateSprite implements Clickable {
         nextPiece = this.pieces.getBottomRightPiece();
         this.dialogCanvas.drawBitmap(nextPiece, this.dialogMatrix, this.dialogPaint);
         this.dialogMatrix.reset();
-
-        // INSERTAR TEXTO DEL DIALOGO AQUÍ
-        // Este es el caso que ahora mismo hay definido, insertar en este condicional
-        if (this.getDetails() == null) {
-
-        // En este caso, debería hacer espacio para insertar la
-        // descripción (cambiarle también el color), modificando las palabras por línea,
-        // tamaño de fuente, etc...
-
-        // Valorar opción de convertir el fragmento de abajo en un método
-        // parametrizado (drawCenteredText no debería verse modificado, sino ser usado)
-        } else {
-
-        }
-
-        String[] messageWords = this.message.split(" ");
-        int wordIndex = 0;
-        int lines = 0;
-        while (wordIndex < messageWords.length) {
-            int wordsPerLine = 3;
-            StringBuilder line = new StringBuilder();
-            for (int internalIndex = wordIndex; internalIndex < wordIndex + wordsPerLine && internalIndex < messageWords.length; internalIndex++) {
-                line.append(messageWords[internalIndex]).append(" ");
-            }
-            Point startPoint = new Point(0, (lines * 80) + 80);
-            Point endPoint = new Point(computedWidth, ((lines + 1) * 80) + 80);
-            this.drawCenteredText(startPoint, endPoint, line.toString(), 70);
-            wordIndex += wordsPerLine;
-            lines++;
-        }
-        //
-        Paint optionButtonInsidePaint = new Paint();
-        optionButtonInsidePaint.setColor(Color.argb(255, 174, 182, 191));
-        Paint optionButtonOutsidePaint = new Paint();
-        optionButtonOutsidePaint.setColor(Color.argb(255, 126, 133, 143));
+        // Comienza a dibujar el texto vinculado al diálogo
+        TextUtil.drawCenteredText(this.dialogCanvas, this.message, computedWidth, this.textPaint);
+        // Se ajustan los colores del botón (interior y exterior)
+        Paint insideButtonOptionPaint = new Paint();
+        insideButtonOptionPaint.setColor(Color.argb(255, 174, 182, 191));
+        Paint outsideButtonOptionPaint = new Paint();
+        outsideButtonOptionPaint.setColor(Color.argb(255, 126, 133, 143));
+        // Son dibujados todos los botones para la instancia
         for (Hitbox optionButton : this.getHitboxes()) {
-            Point relativeUpLeft = Hitbox.percentagesToRelativePoint(
-                    optionButton.getXUpLeftPercentage(),
-                    optionButton.getYUpLeftPercentage(),
-                    computedWidth, computedHeight
-            );
-            Point relativeDownRight = Hitbox.percentagesToRelativePoint(
-                    optionButton.getXDownRightPercentage(),
-                    optionButton.getYDownRightPercentage(),
-                    computedWidth, computedHeight
-            );
-            this.dialogCanvas.drawRect(
-                    new Rect(relativeUpLeft.getX(), relativeUpLeft.getY(),
-                            relativeDownRight.getX(), relativeDownRight.getY()),
-                    optionButtonOutsidePaint
-            );
-            this.dialogCanvas.drawRect(
-                    new Rect(relativeUpLeft.getX() + 5 , relativeUpLeft.getY() + 5,
-                            relativeDownRight.getX() - 5, relativeDownRight.getY() - 5),
-                    optionButtonInsidePaint
-            );
-            // Point upLeft, Point downRight, String text, Canvas canvas
+            // Texto del botón según el caso
             String optionText;
             switch (optionButton.getIndex()) {
                 case CONFIRMATION_ACCEPT:
@@ -309,35 +262,38 @@ public class DialogScreen extends InanimateSprite implements Clickable {
                     throw new IllegalStateException("El texto para la opción de pantalla de " +
                             "diálogo encontrada no existe");
             }
-            this.drawCenteredText(relativeUpLeft, relativeDownRight, optionText, 60);
+            this.drawButton(optionText, optionButton, computedWidth, computedHeight, outsideButtonOptionPaint, insideButtonOptionPaint);
         }
+        // Es devuelta la imagen generada
         return dialogBitmap;
     }
 
-    private void drawCenteredText(Point upLeft, Point downRight, String text, int fontSize) {
-        this.textPaint.setTextSize(fontSize);
-        Rect bounds = new Rect();
-        this.textPaint.getTextBounds(text, 0, text.length(), bounds);
-        int availableWidth = downRight.getX() - upLeft.getX();
-        int textWidth = bounds.right - bounds.left;
-        int textHeight = bounds.bottom - bounds.top;
-        //
-        if (textWidth > availableWidth) {
-            throw new IllegalArgumentException("No hay suficiente espacio para el texto " +
-                    "que se desea dibujar.");
-        }
-        // Tamaño de los bordes / 2, + /*coordenada del botón*/ offsetX
-        int textPositionX = ((availableWidth - textWidth) / 2) + upLeft.getX() - 5;
-        // Media de altura de las posiciones dadas como margen + /*tamaño de letra / 2*/ offsetY
-        int textPositionY = ((upLeft.getY() + downRight.getY()) / 2) + /*(textHeight / 2)*/ 20;
-
-        Paint redPaint = new Paint(Color.RED);
-        this.dialogCanvas.drawText(text, textPositionX, textPositionY, this.textPaint);
-        /*
-        this.dialogCanvas.drawRect(new Rect(textPositionX - 5, textPositionY - 5, textPositionX + 5, textPositionY + 5), this.textPaint);
-        this.dialogCanvas.drawRect(new Rect(textPositionX, textPositionY,
-                textPositionX + textWidth, textPositionY + textHeight), redPaint);
-
-         */
+    public void drawButton(String optionText, Hitbox optionButton, int computedWidth, int computedHeight, Paint outsideButtonOptionPaint, Paint insideButtonOptionPaint) {
+        // Posición de esquina arriba a la izquierda
+        Point relativeUpLeft = Hitbox.percentagesToRelativePoint(
+                optionButton.getXUpLeftPercentage(),
+                optionButton.getYUpLeftPercentage(),
+                computedWidth, computedHeight
+        );
+        // Posición de esquina abajo a la derecha
+        Point relativeDownRight = Hitbox.percentagesToRelativePoint(
+                optionButton.getXDownRightPercentage(),
+                optionButton.getYDownRightPercentage(),
+                computedWidth, computedHeight
+        );
+        // Son dibujados los cuadros interior y exterior del botón
+        this.dialogCanvas.drawRect(
+                new Rect(relativeUpLeft.getX(), relativeUpLeft.getY(),
+                        relativeDownRight.getX(), relativeDownRight.getY()),
+                outsideButtonOptionPaint
+        );
+        this.dialogCanvas.drawRect(
+                new Rect(relativeUpLeft.getX() + 5 , relativeUpLeft.getY() + 5,
+                        relativeDownRight.getX() - 5, relativeDownRight.getY() - 5),
+                insideButtonOptionPaint
+        );
+        // Dibujado del texto del botón
+        this.textPaint.setTextSize(60);
+        TextUtil.drawCenteredLine(this.dialogCanvas, relativeUpLeft, relativeDownRight, optionText, this.textPaint);
     }
 }

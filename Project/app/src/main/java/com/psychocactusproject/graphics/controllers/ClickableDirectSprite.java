@@ -1,8 +1,8 @@
 package com.psychocactusproject.graphics.controllers;
 
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.Hitbox;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.engine.util.Point;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
 public class ClickableDirectSprite extends InanimateSprite implements Clickable {

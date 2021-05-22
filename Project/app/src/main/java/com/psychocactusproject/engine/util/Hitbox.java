@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.util;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -6,7 +6,7 @@ import android.graphics.Paint;
 
 import com.psychocactusproject.interaction.scripts.Clickable;
 
-public class Hitbox {
+public class Hitbox extends Space {
 
     // Posición relativa respecto a la ubicación del padre, en porcentajes
     private final int xUpLeft;

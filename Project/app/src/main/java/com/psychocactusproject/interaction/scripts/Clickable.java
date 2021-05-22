@@ -1,7 +1,7 @@
 package com.psychocactusproject.interaction.scripts;
 
 import com.psychocactusproject.graphics.interfaces.Dimensions;
-import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.util.Hitbox;
 
 public interface Clickable extends Dimensions {
 

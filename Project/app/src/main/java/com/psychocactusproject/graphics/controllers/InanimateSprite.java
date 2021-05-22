@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine;
 
 public class InanimateSprite extends AbstractSprite {
 

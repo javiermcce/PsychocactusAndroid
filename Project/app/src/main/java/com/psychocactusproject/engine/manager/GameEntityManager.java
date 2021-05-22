@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
 
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -14,7 +14,9 @@ import com.psychocactusproject.characters.band.Musician;
 import com.psychocactusproject.characters.band.Singer;
 import com.psychocactusproject.characters.barry.Barry;
 import com.psychocactusproject.characters.police.Police;
-import com.psychocactusproject.engine.GameEngine.GAME_LAYERS;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.engine.util.Point;
+import com.psychocactusproject.engine.manager.GameEngine.GAME_LAYERS;
 import com.psychocactusproject.graphics.controllers.AbstractSprite;
 import com.psychocactusproject.graphics.controllers.ClickableSprite;
 import com.psychocactusproject.graphics.controllers.CustomClickableEntity;

@@ -1,7 +1,7 @@
 package com.psychocactusproject.sound;
 
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEntity;
 
 public class SoundManager extends GameEntity {
 

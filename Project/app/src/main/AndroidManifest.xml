@@ -13,7 +13,8 @@
             android:name=".android.GameActivity"
             android:label="@string/title_activity_game"
             android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:screenOrientation="sensorLandscape" >
+            android:screenOrientation="sensorLandscape"
+            android:persistent="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

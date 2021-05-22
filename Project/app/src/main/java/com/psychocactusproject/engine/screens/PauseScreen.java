@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.screens;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -7,6 +7,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.controllers.CustomClickableEntity;
 import com.psychocactusproject.graphics.interfaces.Drawable;
@@ -18,10 +19,11 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-public class PauseScreen {
+public class PauseScreen implements ScreenModel {
 
     private final MenuBitmapFlyweight.PauseMenuFlyweight pieces;
     private int randomMusicIndex;
+    private int randomCompleteMusicIndex;
 
     public enum PAUSE_LAYERS { FIRST, SECOND }
     private PAUSE_LAYERS activeLayer;
@@ -71,7 +73,7 @@ public class PauseScreen {
         this.activeLayer = PAUSE_LAYERS.FIRST;
     }
 
-    public Drawable definedPauseDrawable() {
+    public Drawable definedDrawable() {
         return (canvas) -> {
             // En el primer ciclo de dibujado de pausa...
             if (this.lastFrameBitmap == null) {
@@ -103,6 +105,7 @@ public class PauseScreen {
                 this.pauseMatrix.postTranslate(nextPiece.getWidth(), 0);
                 this.pauseMatrix.reset();
                 this.randomMusicIndex = (int) (Math.random() * 5);
+                this.randomCompleteMusicIndex = (int) (Math.random() * 5) + 5;
             }
             // Dibuja la copia de la imagen de fondo
             canvas.drawBitmap(this.lastFrameBitmap, this.pauseMatrix, this.pausePaint);
@@ -114,14 +117,19 @@ public class PauseScreen {
             canvas.drawText("PAUSE", 120, 210, this.pausePaint);
             // Imprime el marco del menú de pausa
             canvas.drawBitmap(this.pauseBaseFrame, this.pauseMatrix, this.pausePaint);
-            canvas.drawCircle(
-                    GameEngine.RESOLUTION_X / 4f * 3, GameEngine.RESOLUTION_Y / 4f,
-                    100, this.pausePaint);
             this.pauseMatrix.reset();
             this.pauseMatrix.postTranslate(850, 65);
+            /*
             canvas.drawBitmap(
                     MenuBitmapFlyweight.getPauseMenuInstance().getRandomFace(randomMusicIndex),
                     this.pauseMatrix, this.pausePaint);
+
+             */
+            //this.pauseMatrix.postTranslate(0, 300);
+            canvas.drawBitmap(
+                    MenuBitmapFlyweight.getPauseMenuInstance().getRandomFace(randomCompleteMusicIndex),
+                    this.pauseMatrix, this.pausePaint);
+            // Restablece la posición de la matriz para utilizarla a la siguiente vuelta
             this.pauseMatrix.reset();
 
         };

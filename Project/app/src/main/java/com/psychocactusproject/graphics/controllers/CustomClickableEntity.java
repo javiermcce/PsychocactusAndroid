@@ -1,7 +1,7 @@
 package com.psychocactusproject.graphics.controllers;
 
-import com.psychocactusproject.engine.Hitbox;
-import com.psychocactusproject.engine.Point;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.engine.util.Point;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
