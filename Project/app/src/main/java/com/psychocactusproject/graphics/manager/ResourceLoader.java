@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.ContextThemeWrapper;
 
@@ -28,6 +29,8 @@ public class ResourceLoader {
     public static void initializeResourceLoader(GameActivity activity) {
         instance = new ResourceLoader(activity);
     }
+
+    public final static int backgroundColor = Color.argb(180, 25, 25, 40);
 
     private final GameActivity activity;
     private final Options options = new Options();

@@ -23,7 +23,7 @@ public class Hitbox extends SpaceBox {
                 || yPercUpLeft < 0 || yPercUpLeft > 100
                 || xPercDownRight < 0 || xPercDownRight > 100
                 || yPercDownRight < 0 || yPercDownRight > 100){
-            throw new IllegalArgumentException("Percentage given at Hitbox"
+            throw new IllegalArgumentException("Percentage given at Hitbox "
                     + "constructor is out of bounds");
         }
         this.father = father;

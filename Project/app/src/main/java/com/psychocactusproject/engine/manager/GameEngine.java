@@ -43,7 +43,8 @@ public class GameEngine {
 
     // Scenes
     private SCENES pendingSceneChange;
-    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU }
+
+    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU, LOADING}
     public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
     public enum GAME_LAYERS { BACKGROUND, OBJECTS, CHARACTERS, FRONT, USER_INTERFACE, DEBUG }
     private SCENES currentScene = SCENES.GAME;
@@ -53,7 +54,7 @@ public class GameEngine {
     private final DebugHelper debugHelper;
     //
     //
-    public static boolean DEBUGGING = false;
+    public static boolean DEBUGGING = true;
     public static boolean verboseDebugging = false;
 
     public GameEngine(GameActivity activity, SurfaceGameView surfaceGameView) {
@@ -165,7 +166,7 @@ public class GameEngine {
 
     public void startGame() {
         // Si el juego está en marcha, se detiene
-        this.stopGame();
+        // this.stopGame();
         // Se crean e insertan los objetos en el motor
         this.gameLogic.getGameEntityManager().populate(this);
         // Se ajustan los objetos por primera vez
@@ -184,7 +185,25 @@ public class GameEngine {
         this.surfaceGameView.setGameEngine(this);
     }
 
+    public void resumeGame() {
+        this.switchToScene(SCENES.GAME);
+    }
+
+    public void pauseGame() {
+        this.switchToScene(SCENES.PAUSE_MENU);
+    }
+
+    public void restartGame() {
+        // TEMPORAL, HASTA QUE SE IMPLEMENTE
+        resumeGame();
+    }
+
+    /**
+     * Detiene la ejecución de la partida y regresa al menú principal
+     * @deprecated NECESITA REIMPLEMENTACIÓN TRAS HABER MODIFICADO LA ARQUITECTURA
+     */
     public void stopGame() {
+        /*
         if (this.updateThread != null) {
             this.updateThread.stopUpdating();
         }
@@ -193,14 +212,16 @@ public class GameEngine {
         }
         // Se detiene el gestor de controles
         this.inputController.stop();
+
+         */
+        this.switchToScene(SCENES.INITIAL_SCREEN);
     }
 
-    public void resumeGame() {
-        this.switchToScene(SCENES.GAME);
-    }
-
-    public void pauseGame() {
-        this.switchToScene(SCENES.PAUSE_MENU);
+    /**
+     * Cierra por completo la app
+     */
+    public void exitGame() {
+        this.switchToScene(SCENES.INITIAL_SCREEN);
     }
 
     /*
@@ -394,11 +415,12 @@ public class GameEngine {
     public void doSwitchToScene() {
         SCENES scene = this.pendingSceneChange;
         SCENES oldScene = this.getCurrentScene();
+        this.getSurfaceGameView().onSceneChange(oldScene, scene);
         switch (oldScene) {
             case GAME:
 
                 // la idea es que al final del fragmento ejecutable correspondiente, siempre se
-                // acuda a este metodo para hacer efectivo el cambio de escena
+                // acuda a este método para hacer efectivo el cambio de escena
                 break;
             case DIALOG:
                 this.getSurfaceGameView().clearDialog();
@@ -406,17 +428,9 @@ public class GameEngine {
             case PAUSE_MENU:
                 this.getSurfaceGameView().getPauseScreen().clearLastGameFrame();
                 break;
-            default:
-                throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
-                        + ", pero no es válida.");
-        }
-        switch (scene) {
-            case GAME:
-                // this.clearDialog();
+            case LOADING:
                 break;
-            case DIALOG:
-                break;
-            case PAUSE_MENU:
+            case INITIAL_SCREEN:
                 break;
             default:
                 throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()

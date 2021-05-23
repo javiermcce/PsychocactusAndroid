@@ -16,7 +16,9 @@ import android.view.SurfaceView;
 import com.psychocactusproject.R;
 import com.psychocactusproject.engine.screens.GameScreen;
 import com.psychocactusproject.engine.screens.InitialScreen;
+import com.psychocactusproject.engine.screens.LoadingScreen;
 import com.psychocactusproject.engine.screens.PauseScreen;;
+import com.psychocactusproject.engine.screens.Scene;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Drawable;
@@ -51,7 +53,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private final Paint basicPaint;
     private final Bitmap frameBitmap;
     private final Matrix basicMatrix;
-    private final Paint dialogPaint;
     // Medidas de la pantalla física adaptadas a las medidas del videojuego
     private int adaptedWidth;
     private int adaptedHeight;
@@ -62,11 +63,12 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static Paint[] colorFilters;
     private static GameClock filterClock;
     //
-
+    private HashMap<SCENES, Scene> gameScenes;
     private InitialScreen initialScreen;
     private GameScreen gameScreen;
     private PauseScreen pauseScreen;
     private DialogScreen dialogScreen;
+    private LoadingScreen loadingScreen;
     //
     private final List<ClickableDirectSprite> pauseEntities;
     private final List<ClickableDirectSprite> initialEntities;
@@ -86,8 +88,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.frameCanvas = new Canvas();
         this.basicPaint = new Paint();
         this.basicMatrix = new Matrix();
-        this.dialogPaint = new Paint();
-        this.dialogPaint.setColor(Color.argb(100, 20, 20, 50));
         // Sobre este canvas y bitmap se dibujará en su totalidad el juego, a una resolución fija
         this.frameBitmap = Bitmap.createBitmap(
                 GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y,
@@ -104,6 +104,14 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.gameScreen = new GameScreen();
         this.pauseScreen = new PauseScreen();
         this.dialogScreen = new DialogScreen();
+        this.loadingScreen = new LoadingScreen();
+        this.gameScenes = new HashMap<SCENES, Scene>() {
+            {
+                put(SCENES.GAME, gameScreen); put(SCENES.PAUSE_MENU, pauseScreen);
+                put(SCENES.DIALOG, dialogScreen); put(SCENES.LOADING, loadingScreen);
+                put(SCENES.INITIAL_SCREEN, initialScreen);
+            }
+        };
         this.pauseScreen.setPauseEntities(this.pauseEntities);
         this.initialScreen.setInitialEntities(this.initialEntities);
         //
@@ -125,6 +133,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public PauseScreen getPauseScreen() {
         return this.pauseScreen;
+    }
+
+    public void onSceneChange(SCENES oldScene, SCENES scene) {
+        this.gameScenes.get(scene).onSceneChange(oldScene);
     }
 
     /*

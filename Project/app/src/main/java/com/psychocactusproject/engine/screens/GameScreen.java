@@ -2,6 +2,7 @@ package com.psychocactusproject.engine.screens;
 
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine.SCENES;
 import com.psychocactusproject.engine.manager.GameEntity;
 import com.psychocactusproject.engine.manager.GameEntityManager;
 import com.psychocactusproject.engine.manager.GameLogic;
@@ -69,6 +70,16 @@ public class GameScreen implements Scene {
                 GameEngine.getInstance().closeAllMenus();
             }
         };
+    }
+
+    @Override
+    public void onSceneChange(SCENES oldScene) {
+
+    }
+
+    @Override
+    public int getSceneId() {
+        return GameEngine.SCENES.GAME.ordinal();
     }
 
     public Drawable definedDrawable(boolean isSnapshotRender) {
