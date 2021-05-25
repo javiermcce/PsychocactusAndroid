@@ -7,16 +7,18 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import com.psychocactusproject.R;
 import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.engine.manager.GameEngine.SCENES;
 import com.psychocactusproject.engine.util.Hitbox;
 import com.psychocactusproject.engine.util.Point;
+import com.psychocactusproject.engine.util.Slider;
 import com.psychocactusproject.engine.util.UserInterfaceFlyweight;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.CustomClickableEntity;
+import com.psychocactusproject.graphics.controllers.CustomDrawableEntity;
 import com.psychocactusproject.graphics.interfaces.Drawable;
-import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.Touchable;
 import com.psychocactusproject.interaction.scripts.Clickable;
@@ -41,11 +43,14 @@ public class PauseScreen implements Scene, Clickable {
     public static final int OPTIONS_BUTTON = 2;
     public static final int EXIT_BUTTON = 3;
     // Botones de la capa de opciones
-
+    public static final int CANCEL_BUTTON = 0;
+    public static final int DEFAULT_BUTTON = 1;
+    public static final int SAVE_BUTTON = 2;
+    public static final int LANGUAGE_BUTTON = 3;
     // Variables comunes a la pantalla de pausa
     private int activeLayer;
     private List<ClickableDirectSprite> pauseEntities;
-    private final HashMap<Integer, List<CustomClickableEntity>> optionsByLayer;
+    private final HashMap<Integer, List<CustomDrawableEntity>> optionsByLayer;
     private final HashMap<Integer, List<Hitbox>> hitboxesByLayer;
     private final Matrix pauseMatrix;
     private final Paint pausePaint;
@@ -76,12 +81,12 @@ public class PauseScreen implements Scene, Clickable {
         * */
     }
 
-    public List<CustomClickableEntity> getOptionsByLayer(int layer) {
+    public List<CustomDrawableEntity> getOptionsByLayer(int layer) {
         return this.optionsByLayer.get(layer);
     }
 
-    public CustomClickableEntity[] getOptions() {
-        return this.optionsByLayer.get(this.activeLayer).toArray(new CustomClickableEntity[0]);
+    public CustomDrawableEntity[] getOptions() {
+        return this.optionsByLayer.get(this.activeLayer).toArray(new CustomDrawableEntity[0]);
     }
 
     public List<ClickableDirectSprite> getPauseEntities() {
@@ -116,9 +121,30 @@ public class PauseScreen implements Scene, Clickable {
                 }
                 break;
             case OPTIONS_LAYER:
-                GameEngine.getInstance().resumeGame();
+                switch (index) {
+                    case CANCEL_BUTTON:
+                        this.activeLayer = MAIN_LAYER;
+                        // GameEngine.getInstance().resumeGame();
+                        break;
+                    case DEFAULT_BUTTON:
+                        // GameEngine.getInstance().restartGame();
+                        break;
+                    case SAVE_BUTTON:
+                        this.applyChanges();
+                        this.activeLayer = MAIN_LAYER;
+                        // this.activeLayer = OPTIONS_LAYER;
+                        break;
+                    case EXIT_BUTTON:
+                        // GameEngine.getInstance().stopGame();
+                        break;
+                }
                 break;
         }
+    }
+
+    private void applyChanges() {
+        // lee estado actual
+        // ajusta
     }
 
     @Override
@@ -186,6 +212,7 @@ public class PauseScreen implements Scene, Clickable {
                     this.drawMainPauseScreen(canvas);
                     break;
                 case OPTIONS_LAYER:
+                    this.drawOptionsPauseScreen(canvas);
                     break;
                 default:
                     break;
@@ -201,47 +228,9 @@ public class PauseScreen implements Scene, Clickable {
         return (point) -> {
             // Comprueba si hay una colisión con alguna hitbox
             Hitbox selected = checkPauseHitboxes(point.getX(), point.getY());
-            // this.closeAllMenus();
             // Si ha habido colisión, ejecuta su acción asignada
             if (selected != null) {
                 this.executeClick(selected.getIndex());
-                /*
-                
-                SurfaceGameView gameView = GameEngine.getInstance().getSurfaceGameView();
-
-                for (CustomClickableEntity menuOption : gameView.getPauseScreen().getOptions()) {
-                    continue;
-                }
-                GameEngine.getInstance().resumeGame();
-
-                Clickable clickableHolder = selected.getFather();
-                // Se trata de un personaje
-                if (clickableHolder instanceof MenuDisplay) {
-                    // Cierra los menús ya abiertos
-                    closeAllMenus();
-                    // Abre el nuevo menú
-                    clickableHolder.executeClick(selected.getIndex());
-                    // Se trata de un menú
-                } else if (clickableHolder instanceof ContextMenu) {
-                    ContextMenu clickedMenu = (ContextMenu) clickableHolder;
-                    MenuOption option = clickedMenu.getMenuOptions()[selected.getIndex()];
-                    if (option.isAvailable()) {
-                        // Cierra los menús ya abiertos
-                        closeAllMenus();
-                        // Ejecuta la acción de la instancia Clickable seleccionada
-                        clickableHolder.executeClick(selected.getIndex());
-                    } else {
-                        String alertMessage = "The '" + option.getOptionName() + "' action of "
-                                + clickedMenu.getFatherRole() + " cannot be performed.";
-                        // String reason = clickedMenu.guessUnavailableReason(selected.getIndex());
-                        GameEngine.getInstance().getSurfaceGameView().showAlertDialog(alertMessage);
-                        // this.gameEngine.showAlertDialog(alertMessage, reason);
-                        DebugHelper.printMessage("Aquí debería decir 'la acción "
-                                + option.getOptionName() + " no se encuentra disponible'");
-                    }
-                }
-
-                 */
             }
         };
     }
@@ -305,16 +294,13 @@ public class PauseScreen implements Scene, Clickable {
     }
 
     private void createOptions() {
-        // vamos a ignorar esto de momento, que en cualquier caso tendría sentido si se
-        // implementasen selectores únicos, pero no parece ser el caso. Planeo por ahora botones
-        // y sliders
+        //
         for (int key : new int[] {MAIN_LAYER, OPTIONS_LAYER}) {
             this.optionsByLayer.put(key, new LinkedList<>());
             this.hitboxesByLayer.put(key, new LinkedList<>());
         }
-
         this.createMainPauseScreen();
-
+        this.createOptionsPauseScreen();
 
     }
 
@@ -343,24 +329,49 @@ public class PauseScreen implements Scene, Clickable {
         hitboxList.add(new Hitbox(rightOptionX, optionY + yMargin,
                 rightOptionX + optionWidthPerc, optionY + yMargin + optionHeightPerc,
                 this, EXIT_BUTTON));
+    }
 
-        /*
-        hitboxList.add(new Hitbox(12, 67,
-                42, 87,
-                this, PAUSE_BUTTONS.RESUME_BUTTON.ordinal()));
-        hitboxList.add(new Hitbox(57, 67,
-                57 + 30, 67 + 20,
-                this, PAUSE_BUTTONS.RESTART_BUTTON.ordinal()));
-        hitboxList.add(new Hitbox(leftOptionX, 67 + 10,
-                12 + 30, 67 + 10 + 20,
-                this, PAUSE_BUTTONS.OPTIONS_BUTTON.ordinal()));
-        hitboxList.add(new Hitbox(rightOptionX, 67 + 10,
-                57 + 30, 67 + 10 + 20,
-                this, PAUSE_BUTTONS.EXIT_BUTTON.ordinal()));
+    private void createOptionsPauseScreen() {
+        // Tamaños y posiciones
+        int optionWidthPerc = 20;
+        int optionHeightPerc = 12;
+        int leftOptionX = 16;
+        int rightOptionX = 65;
+        int optionY = 52;
+        int yMargin = 25;
 
 
-         */
+        int languageWidthPerc = 24;
 
+        int bottomButtonsY = 80;
+        int cancelButtonX = 10;
+        int defaultButtonX = 40;
+        int saveButtonX = 70;
+        int optionsColumnX = 60;
+        int languageButtonY = 12;
+        //
+        List<Hitbox> hitboxList = this.hitboxesByLayer.get(OPTIONS_LAYER);
+        hitboxList.add(new Hitbox(cancelButtonX, bottomButtonsY,
+                cancelButtonX + optionWidthPerc, bottomButtonsY + optionHeightPerc,
+                this, CANCEL_BUTTON));
+        hitboxList.add(new Hitbox(defaultButtonX, bottomButtonsY,
+                defaultButtonX + optionWidthPerc, bottomButtonsY + optionHeightPerc,
+                this, DEFAULT_BUTTON));
+        hitboxList.add(new Hitbox(saveButtonX, bottomButtonsY,
+                saveButtonX + optionWidthPerc, bottomButtonsY + optionHeightPerc,
+                this, SAVE_BUTTON));
+        hitboxList.add(new Hitbox(optionsColumnX, languageButtonY,
+                optionsColumnX + languageWidthPerc, languageButtonY + optionHeightPerc,
+                this, LANGUAGE_BUTTON));
+
+        // de qué tipo quiero que sea la lista de opciones? debe existir acaso?
+        // basta con una lista de drawables? centralizo gestión de botones y sliders?
+
+        List<CustomDrawableEntity> options = this.optionsByLayer.get(this.activeLayer);
+        Slider effectsSlider = new Slider("Effects volume scroller");
+        Slider musicSlider = new Slider("Music volume scroller");
+        // aquí el problema
+        // options.addAll(new Slider[] {effectsSlider, musicSlider});
     }
 
     private void drawMainPauseScreen(Canvas canvas) {
@@ -377,7 +388,7 @@ public class PauseScreen implements Scene, Clickable {
         this.pauseMatrix.reset();
         // Dibujado de los botones
         Hitbox[] hitboxes = this.getHitboxes();
-        for (int button : new int[]{RESUME_BUTTON, RESTART_BUTTON, OPTIONS_BUTTON, EXIT_BUTTON}) {
+        for (int button : new int[] { RESUME_BUTTON, RESTART_BUTTON, OPTIONS_BUTTON, EXIT_BUTTON }) {
             String optionText;
             switch (button) {
                 case RESUME_BUTTON:
@@ -399,6 +410,50 @@ public class PauseScreen implements Scene, Clickable {
             UserInterfaceFlyweight.getInstance().drawButton(
                     optionText, hitboxes[button], this.optionsPaint, canvas);
         }
+    }
+
+    private void drawOptionsPauseScreen(Canvas canvas) {
+        // URGENTE CONSTRUIR UNA IMAGEN QUE SIRVA COMO CACHE PARA LOS CICLOS DE DIBUJADO
+        // Dibujado de los botones
+        Hitbox[] hitboxes = this.getHitboxes();
+        UserInterfaceFlyweight uiUtil = UserInterfaceFlyweight.getInstance();
+        for (int button : new int[] { CANCEL_BUTTON, DEFAULT_BUTTON, SAVE_BUTTON, LANGUAGE_BUTTON }) {
+            String optionText;
+            switch (button) {
+                case CANCEL_BUTTON:
+                    optionText = "Cancel";
+                    break;
+                case DEFAULT_BUTTON:
+                    optionText = "Default";
+                    break;
+                case SAVE_BUTTON:
+                    optionText = "Save";
+                    break;
+                case LANGUAGE_BUTTON:
+                    optionText = "English";
+                    break;
+                default:
+                    throw new IllegalStateException("El botón no está definido.");
+            }
+            // String optionText, SpaceBox optionButton, Paint textPaint, Canvas canvas
+            uiUtil.drawButton(
+                    optionText, hitboxes[button], this.optionsPaint, canvas);
+        }
+        // Textos
+        /*
+        canvas.drawText("Language", 300, 200, this.optionsPaint);
+        canvas.drawText("Effects", 300, 300, this.optionsPaint);
+        canvas.drawText("Music", 300, 400, this.optionsPaint);
+        */
+        // String optionText, SpaceBox tagSpace, int backgroundImage,
+        //                                Paint textPaint, Canvas canvas
+        uiUtil.drawCenteredTag("Language", new Point(220, 80),
+                R.drawable.option_tag_background, this.optionsPaint, canvas);
+        uiUtil.drawCenteredTag("Effects", new Point(220, 210),
+                R.drawable.option_tag_background, this.optionsPaint, canvas);
+        uiUtil.drawCenteredTag("Music", new Point(220, 340),
+                R.drawable.option_tag_background, this.optionsPaint, canvas);
+
     }
 
     public void clearLastGameFrame() {
