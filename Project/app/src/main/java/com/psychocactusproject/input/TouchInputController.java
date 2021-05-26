@@ -9,8 +9,11 @@ import com.psychocactusproject.engine.manager.GameEngine;
 import com.psychocactusproject.engine.manager.GameEngine.BLACK_STRIPE_TYPES;
 import com.psychocactusproject.engine.manager.GameEngine.SCENES;
 import com.psychocactusproject.engine.manager.GameEntity;
-import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.engine.screens.Scene;
 import com.psychocactusproject.engine.util.Point;
+import com.psychocactusproject.engine.util.SpaceBox;
+import com.psychocactusproject.engine.util.Square;
+import com.psychocactusproject.engine.util.SquareInterface;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 
 import java.util.HashMap;
@@ -29,7 +32,8 @@ public class TouchInputController extends InputController implements View.OnKeyL
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
     private List<GameEntity> gameEntities;
-    private HashMap<SCENES, com.psychocactusproject.input.Touchable> touchableScenesMap;
+    private HashMap<SCENES, Touchable> touchableScenesMap;
+    private Slidable focusedSlidable;
 
 
     public TouchInputController(GameEngine gameEngine, View view) {
@@ -80,6 +84,8 @@ public class TouchInputController extends InputController implements View.OnKeyL
                 this.pressing = true;
                 this.clickPending = false;
                 this.moveCountdown = 2;
+                // Si se encuentra, es capturado un objeto slidable
+                this.focusedSlidable = this.searchSlidables();
                 // La acción continúa
                 return true;
             case MotionEvent.ACTION_MOVE:
@@ -87,6 +93,9 @@ public class TouchInputController extends InputController implements View.OnKeyL
                     this.moving = true;
                 }
                 this.moveCountdown--;
+                if (this.focusedSlidable != null) {
+                    this.focusedSlidable.updatePointer(this.getX());
+                }
                 // La acción continúa
                 return true;
             case MotionEvent.ACTION_UP:
@@ -97,6 +106,8 @@ public class TouchInputController extends InputController implements View.OnKeyL
                 }
                 this.pressing = false;
                 this.moving = false;
+                // Es liberado cualquier objeto slidable
+                this.focusedSlidable = null;
                 // La acción ha terminado
                 return false;
         }
@@ -114,6 +125,24 @@ public class TouchInputController extends InputController implements View.OnKeyL
         if (click != null) {
             this.touchableScenesMap.get(GameEngine.getInstance().getCurrentScene()).search(click);
         }
+    }
+
+    @Override
+    protected Slidable searchSlidables() {
+        Scene currentScene = GameEngine.getInstance().getSurfaceGameView().getCurrentScene();
+        if (currentScene.getSlidables() == null) {
+            return null;
+        }
+        for (Slidable slidable : currentScene.getSlidables()) {
+            Square slidableSurface = new Square(
+                    slidable.getPositionX(), slidable.getPositionY(),
+                    slidable.getPositionX() + slidable.getSpriteWidth(),
+                    slidable.getPositionY() + slidable.getSpriteHeight());
+            if (squareCollision(this.getX(), this.getY(), slidableSurface)) {
+                return slidable;
+            }
+        }
+        return null;
     }
 
     public Point getPendingClick() {
@@ -145,11 +174,18 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.setXCoordinate((int)((double) adjustedXTouch / borderlessDeviceWidth * GameEngine.RESOLUTION_X));
         this.setYCoordinate((int)((double) adjustedYTouch / borderlessDeviceHeight * GameEngine.RESOLUTION_Y));
     }
+/*
+    public static boolean squareCollision(int xTouch, int yTouch, SquareInterface square)  {
+        return(xTouch > square.getUpLeftX()
+                && xTouch < square.getDownRightX()
+                && yTouch > square.getUpLeftY()
+                && yTouch < square.getDownRightY());
+    }*/
 
-    public static boolean hitboxCollision(int xTouch, int yTouch, Hitbox hitbox)  {
-        return(xTouch > hitbox.getUpLeftX()
-                && xTouch < hitbox.getDownRightX()
-                && yTouch > hitbox.getUpLeftY()
-                && yTouch < hitbox.getDownRightY());
+    public static boolean squareCollision(int xTouch, int yTouch, SquareInterface space)  {
+        return(xTouch > space.getUpLeftX()
+                && xTouch < space.getDownRightX()
+                && yTouch > space.getUpLeftY()
+                && yTouch < space.getDownRightY());
     }
 }

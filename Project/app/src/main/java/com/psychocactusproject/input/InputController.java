@@ -26,4 +26,6 @@ public abstract class InputController implements View.OnTouchListener {
     public void update() {
 
     }
+
+    protected abstract Slidable searchSlidables();
 }

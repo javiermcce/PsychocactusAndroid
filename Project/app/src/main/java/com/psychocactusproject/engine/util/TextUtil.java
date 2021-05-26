@@ -28,6 +28,8 @@ public class TextUtil {
         if (textWidth > availableWidth) {
             throw new IllegalArgumentException("No hay suficiente espacio para el texto " +
                     "que se desea dibujar.");
+            // Vale, la idea es que no salte excepción, sino que lo siga pintando,
+            // solo que siga centrado, aunque salga del espacio
         }
         // Tamaño de los bordes / 2, + offsetX
         int textPositionX = ((availableWidth - textWidth) / 2) + upLeft.getX() - 5;

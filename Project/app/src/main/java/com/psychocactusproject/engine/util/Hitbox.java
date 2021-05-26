@@ -17,7 +17,7 @@ public class Hitbox extends SpaceBox {
 
     public Hitbox(int xPercUpLeft, int yPercUpLeft,
                   int xPercDownRight, int yPercDownRight,
-                  Clickable father, int index){
+                  Clickable father, int index) {
         super(xPercUpLeft, yPercUpLeft, xPercDownRight, yPercDownRight, father);
         if((xPercUpLeft < 0 || xPercUpLeft > 100)
                 || yPercUpLeft < 0 || yPercUpLeft > 100

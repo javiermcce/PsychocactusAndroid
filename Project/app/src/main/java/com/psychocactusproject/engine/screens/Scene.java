@@ -1,10 +1,14 @@
 package com.psychocactusproject.engine.screens;
 
 import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine.SCENES;
 import com.psychocactusproject.graphics.interfaces.Drawable;
+import com.psychocactusproject.input.Slidable;
 import com.psychocactusproject.input.Touchable;
 
-public interface Scene /* extends Clickable */ {
+import java.util.List;
+
+public interface Scene {
 
     Drawable definedDrawable();
 
@@ -12,5 +16,7 @@ public interface Scene /* extends Clickable */ {
 
     void onSceneChange(GameEngine.SCENES oldScene);
 
-    int getSceneId();
+    SCENES getSceneId();
+
+    List<Slidable> getSlidables();
 }

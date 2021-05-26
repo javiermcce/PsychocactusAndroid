@@ -2,7 +2,7 @@ package com.psychocactusproject.engine.util;
 
 import com.psychocactusproject.graphics.interfaces.Dimensions;
 
-public class SpaceBox {
+public class SpaceBox implements SquareInterface {
 
     // Referencia al padre en posesión de la hitbox
     private final Dimensions dimensionsFather;
@@ -21,30 +21,36 @@ public class SpaceBox {
         this.yDownRight = yDownRight;
     }
 
+    @Override
     public int getUpLeftX(){
         return this.dimensionsFather.getPositionX() +
-                this.dimensionsFather.getSpriteWidth() * xUpLeft / 100;
+                this.dimensionsFather.getSpriteWidth() * this.xUpLeft / 100;
     }
 
+    @Override
     public int getUpLeftY(){
         return this.dimensionsFather.getPositionY() +
-                this.dimensionsFather.getSpriteHeight() * yUpLeft / 100;
+                this.dimensionsFather.getSpriteHeight() * this.yUpLeft / 100;
     }
 
+    @Override
     public int getDownRightX(){
         return this.dimensionsFather.getPositionX() +
-                this.dimensionsFather.getSpriteWidth() * xDownRight / 100;
+                this.dimensionsFather.getSpriteWidth() * this.xDownRight / 100;
     }
 
+    @Override
     public int getDownRightY(){
         return this.dimensionsFather.getPositionY() +
-                this.dimensionsFather.getSpriteHeight() * yDownRight / 100;
+                this.dimensionsFather.getSpriteHeight() * this.yDownRight / 100;
     }
 
+    @Override
     public Point getUpLeftPoint(){
         return new Point(getUpLeftX(), getUpLeftY());
     }
 
+    @Override
     public Point getDownRightPoint(){
         return new Point(getDownRightX(), getDownRightY());
     }

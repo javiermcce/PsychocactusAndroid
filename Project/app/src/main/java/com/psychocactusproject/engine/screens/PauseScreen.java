@@ -20,6 +20,7 @@ import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
+import com.psychocactusproject.input.Slidable;
 import com.psychocactusproject.input.Touchable;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
@@ -27,7 +28,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import static com.psychocactusproject.input.TouchInputController.hitboxCollision;
+import static com.psychocactusproject.input.TouchInputController.squareCollision;
 
 public class PauseScreen implements Scene, Clickable {
 
@@ -58,6 +59,10 @@ public class PauseScreen implements Scene, Clickable {
     private final Paint backgroundPausePaint;
     private Bitmap lastFrameBitmap;
     private Bitmap pauseBaseFrame;
+    // TEMPORAL
+    private Slider musicSlider;
+    private Slider effectsSlider;
+    private List<Slidable> slidersList;
 
 
     public PauseScreen() {
@@ -75,6 +80,7 @@ public class PauseScreen implements Scene, Clickable {
         this.backgroundPausePaint.setColor(ResourceLoader.backgroundColor);
         this.optionsByLayer = new HashMap<>();
         this.hitboxesByLayer = new HashMap<>();
+        this.slidersList = new LinkedList<>();
         this.createOptions();
         /*
         *
@@ -241,8 +247,17 @@ public class PauseScreen implements Scene, Clickable {
     }
 
     @Override
-    public int getSceneId() {
-        return GameEngine.SCENES.PAUSE_MENU.ordinal();
+    public SCENES getSceneId() {
+        return GameEngine.SCENES.PAUSE_MENU;
+    }
+
+    @Override
+    public List<Slidable> getSlidables() {
+        if (this.activeLayer == PauseScreen.OPTIONS_LAYER) {
+            return this.slidersList;
+        } else {
+            return null;
+        }
     }
 
     private void buildBackgroundBitmap() {
@@ -286,7 +301,7 @@ public class PauseScreen implements Scene, Clickable {
     private Hitbox checkPauseHitboxes(int xTouch, int yTouch) {
         // El método getHitboxes ya devuelve la capa correcta de pausa
         for (Hitbox pauseHitbox : this.getHitboxes()) {
-            if (hitboxCollision(xTouch, yTouch, pauseHitbox)) {
+            if (squareCollision(xTouch, yTouch, pauseHitbox)) {
                 return pauseHitbox;
             }
         }
@@ -367,9 +382,18 @@ public class PauseScreen implements Scene, Clickable {
         // de qué tipo quiero que sea la lista de opciones? debe existir acaso?
         // basta con una lista de drawables? centralizo gestión de botones y sliders?
 
+        // POSIBLEMENTE LO QUE QUIERO ES UNA LISTA DE OBJETOS ¡¡¡VITAMIN POWER!!! QUE SEAN:
+        // - POSITIONABLES
+        // - DRAWABLES
+        // - GAMEABLES
+        // - TOUCHABLES
+        // Y ESTO ADEMÁS LO QUIERO APLICAR A TODOS LOS ÁMBITOS DEL JUEGO
+
         List<CustomDrawableEntity> options = this.optionsByLayer.get(this.activeLayer);
-        Slider effectsSlider = new Slider("Effects volume scroller");
-        Slider musicSlider = new Slider("Music volume scroller");
+        this.effectsSlider = new Slider("Effects volume scroller", new Point(740, 220));
+        this.musicSlider = new Slider("Music volume scroller", new Point(740 , 350));
+        this.slidersList.add(effectsSlider);
+        this.slidersList.add(musicSlider);
         // aquí el problema
         // options.addAll(new Slider[] {effectsSlider, musicSlider});
     }
@@ -453,7 +477,9 @@ public class PauseScreen implements Scene, Clickable {
                 R.drawable.option_tag_background, this.optionsPaint, canvas);
         uiUtil.drawCenteredTag("Music", new Point(220, 340),
                 R.drawable.option_tag_background, this.optionsPaint, canvas);
-
+        //
+        this.musicSlider.draw(canvas);
+        this.effectsSlider.draw(canvas);
     }
 
     public void clearLastGameFrame() {

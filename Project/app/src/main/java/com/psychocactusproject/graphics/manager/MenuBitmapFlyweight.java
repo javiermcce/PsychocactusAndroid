@@ -6,10 +6,10 @@ import com.psychocactusproject.R;
 
 public class MenuBitmapFlyweight {
 
-    public enum MenuType { CONTEXT_MENU_TYPE, DIALOG_MENU_TYPE, PAUSE_MENU_TYPE }
     private static MenuBitmapFlyweight.ContextMenuFlyweight contextMenuInstance;
     private static MenuBitmapFlyweight.DialogMenuFlyweight dialogMenuInstance;
     private static MenuBitmapFlyweight.PauseMenuFlyweight pauseMenuInstance;
+    private static MenuBitmapFlyweight.SliderFlyweight sliderFlyweightInstance;
 
     public static ContextMenuFlyweight getContextMenuInstance() {
         if (contextMenuInstance == null) {
@@ -30,6 +30,13 @@ public class MenuBitmapFlyweight {
             pauseMenuInstance = new MenuBitmapFlyweight.PauseMenuFlyweight();
         }
         return pauseMenuInstance;
+    }
+
+    public static SliderFlyweight getSliderFlyweightInstance() {
+        if (sliderFlyweightInstance == null) {
+            sliderFlyweightInstance = new MenuBitmapFlyweight.SliderFlyweight();
+        }
+        return sliderFlyweightInstance;
     }
 
     public static class ContextMenuFlyweight {
@@ -154,7 +161,6 @@ public class MenuBitmapFlyweight {
         }
     }
 
-
     public static class PauseMenuFlyweight {
 
         private final Bitmap verticalBarPiece;
@@ -182,6 +188,25 @@ public class MenuBitmapFlyweight {
 
         public Bitmap getRandomFace(int randomIndex) {
             return this.faces[randomIndex];
+        }
+    }
+
+    public static class SliderFlyweight {
+
+        private final Bitmap sliderBarBitmap;
+        private final Bitmap sliderPointerBitmap;
+        
+        private SliderFlyweight() {
+            this.sliderBarBitmap = ResourceLoader.loadBitmap(R.drawable.slider_bar);
+            this.sliderPointerBitmap = ResourceLoader.loadBitmap(R.drawable.slider_pointer);
+        }
+
+        public Bitmap getSliderBarBitmap() {
+            return this.sliderBarBitmap;
+        }
+
+        public Bitmap getSliderPointerBitmap() {
+            return this.sliderPointerBitmap;
         }
     }
 }

@@ -9,6 +9,7 @@ import com.psychocactusproject.engine.manager.GameLogic;
 import com.psychocactusproject.engine.util.Hitbox;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
+import com.psychocactusproject.input.Slidable;
 import com.psychocactusproject.input.Touchable;
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
@@ -16,7 +17,7 @@ import com.psychocactusproject.interaction.scripts.Clickable;
 
 import java.util.List;
 
-import static com.psychocactusproject.input.TouchInputController.hitboxCollision;
+import static com.psychocactusproject.input.TouchInputController.squareCollision;
 
 public class GameScreen implements Scene {
 
@@ -78,8 +79,13 @@ public class GameScreen implements Scene {
     }
 
     @Override
-    public int getSceneId() {
-        return GameEngine.SCENES.GAME.ordinal();
+    public SCENES getSceneId() {
+        return GameEngine.SCENES.GAME;
+    }
+
+    @Override
+    public List<Slidable> getSlidables() {
+        return null;
     }
 
     public Drawable definedDrawable(boolean isSnapshotRender) {
@@ -150,7 +156,7 @@ public class GameScreen implements Scene {
                         // activada o no, controlar la respuesta desde un fragmento
                         // superior de código
                         Hitbox hitbox = hitboxesCheck[i];
-                        if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
+                        if (hitbox != null && squareCollision(xTouch, yTouch, hitbox)) {
                             return hitbox;
                         }
                     }
@@ -162,7 +168,7 @@ public class GameScreen implements Scene {
         // Pause menu
         Hitbox[] pauseHitboxes = entityManager.getPauseButton().getHitboxes();
         for (Hitbox hitbox : pauseHitboxes) {
-            if (hitboxCollision(xTouch, yTouch, hitbox)) {
+            if (squareCollision(xTouch, yTouch, hitbox)) {
                 return hitbox;
             }
         }
@@ -173,7 +179,7 @@ public class GameScreen implements Scene {
                     Hitbox[] hitboxesCheck = ((Clickable) entity).getHitboxes();
                     if (hitboxesCheck != null) {
                         for (Hitbox hitbox : hitboxesCheck) {
-                            if (hitbox != null && hitboxCollision(xTouch, yTouch, hitbox)) {
+                            if (hitbox != null && squareCollision(xTouch, yTouch, hitbox)) {
                                 return hitbox;
                             }
                         }

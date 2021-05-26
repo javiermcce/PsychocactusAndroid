@@ -135,6 +135,12 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         return this.pauseScreen;
     }
 
+    // Esto se está agravando ya. Creo que lo más coherente con diferencia es mandar todas
+    // las escenas o a GameEngine o a GameLogic, teniendo la primera opción bastante más papeletas
+    public Scene getCurrentScene() {
+        return this.gameScenes.get(this.gameEngine.getCurrentScene());
+    }
+
     public void onSceneChange(SCENES oldScene, SCENES scene) {
         this.gameScenes.get(scene).onSceneChange(oldScene);
     }

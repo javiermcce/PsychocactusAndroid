@@ -18,10 +18,13 @@ import com.psychocactusproject.engine.util.UserInterfaceFlyweight;
 import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.manager.MenuBitmapFlyweight;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
+import com.psychocactusproject.input.Slidable;
 import com.psychocactusproject.input.Touchable;
 import com.psychocactusproject.interaction.scripts.Clickable;
 
-import static com.psychocactusproject.input.TouchInputController.hitboxCollision;
+import java.util.List;
+
+import static com.psychocactusproject.input.TouchInputController.squareCollision;
 
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.ALERT;
 import static com.psychocactusproject.interaction.menu.DialogScreen.DIALOG_TYPE.CONFIRMATION;
@@ -103,7 +106,7 @@ public class DialogScreen implements Clickable, Scene {
             // Busca si existe colisión con alguna hitbox del diálogo
             Hitbox selected = null;
             for (Hitbox hitbox : dialog.getHitboxes()) {
-                if (hitboxCollision(point.getX(), point.getY(), hitbox)) {
+                if (squareCollision(point.getX(), point.getY(), hitbox)) {
                     selected = hitbox;
                 }
             }
@@ -121,8 +124,13 @@ public class DialogScreen implements Clickable, Scene {
     }
 
     @Override
-    public int getSceneId() {
-        return SCENES.DIALOG.ordinal();
+    public SCENES getSceneId() {
+        return SCENES.DIALOG;
+    }
+
+    @Override
+    public List<Slidable> getSlidables() {
+        return null;
     }
 
     @Override
