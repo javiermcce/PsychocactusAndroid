@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.util;
 
 import java.util.Timer;
 import java.util.TimerTask;

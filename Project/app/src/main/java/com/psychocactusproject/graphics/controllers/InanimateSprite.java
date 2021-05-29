@@ -4,7 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 
-import com.psychocactusproject.engine.GameEngine;
+import com.psychocactusproject.engine.manager.GameEngine;
 
 public class InanimateSprite extends AbstractSprite {
 
@@ -91,6 +91,11 @@ public class InanimateSprite extends AbstractSprite {
     @Override
     public int getSpriteHeight() {
         return this.imageHeight;
+    }
+
+    public void setSize(int width, int height) {
+        this.imageWidth = width;
+        this.imageHeight = height;
     }
 
     @Override

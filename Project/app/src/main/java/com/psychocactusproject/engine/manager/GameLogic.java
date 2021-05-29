@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
 
 import com.psychocactusproject.interaction.scripts.Concert;
 import com.psychocactusproject.interaction.scripts.StateManager;

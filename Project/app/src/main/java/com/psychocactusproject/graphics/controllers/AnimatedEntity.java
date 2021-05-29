@@ -3,9 +3,10 @@ package com.psychocactusproject.graphics.controllers;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.util.GameClock;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.util.Hitbox;
+import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,20 +44,21 @@ public abstract class AnimatedEntity extends AbstractSprite {
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
         // La API en uso, la 21, no permite la estructura foreach
-        Set<String> keySet = resources.animations.keySet();
-        Iterator keys = keySet.iterator();
-        // Iteración sobre las animaciones
-        for (int i = 0; keys.hasNext(); i++) {
-            Object key = keys.next();
-            this.actionNames[i] = (String) key;
+        int i = 0;
+        for (String key : resources.animations.keySet()) {
+            this.actionNames[i] = key;
             int[] animationCodes = resources.animations.get(key);
             Bitmap[] bitmaps = new Bitmap[animationCodes.length];
             // Iteración sobre las imágenes que componen cada animación
             for (int j = 0; j < bitmaps.length; j++) {
+                bitmaps[j] = ResourceLoader.loadBitmap(animationCodes[j]);
+                /*
                 bitmaps[j] = BitmapFactory.decodeResource(
                         gameEngine.getContext().getResources(),
                         animationCodes[j],
                         options);
+
+                 */
             }
             this.animationImages.add(bitmaps);
             if (bitmaps.length < 1) {
@@ -66,8 +68,10 @@ public abstract class AnimatedEntity extends AbstractSprite {
             this.animationWidths[i] = bitmaps[0].getWidth();
             this.animationHeights[i] = bitmaps[0].getHeight();
             this.totalframesPerAction[i] = bitmaps.length;
+            //
+            i++;
         }
-        if (keySet.size() < 1) {
+        if (i < 1) {
             throw new IllegalStateException("Una animación debe estar compuesta " +
                     "por al menos una acción.");
         }

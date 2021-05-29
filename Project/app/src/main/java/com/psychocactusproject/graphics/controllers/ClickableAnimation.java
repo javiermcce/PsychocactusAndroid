@@ -4,8 +4,8 @@ import android.graphics.Canvas;
 
 import com.psychocactusproject.interaction.menu.ContextMenu;
 import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.Hitbox;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.util.Hitbox;
 
 public abstract class ClickableAnimation extends AnimatedEntity implements MenuDisplay {
 

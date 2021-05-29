@@ -1,4 +1,4 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
 
 public abstract class GameEntity {
 

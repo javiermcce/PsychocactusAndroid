@@ -1,4 +1,6 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
+
+import com.psychocactusproject.engine.manager.GameEngine;
 
 public class UpdateThread extends Thread {
 
@@ -78,6 +80,12 @@ public class UpdateThread extends Thread {
         return this.updateRunning;
     }
 
+    /**
+     * ATENCIÓN, AHORA YA NO SE RECURRE A ANDROID PARA PAUSAR EL JUEGO
+     * DE HECHO, LA PARTIDA SE PIERDE CUANDO SE MINIMIZA LA APP Y SE VUELVE A SACAR
+     * @return ATENCIÓN, NO HACE LO QUE DEBERÍA
+     * @deprecated
+     */
     public boolean isUpdatePaused() {
         return this.updatePaused;
     }

@@ -1,19 +1,15 @@
-package com.psychocactusproject.engine;
+package com.psychocactusproject.engine.manager;
 
 import android.content.Context;
-import android.graphics.Typeface;
 
-import androidx.core.content.res.ResourcesCompat;
-
-import com.psychocactusproject.R;
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
-import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.DebugDrawable;
-import com.psychocactusproject.graphics.controllers.Drawable;
+import com.psychocactusproject.engine.util.GameClock;
+import com.psychocactusproject.graphics.interfaces.DebugDrawable;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.views.SurfaceGameView;
 import com.psychocactusproject.input.InputController;
-import com.psychocactusproject.interaction.menu.DialogScreen;
+import com.psychocactusproject.interaction.menu.MenuDisplay;
 import com.psychocactusproject.interaction.scripts.TurnChecker;
 
 import java.util.ArrayList;
@@ -33,6 +29,7 @@ public class GameEngine {
     private final List<Drawable> gameDrawables;
     private final List<DebugDrawable> debugDrawables;
     private final HashMap<GAME_LAYERS, List<Drawable>> drawablesByLayer;
+    private List<List<Drawable>> drawableLayersOrdered;
     private InputController inputController;
     private final GameActivity activity;
     private final SurfaceGameView surfaceGameView;
@@ -46,18 +43,18 @@ public class GameEngine {
 
     // Scenes
     private SCENES pendingSceneChange;
-    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU }
+
+    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU, LOADING}
     public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
-    public enum GAME_LAYERS { BACKGROUND, UNSPECIFIED, FRONT }
+    public enum GAME_LAYERS { BACKGROUND, OBJECTS, CHARACTERS, FRONT, USER_INTERFACE, DEBUG }
     private SCENES currentScene = SCENES.GAME;
 
     // Resources
     private final GameLogic gameLogic;
     private final DebugHelper debugHelper;
     //
-    private final Typeface typeface;
     //
-    public static boolean DEBUGGING = false;
+    public static boolean DEBUGGING = true;
     public static boolean verboseDebugging = false;
 
     public GameEngine(GameActivity activity, SurfaceGameView surfaceGameView) {
@@ -76,7 +73,6 @@ public class GameEngine {
         this.debugDrawables = new ArrayList<>();
         this.surfaceGameView.setGameEntities(this.gameDrawables, this.debugDrawables);
         //
-        this.typeface = ResourcesCompat.getFont(this.getContext(), R.font.truetypefont);
         this.deviceWidth = surfaceGameView.getWidth();
         this.deviceHeight = surfaceGameView.getHeight();
         this.engineClock = new GameClock(1, 1);
@@ -112,21 +108,22 @@ public class GameEngine {
         return this.drawablesByLayer.get(layer);
     }
 
-    public Typeface getTypeface() {
-        return this.typeface;
+    public List<Drawable> getGameDrawables() {
+        return gameDrawables;
     }
 
-    // Esto debe ser AbstractSprite
+    public List<DebugDrawable> getDebugDrawables() {
+        return debugDrawables;
+    }
+
     public List<List<Drawable>> getDrawableLayers() {
-        // Optimizar. La creación de objetos no está permitida en el bucle de dibujado.
-        List<List<Drawable>> listaDeListas = new LinkedList<>();
-
-        for (int i = 0; i < this.drawablesByLayer.size(); i++) {
-            listaDeListas.add(this.drawablesByLayer.get(GAME_LAYERS.values()[i]));
+        if (this.drawableLayersOrdered == null) {
+            this.drawableLayersOrdered = new LinkedList<>();
+            for (int i = 0; i < this.drawablesByLayer.size(); i++) {
+                this.drawableLayersOrdered.add(this.drawablesByLayer.get(GAME_LAYERS.values()[i]));
+            }
         }
-
-        //return new LinkedList<>(this.entitiesByLayer.values());
-        return listaDeListas;
+        return this.drawableLayersOrdered;
     }
 
     public int getAspectRatioMargin() {
@@ -169,7 +166,7 @@ public class GameEngine {
 
     public void startGame() {
         // Si el juego está en marcha, se detiene
-        this.stopGame();
+        // this.stopGame();
         // Se crean e insertan los objetos en el motor
         this.gameLogic.getGameEntityManager().populate(this);
         // Se ajustan los objetos por primera vez
@@ -188,7 +185,25 @@ public class GameEngine {
         this.surfaceGameView.setGameEngine(this);
     }
 
+    public void resumeGame() {
+        this.switchToScene(SCENES.GAME);
+    }
+
+    public void pauseGame() {
+        this.switchToScene(SCENES.PAUSE_MENU);
+    }
+
+    public void restartGame() {
+        // TEMPORAL, HASTA QUE SE IMPLEMENTE
+        resumeGame();
+    }
+
+    /**
+     * Detiene la ejecución de la partida y regresa al menú principal
+     * @deprecated NECESITA REIMPLEMENTACIÓN TRAS HABER MODIFICADO LA ARQUITECTURA
+     */
     public void stopGame() {
+        /*
         if (this.updateThread != null) {
             this.updateThread.stopUpdating();
         }
@@ -197,8 +212,19 @@ public class GameEngine {
         }
         // Se detiene el gestor de controles
         this.inputController.stop();
+
+         */
+        this.switchToScene(SCENES.INITIAL_SCREEN);
     }
 
+    /**
+     * Cierra por completo la app
+     */
+    public void exitGame() {
+        this.switchToScene(SCENES.INITIAL_SCREEN);
+    }
+
+    /*
     public void pauseGame() {
         if (this.updateThread != null) {
             this.updateThread.pauseUpdate();
@@ -220,6 +246,17 @@ public class GameEngine {
         // Se reanuda el gestor de controles
         this.inputController.resume();
     }
+    */
+
+    public void closeAllMenus() {
+        // Cierra los menús
+        for (GameEntity entity : this.gameEntities) {
+            // Los que tienen menu, los cierran
+            if (entity instanceof MenuDisplay) {
+                ((MenuDisplay) entity).closeMenu();
+            }
+        }
+    }
 
     public void addGameEntity(GameEntity gameEntity) {
         if (this.isRunning()) {
@@ -234,6 +271,18 @@ public class GameEngine {
             this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
         } else {
             this.doAddGameEntity(gameEntity, layer);
+        }
+    }
+
+    public void addGameEntities(GameEntity[] gameEntities, GAME_LAYERS layer) {
+        if (this.isRunning()) {
+            for (GameEntity gameEntity : gameEntities) {
+                this.entitiesToAdd.add(new EntityToAdd(gameEntity, layer));
+            }
+        } else {
+            for (GameEntity gameEntity : gameEntities) {
+                this.doAddGameEntity(gameEntity, layer);
+            }
         }
     }
 
@@ -327,7 +376,8 @@ public class GameEngine {
     }
 
     public boolean isPaused() {
-        return this.updateThread != null && this.updateThread.isUpdatePaused();
+        return this.getCurrentScene().equals(SCENES.PAUSE_MENU);
+        // return this.updateThread != null && this.updateThread.isUpdatePaused();
     }
 
     public Context getContext() {
@@ -365,29 +415,22 @@ public class GameEngine {
     public void doSwitchToScene() {
         SCENES scene = this.pendingSceneChange;
         SCENES oldScene = this.getCurrentScene();
+        this.getSurfaceGameView().onSceneChange(oldScene, scene);
         switch (oldScene) {
             case GAME:
 
                 // la idea es que al final del fragmento ejecutable correspondiente, siempre se
-                // acuda a este metodo para hacer efectivo el cambio de escena
+                // acuda a este método para hacer efectivo el cambio de escena
                 break;
             case DIALOG:
                 this.getSurfaceGameView().clearDialog();
                 break;
             case PAUSE_MENU:
-                this.getSurfaceGameView().clearLastGameFrame();
+                this.getSurfaceGameView().getPauseScreen().clearLastGameFrame();
                 break;
-            default:
-                throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
-                        + ", pero no es válida.");
-        }
-        switch (scene) {
-            case GAME:
-                // this.clearDialog();
+            case LOADING:
                 break;
-            case DIALOG:
-                break;
-            case PAUSE_MENU:
+            case INITIAL_SCREEN:
                 break;
             default:
                 throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()
@@ -413,7 +456,7 @@ public class GameEngine {
 
         private EntityToAdd(GameEntity gameEntity) {
             this.gameEntity = gameEntity;
-            this.layer = GAME_LAYERS.UNSPECIFIED;
+            this.layer = GAME_LAYERS.OBJECTS;
         }
     }
 

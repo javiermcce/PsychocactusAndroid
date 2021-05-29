@@ -8,27 +8,28 @@ import android.graphics.ColorMatrix;
 import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
+import android.graphics.PorterDuff;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.engine.InitialScreen;
-import com.psychocactusproject.engine.PauseScreen;
+import com.psychocactusproject.engine.screens.GameScreen;
+import com.psychocactusproject.engine.screens.InitialScreen;
+import com.psychocactusproject.engine.screens.LoadingScreen;
+import com.psychocactusproject.engine.screens.PauseScreen;;
+import com.psychocactusproject.engine.screens.Scene;
 import com.psychocactusproject.graphics.controllers.ClickableDirectSprite;
-import com.psychocactusproject.graphics.controllers.DebugDrawable;
-import com.psychocactusproject.graphics.controllers.Drawable;
+import com.psychocactusproject.graphics.interfaces.DebugDrawable;
+import com.psychocactusproject.graphics.interfaces.Drawable;
 import com.psychocactusproject.graphics.controllers.InanimateSprite;
 import com.psychocactusproject.interaction.menu.DialogScreen;
-import com.psychocactusproject.interaction.menu.MenuDisplay;
-import com.psychocactusproject.interaction.scripts.Clickable;
-import com.psychocactusproject.engine.GameClock;
-import com.psychocactusproject.engine.GameEngine;
-import com.psychocactusproject.engine.GameEntity;
-import com.psychocactusproject.engine.Hitbox;
-import static com.psychocactusproject.engine.GameEngine.BLACK_STRIPE_TYPES;
-import static com.psychocactusproject.engine.GameEngine.SCENES;
+import com.psychocactusproject.engine.util.GameClock;
+import com.psychocactusproject.engine.manager.GameEngine;
+import com.psychocactusproject.engine.manager.GameEntity;
+
+import static com.psychocactusproject.engine.manager.GameEngine.BLACK_STRIPE_TYPES;
+import static com.psychocactusproject.engine.manager.GameEngine.SCENES;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,6 +40,10 @@ import java.util.List;
  * renderizar, visualizar o organizar layouts escritos en java
  */
 public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callback {
+
+    public static SurfaceGameView getInstance() {
+        return GameEngine.getInstance().getSurfaceGameView();
+    }
 
     private List<Drawable> gameSprites;
     private List<DebugDrawable> debugSprites;
@@ -58,10 +63,12 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     private static Paint[] colorFilters;
     private static GameClock filterClock;
     //
-
+    private HashMap<SCENES, Scene> gameScenes;
     private InitialScreen initialScreen;
+    private GameScreen gameScreen;
     private PauseScreen pauseScreen;
-    private DialogScreen activeDialog;
+    private DialogScreen dialogScreen;
+    private LoadingScreen loadingScreen;
     //
     private final List<ClickableDirectSprite> pauseEntities;
     private final List<ClickableDirectSprite> initialEntities;
@@ -93,16 +100,26 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
         this.pauseEntities = new ArrayList<>();
         this.initialEntities = new ArrayList<>();
-        this.pauseScreen = new PauseScreen();
         this.initialScreen = new InitialScreen();
+        this.gameScreen = new GameScreen();
+        this.pauseScreen = new PauseScreen();
+        this.dialogScreen = new DialogScreen();
+        this.loadingScreen = new LoadingScreen();
+        this.gameScenes = new HashMap<SCENES, Scene>() {
+            {
+                put(SCENES.GAME, gameScreen); put(SCENES.PAUSE_MENU, pauseScreen);
+                put(SCENES.DIALOG, dialogScreen); put(SCENES.LOADING, loadingScreen);
+                put(SCENES.INITIAL_SCREEN, initialScreen);
+            }
+        };
         this.pauseScreen.setPauseEntities(this.pauseEntities);
         this.initialScreen.setInitialEntities(this.initialEntities);
-
+        //
         this.drawableScenesMap = new HashMap<>();
-        this.drawableScenesMap.put(SCENES.GAME, this.definedGameDrawable());
-        this.drawableScenesMap.put(SCENES.DIALOG, this.definedDialogDrawable());
-        this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedInitialDrawable());
-        this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedPauseDrawable());
+        this.drawableScenesMap.put(SCENES.GAME, this.gameScreen.definedDrawable());
+        this.drawableScenesMap.put(SCENES.DIALOG, this.dialogScreen.definedDrawable());
+        this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedDrawable());
+        this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedDrawable());
     }
 
 
@@ -110,8 +127,22 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         return this.initialScreen;
     }
 
+    public GameScreen getGameScreen() {
+        return this.gameScreen;
+    }
+
     public PauseScreen getPauseScreen() {
         return this.pauseScreen;
+    }
+
+    // Esto se está agravando ya. Creo que lo más coherente con diferencia es mandar todas
+    // las escenas o a GameEngine o a GameLogic, teniendo la primera opción bastante más papeletas
+    public Scene getCurrentScene() {
+        return this.gameScenes.get(this.gameEngine.getCurrentScene());
+    }
+
+    public void onSceneChange(SCENES oldScene, SCENES scene) {
+        this.gameScenes.get(scene).onSceneChange(oldScene);
     }
 
     /*
@@ -120,79 +151,6 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     * ESTAS ESCENAS LLAMARÍAN TAMBIÉN A JUEGO, CON LO QUE TENEMOS ESTO SIENDO DIBUJADO DE FONDO
     * MIENTRAS DIBUJAMOS UNA NUEVA ESCENA
     * */
-    public Drawable definedGameDrawable() {
-        // Dibuja todos los elementos del juego por capas de prioridades
-        return (canvas) -> {
-            // Prioridad 3: Personajes
-            //synchronized (GameEntity.entitiesLock) {
-                for (List<Drawable> drawableLayers : this.gameEngine.getDrawableLayers()) {
-                    for (Drawable drawableEntity : drawableLayers) {
-                        drawableEntity.draw(canvas);
-                    }
-                }
-            //}
-            // Prioridad 2: Menús
-            //synchronized (GameEntity.entitiesLock) {
-                for (int i = 0; i < this.gameSprites.size(); i++) {
-                    if (this.gameSprites.get(i) instanceof MenuDisplay) {
-                        MenuDisplay menuHolder = ((MenuDisplay) this.gameSprites.get(i));
-                        if (menuHolder.isMenuOpen()) {
-                            menuHolder.renderMenu(canvas);
-                            if (GameEngine.DEBUGGING) {
-                                Hitbox[] menuHitboxes = menuHolder.getMenu().getHitboxes();
-                                // El fragmento de aquí abajo omite mostrar las hitboxes no activadas
-                                // cuando realmente lo que deseo es mostrarlas desactivadas y seguir
-                                // interactuando con ellas, pero de otra forma distinta
-                            /*
-                            Hitbox[] availableHitboxes = new Hitbox[menuHitboxes.length];
-                            for (int j = 0; j < availableHitboxes.length; j++) {
-                                if (menuHolder.getMenu().isAvailable(j)) {
-                                    availableHitboxes[j] = menuHitboxes[j];
-                                }
-                            }*/
-                                // Hitbox.drawHitboxes(availableHitboxes, canvas);
-                                Hitbox.drawHitboxes(menuHitboxes, canvas);
-                            }
-                        }
-                    }
-                }
-            //}
-            // Prioridad 1: Interfaz de usuario
-            //synchronized (GameEntity.entitiesLock) {
-                if (GameEngine.DEBUGGING) {
-                    for (int i = 0; i < this.debugSprites.size(); i++) {
-                        this.debugSprites.get(i).debugDraw(canvas);
-                    }
-                }
-                for (int i = 0; i < this.gameSprites.size(); i++) {
-                    if (GameEngine.DEBUGGING && this.gameSprites.get(i) instanceof Clickable) {
-                        Hitbox.drawHitboxes(((Clickable) this.gameSprites.get(i)).getHitboxes(), canvas);
-                    }
-                }
-            //}
-        };
-    }
-
-    public Drawable definedDialogDrawable() {
-        return (canvas) -> {
-            //synchronized (GameEntity.entitiesLock) {
-                // Dibuja de fondo el juego en su estado actual
-                definedGameDrawable().draw(canvas);
-                // Imprime la ventana de diálogo
-                // REFACTORIZAR: PROHIBIDO LLAMAR CONSTRUCTORES EN EL BUCLE DE DIBUJADO
-                Paint paint = new Paint();
-                paint.setColor(Color.argb(100, 20, 20, 50));
-                // int left, int top, int right, int bottom
-                canvas.drawRect(new Rect(0, 0, GameEngine.RESOLUTION_X, GameEngine.RESOLUTION_Y), paint);
-
-                // Ahora se dibuja como tal el menú de diálogo
-                this.activeDialog.draw(canvas);
-                if (GameEngine.DEBUGGING) {
-                    Hitbox.drawHitboxes(this.activeDialog.getHitboxes(), canvas);
-                }
-            //}
-        };
-    }
 
     public void setAspectRatio(int deviceWidth, int deviceHeight, GameEngine gameEngine) {
         // Se informan a la clase los parámetros de tamaño natural de la pantalla
@@ -250,8 +208,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     public void showConfirmationDialog(String message, String details, Runnable action) {
-        this.activeDialog = new DialogScreen(this.gameEngine, message, details, action);
-        this.gameEngine.addGameEntity(this.activeDialog, GameEngine.GAME_LAYERS.FRONT);
+        this.dialogScreen.initializeDialog(message, details, action);
         this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
     }
 
@@ -260,18 +217,16 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
     }
 
     public void showAlertDialog(String message, String details) {
-        this.activeDialog = new DialogScreen(this.gameEngine, message, details);
-        this.gameEngine.addGameEntity(this.activeDialog, GameEngine.GAME_LAYERS.FRONT);
+        this.dialogScreen.initializeDialog(message, details);
         this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
     }
 
     public DialogScreen getDialog() {
-        return this.activeDialog;
+        return this.dialogScreen;
     }
 
     public void clearDialog() {
-        this.gameEngine.removeGameEntity(this.activeDialog);
-        this.activeDialog = null;
+        // this.dialogScreen = null;
     }
 
     public void draw() {
@@ -304,7 +259,8 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         return this.frameBitmap;
     }
 
-    public void clearLastGameFrame() {
+    public static void clearCanvas(Canvas canvas) {
+        canvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
     }
 
     private static Paint generateColorFilter(float contrast, float brightness) {
