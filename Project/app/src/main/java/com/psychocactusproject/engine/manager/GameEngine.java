@@ -54,7 +54,7 @@ public class GameEngine {
     private final DebugHelper debugHelper;
     //
     //
-    public static boolean DEBUGGING = true;
+    public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
 
     public GameEngine(GameActivity activity, SurfaceGameView surfaceGameView) {

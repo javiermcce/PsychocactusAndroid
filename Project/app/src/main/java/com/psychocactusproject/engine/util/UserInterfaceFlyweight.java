@@ -3,6 +3,7 @@ package com.psychocactusproject.engine.util;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
@@ -11,6 +12,7 @@ import com.psychocactusproject.graphics.manager.ResourceLoader;
 public class UserInterfaceFlyweight {
 
     private static UserInterfaceFlyweight instance;
+    private Matrix basicMatrix;
 
     public static UserInterfaceFlyweight getInstance() {
         if (instance == null) {
@@ -26,6 +28,7 @@ public class UserInterfaceFlyweight {
         // Se ajustan los colores del botón (interior y exterior)
         this.insideButtonOptionPaint.setColor(Color.argb(255, 174, 182, 191));
         this.outsideButtonOptionPaint.setColor(Color.argb(255, 126, 133, 143));
+        this.basicMatrix = new Matrix();
     }
 
     public void drawButton(String optionText, SpaceBox buttonSpace, Paint textPaint, Canvas canvas) {
@@ -73,8 +76,10 @@ public class UserInterfaceFlyweight {
         Point downLeftCorner = new Point(
                 upLeft.getX() + backgroundBitmap.getWidth(),
                 upLeft.getY() + backgroundBitmap.getHeight());
+        this.basicMatrix.reset();
+        this.basicMatrix.postTranslate(upLeft.getX(), upLeft.getY());
         // Dibujado de imagen de fondo
-        canvas.drawBitmap(backgroundBitmap, upLeft.getX(), upLeft.getY(), textPaint);
+        canvas.drawBitmap(backgroundBitmap, this.basicMatrix, textPaint);
         // Dibujado del texto del botón
         TextUtil.drawCenteredLine(canvas, upLeft, downLeftCorner, optionText, textPaint);
     }

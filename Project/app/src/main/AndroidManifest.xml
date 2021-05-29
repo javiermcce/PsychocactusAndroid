@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.psychocactusproject">
 
-    <supports-screens android:anyDensity="false"/>
+    <!--supports-screens android:anyDensity="false"/-->
 
     <application
         android:allowBackup="true"
