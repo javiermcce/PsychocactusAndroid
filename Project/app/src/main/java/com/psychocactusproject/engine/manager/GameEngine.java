@@ -40,7 +40,7 @@ public class GameEngine {
     private int adaptedHeight;
     private int aspectRatioMargin;
     private BLACK_STRIPE_TYPES hasBlackStripes;
-
+    private String gameLanguage;
     // Scenes
     private SCENES pendingSceneChange;
 
@@ -193,16 +193,26 @@ public class GameEngine {
         this.switchToScene(SCENES.PAUSE_MENU);
     }
 
+    public void showDialog() {
+        this.switchToScene(SCENES.DIALOG);
+    }
+
     public void restartGame() {
         // TEMPORAL, HASTA QUE SE IMPLEMENTE
         resumeGame();
     }
 
     /**
-     * Detiene la ejecución de la partida y regresa al menú principal
-     * @deprecated NECESITA REIMPLEMENTACIÓN TRAS HABER MODIFICADO LA ARQUITECTURA
+     * Vuelve al menú principal
      */
-    public void stopGame() {
+    public void exitCurrentGame() {
+        this.switchToScene(SCENES.INITIAL_SCREEN);
+    }
+
+    /**
+     * Cierra por completo la app
+     */
+    public void stopGameApp() {
         /*
         if (this.updateThread != null) {
             this.updateThread.stopUpdating();
@@ -214,13 +224,6 @@ public class GameEngine {
         this.inputController.stop();
 
          */
-        this.switchToScene(SCENES.INITIAL_SCREEN);
-    }
-
-    /**
-     * Cierra por completo la app
-     */
-    public void exitGame() {
         this.switchToScene(SCENES.INITIAL_SCREEN);
     }
 
@@ -404,15 +407,15 @@ public class GameEngine {
         return this.currentScene;
     }
 
-    public void setCurrentScene(SCENES scene) {
+    private void setCurrentScene(SCENES scene) {
         this.currentScene = scene;
     }
 
-    public void switchToScene(SCENES scene) {
+    private void switchToScene(SCENES scene) {
         this.pendingSceneChange = scene;
     }
 
-    public void doSwitchToScene() {
+    private void doSwitchToScene() {
         SCENES scene = this.pendingSceneChange;
         SCENES oldScene = this.getCurrentScene();
         this.getSurfaceGameView().onSceneChange(oldScene, scene);

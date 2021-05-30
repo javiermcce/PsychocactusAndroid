@@ -209,7 +209,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public void showConfirmationDialog(String message, String details, Runnable action) {
         this.dialogScreen.initializeDialog(message, details, action);
-        this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
+        this.gameEngine.showDialog();
     }
 
     public void showAlertDialog(String message) {
@@ -218,7 +218,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public void showAlertDialog(String message, String details) {
         this.dialogScreen.initializeDialog(message, details);
-        this.gameEngine.switchToScene(GameEngine.SCENES.DIALOG);
+        this.gameEngine.showDialog();
     }
 
     public DialogScreen getDialog() {

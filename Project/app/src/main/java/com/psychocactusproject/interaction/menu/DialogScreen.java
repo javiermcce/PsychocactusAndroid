@@ -229,12 +229,14 @@ public class DialogScreen implements Clickable, Scene {
                 // Ejecuta la acción que fue seleccionada antes de mostrar la pantalla de diálogo
                 this.getAction().run();
                 // Vuelve al modo de juego
-                engine.switchToScene(SCENES.GAME);
+                // engine.switchToScene(SCENES.GAME);
+                engine.resumeGame();
                 break;
             case CONFIRMATION_CANCEL:
             case ALERT_ACCEPT:
                 // Vuelve al modo de juego
-                engine.switchToScene(SCENES.GAME);
+                // engine.switchToScene(SCENES.GAME);
+                engine.resumeGame();
                 break;
             default:
                 throw new IllegalStateException("No existe la opción indicada en el menú de dialogo.");

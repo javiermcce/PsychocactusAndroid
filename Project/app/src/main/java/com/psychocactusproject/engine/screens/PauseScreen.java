@@ -122,7 +122,7 @@ public class PauseScreen implements Scene, Clickable {
                         this.activeLayer = OPTIONS_LAYER;
                         break;
                     case EXIT_BUTTON:
-                        GameEngine.getInstance().stopGame();
+                        GameEngine.getInstance().exitCurrentGame();
                         break;
                 }
                 break;
