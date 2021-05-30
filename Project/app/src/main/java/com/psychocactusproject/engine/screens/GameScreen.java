@@ -88,6 +88,11 @@ public class GameScreen implements Scene {
         return null;
     }
 
+    @Override
+    public void clearScreen() {
+
+    }
+
     public Drawable definedDrawable(boolean isSnapshotRender) {
         // Dibuja todos los elementos del juego por capas de prioridades
         return (canvas) -> {

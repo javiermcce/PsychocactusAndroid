@@ -134,6 +134,11 @@ public class DialogScreen implements Clickable, Scene {
     }
 
     @Override
+    public void clearScreen() {
+
+    }
+
+    @Override
     public int getPositionX() {
         return this.dialogPosition.getX();
     }

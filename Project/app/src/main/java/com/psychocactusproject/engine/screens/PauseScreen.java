@@ -122,7 +122,7 @@ public class PauseScreen implements Scene, Clickable {
                         this.activeLayer = OPTIONS_LAYER;
                         break;
                     case EXIT_BUTTON:
-                        GameEngine.getInstance().exitCurrentGame();
+                        GameEngine.getInstance().openMainMenu();
                         break;
                 }
                 break;
@@ -482,7 +482,8 @@ public class PauseScreen implements Scene, Clickable {
         this.effectsSlider.draw(canvas);
     }
 
-    public void clearLastGameFrame() {
+    @Override
+    public void clearScreen() {
         this.lastFrameBitmap = null;
     }
 }

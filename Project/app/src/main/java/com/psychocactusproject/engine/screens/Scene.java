@@ -19,4 +19,6 @@ public interface Scene {
     SCENES getSceneId();
 
     List<Slidable> getSlidables();
+
+    void clearScreen();
 }

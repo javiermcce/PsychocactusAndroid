@@ -4,6 +4,7 @@ import android.content.Context;
 
 import com.psychocactusproject.android.DebugHelper;
 import com.psychocactusproject.android.GameActivity;
+import com.psychocactusproject.engine.screens.LoadingScreen;
 import com.psychocactusproject.engine.util.GameClock;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
 import com.psychocactusproject.graphics.interfaces.Drawable;
@@ -183,6 +184,13 @@ public class GameEngine {
         this.inputController.start();
         //
         this.surfaceGameView.setGameEngine(this);
+        //
+        this.loadSceneTransition(SCENES.INITIAL_SCREEN);
+    }
+
+    public void loadSceneTransition(SCENES scene) {
+        LoadingScreen.nextScene = scene;
+        this.switchToScene(SCENES.LOADING);
     }
 
     public void resumeGame() {
@@ -205,7 +213,7 @@ public class GameEngine {
     /**
      * Vuelve al menú principal
      */
-    public void exitCurrentGame() {
+    public void openMainMenu() {
         this.switchToScene(SCENES.INITIAL_SCREEN);
     }
 
@@ -213,43 +221,8 @@ public class GameEngine {
      * Cierra por completo la app
      */
     public void stopGameApp() {
-        /*
-        if (this.updateThread != null) {
-            this.updateThread.stopUpdating();
-        }
-        if (this.drawThread != null) {
-            this.drawThread.stopDrawing();
-        }
-        // Se detiene el gestor de controles
-        this.inputController.stop();
-
-         */
         this.switchToScene(SCENES.INITIAL_SCREEN);
     }
-
-    /*
-    public void pauseGame() {
-        if (this.updateThread != null) {
-            this.updateThread.pauseUpdate();
-        }
-        if (this.drawThread != null) {
-            this.drawThread.pauseDraw();
-        }
-        // Se pausa el gestor de controles
-        this.inputController.pause();
-    }
-
-    public void resumeGame() {
-        if (this.updateThread != null) {
-            this.updateThread.resumeUpdate();
-        }
-        if (this.drawThread != null) {
-            this.drawThread.resumeDraw();
-        }
-        // Se reanuda el gestor de controles
-        this.inputController.resume();
-    }
-    */
 
     public void closeAllMenus() {
         // Cierra los menús
@@ -429,11 +402,12 @@ public class GameEngine {
                 this.getSurfaceGameView().clearDialog();
                 break;
             case PAUSE_MENU:
-                this.getSurfaceGameView().getPauseScreen().clearLastGameFrame();
+                this.getSurfaceGameView().getPauseScreen().clearScreen();
                 break;
             case LOADING:
                 break;
             case INITIAL_SCREEN:
+                this.getSurfaceGameView().getLoadingScreen().clearScreen();
                 break;
             default:
                 throw new IllegalStateException("Se ha seleccionado la escena " + scene.name()

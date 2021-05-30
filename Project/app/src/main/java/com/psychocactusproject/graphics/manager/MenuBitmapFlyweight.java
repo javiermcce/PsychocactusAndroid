@@ -9,34 +9,42 @@ public class MenuBitmapFlyweight {
     private static MenuBitmapFlyweight.ContextMenuFlyweight contextMenuInstance;
     private static MenuBitmapFlyweight.DialogMenuFlyweight dialogMenuInstance;
     private static MenuBitmapFlyweight.PauseMenuFlyweight pauseMenuInstance;
+    private static MenuBitmapFlyweight.LoadingScreenFlyweight loadingScreenFlyweight;
     private static MenuBitmapFlyweight.SliderFlyweight sliderFlyweightInstance;
 
     public static ContextMenuFlyweight getContextMenuInstance() {
         if (contextMenuInstance == null) {
-            contextMenuInstance = new MenuBitmapFlyweight.ContextMenuFlyweight();
+            contextMenuInstance = new ContextMenuFlyweight();
         }
         return contextMenuInstance;
     }
 
     public static DialogMenuFlyweight getDialogMenuInstance() {
         if (dialogMenuInstance == null) {
-            dialogMenuInstance = new MenuBitmapFlyweight.DialogMenuFlyweight();
+            dialogMenuInstance = new DialogMenuFlyweight();
         }
         return dialogMenuInstance;
     }
 
     public static PauseMenuFlyweight getPauseMenuInstance() {
         if (pauseMenuInstance == null) {
-            pauseMenuInstance = new MenuBitmapFlyweight.PauseMenuFlyweight();
+            pauseMenuInstance = new PauseMenuFlyweight();
         }
         return pauseMenuInstance;
     }
 
     public static SliderFlyweight getSliderFlyweightInstance() {
         if (sliderFlyweightInstance == null) {
-            sliderFlyweightInstance = new MenuBitmapFlyweight.SliderFlyweight();
+            sliderFlyweightInstance = new SliderFlyweight();
         }
         return sliderFlyweightInstance;
+    }
+
+    public static LoadingScreenFlyweight getLoadingScreenFlyweight() {
+        if (loadingScreenFlyweight == null) {
+            loadingScreenFlyweight = new LoadingScreenFlyweight();
+        }
+        return loadingScreenFlyweight;
     }
 
     public static class ContextMenuFlyweight {
@@ -184,6 +192,24 @@ public class MenuBitmapFlyweight {
 
         public Bitmap getVerticalBarPiece() {
             return this.verticalBarPiece;
+        }
+
+        public Bitmap getRandomFace(int randomIndex) {
+            return this.faces[randomIndex];
+        }
+    }
+
+    public static class LoadingScreenFlyweight {
+
+        private final Bitmap[] faces;
+
+        private LoadingScreenFlyweight() {
+            this.faces = new Bitmap[5];
+            this.faces[0] = ResourceLoader.loadBitmap(R.drawable.loading_face_barry);
+            this.faces[1] = ResourceLoader.loadBitmap(R.drawable.loading_face_guitar);
+            this.faces[2] = ResourceLoader.loadBitmap(R.drawable.loading_face_singer);
+            this.faces[3] = ResourceLoader.loadBitmap(R.drawable.loading_face_drums);
+            this.faces[4] = ResourceLoader.loadBitmap(R.drawable.loading_face_barry);
         }
 
         public Bitmap getRandomFace(int randomIndex) {

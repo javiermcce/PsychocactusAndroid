@@ -83,7 +83,7 @@ public class InitialScreen implements Scene, Clickable {
 
     @Override
     public Touchable definedTouchable() {
-        return (touchable) -> {
+        return (point) -> {
             GameEngine.getInstance().resumeGame();
         };
 
@@ -102,6 +102,11 @@ public class InitialScreen implements Scene, Clickable {
     @Override
     public List<Slidable> getSlidables() {
         return null;
+    }
+
+    @Override
+    public void clearScreen() {
+
     }
 
     @Override

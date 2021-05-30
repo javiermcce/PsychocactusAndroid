@@ -120,6 +120,7 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
         this.drawableScenesMap.put(SCENES.DIALOG, this.dialogScreen.definedDrawable());
         this.drawableScenesMap.put(SCENES.INITIAL_SCREEN, this.initialScreen.definedDrawable());
         this.drawableScenesMap.put(SCENES.PAUSE_MENU, this.pauseScreen.definedDrawable());
+        this.drawableScenesMap.put(SCENES.LOADING, this.loadingScreen.definedDrawable());
     }
 
 
@@ -133,6 +134,10 @@ public class SurfaceGameView extends SurfaceView implements SurfaceHolder.Callba
 
     public PauseScreen getPauseScreen() {
         return this.pauseScreen;
+    }
+
+    public LoadingScreen getLoadingScreen() {
+        return this.loadingScreen;
     }
 
     // Esto se está agravando ya. Creo que lo más coherente con diferencia es mandar todas

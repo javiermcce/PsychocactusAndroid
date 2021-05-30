@@ -49,14 +49,12 @@ public class TouchInputController extends InputController implements View.OnKeyL
         this.hasBlackStripes = gameEngine.hasBlackStripes();
         this.gameEntities = gameEngine.getGameEntities();
         this.touchableScenesMap = new HashMap<>();
-        this.touchableScenesMap.put(SCENES.INITIAL_SCREEN,
-                SurfaceGameView.getInstance().getInitialScreen().definedTouchable());
-        this.touchableScenesMap.put(SCENES.GAME,
-                SurfaceGameView.getInstance().getGameScreen().definedTouchable());
-        this.touchableScenesMap.put(SCENES.DIALOG,
-                SurfaceGameView.getInstance().getDialog().definedTouchable());
-        this.touchableScenesMap.put(SCENES.PAUSE_MENU,
-                SurfaceGameView.getInstance().getPauseScreen().definedTouchable());
+        SurfaceGameView gameView = SurfaceGameView.getInstance();
+        this.touchableScenesMap.put(SCENES.LOADING, gameView.getLoadingScreen().definedTouchable());
+        this.touchableScenesMap.put(SCENES.INITIAL_SCREEN, gameView.getInitialScreen().definedTouchable());
+        this.touchableScenesMap.put(SCENES.GAME, gameView.getGameScreen().definedTouchable());
+        this.touchableScenesMap.put(SCENES.DIALOG, gameView.getDialog().definedTouchable());
+        this.touchableScenesMap.put(SCENES.PAUSE_MENU, gameView.getPauseScreen().definedTouchable());
     }
 
     public int getX() {
