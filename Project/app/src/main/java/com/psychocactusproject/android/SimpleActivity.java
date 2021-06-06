@@ -1,17 +1,19 @@
 package com.psychocactusproject.android;
 
-import android.os.Build;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
+
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
 
-public class GameActivity extends AppCompatActivity {
+import static androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
+
+public class SimpleActivity extends AppCompatActivity {
 
     private static final String TAG_FRAGMENT = "content";
     private DebugHelper debugHelper;
@@ -22,18 +24,19 @@ public class GameActivity extends AppCompatActivity {
         //
         setContentView(R.layout.activity_game);
         // Es inicializada la clase que centraliza la gestión de los recursos externos
-        // ResourceLoader.initializeResourceLoader(this);
+        ResourceLoader.initializeResourceLoader(this);
         //
+        setContentView(R.layout.simple_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MainMenuFragment(), TAG_FRAGMENT)
-                    .commit();
+                    .replace(R.id.container, SimpleFragment.fragmentInstance())
+                    .commitNow();
         }
     }
 
     public void startGame() {
         // Navigate the the game fragment, which makes the start automatically
-        navigateToFragment( new GameFragment());
+        navigateToFragment(new SimpleFragment());
     }
 
     private void navigateToFragment(GameBaseFragment dst) {
@@ -44,14 +47,6 @@ public class GameActivity extends AppCompatActivity {
                 .commit();
     }
 
-    @Override
-    public void onBackPressed() {
-        final GameBaseFragment fragment = (GameBaseFragment) getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
-        if (fragment == null || !fragment.onBackPressed()) {
-            super.onBackPressed();
-        }
-    }
-
     public void navigateBack() {
         // Do a push on the navigation history
         super.onBackPressed();
@@ -60,6 +55,7 @@ public class GameActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
+        /*
         if (hasFocus) {
             View decorView = getWindow().getDecorView();
             decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
@@ -68,7 +64,12 @@ public class GameActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
+        }*/
+
+
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(this.getWindow(), this.getWindow().getDecorView());
+        insetsControllerCompat.setSystemBarsBehavior(BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        insetsControllerCompat.hide(WindowInsetsCompat.Type.statusBars());
     }
 
     public void setDebugHelper(DebugHelper helper) {
@@ -91,7 +92,7 @@ public class GameActivity extends AppCompatActivity {
         } else if (event.getKeyCode() == KeyEvent.KEYCODE_DPAD_DOWN
                 || event.getKeyCode() == KeyEvent.KEYCODE_DPAD_LEFT) {
             this.debugHelper.showNextCommand();
-        // En caso contrario, comprobamos si conocemos el carácter
+            // En caso contrario, comprobamos si conocemos el carácter
         } else if (charToDisplay != '\u0000') {
             // Si se trata de un carácter alfabético
             if (charToDisplay >= 'A' && charToDisplay <= 'Z') {
@@ -101,7 +102,7 @@ public class GameActivity extends AppCompatActivity {
                 } else {
                     this.debugHelper.addCharacterToTerminal(Character.toLowerCase(charToDisplay));
                 }
-            // Si se trata de cualquier otro carácter sí reconocido
+                // Si se trata de cualquier otro carácter sí reconocido
             } else {
                 this.debugHelper.addCharacterToTerminal(charToDisplay);
             }

@@ -28,6 +28,6 @@ public class MainMenuFragment extends GameBaseFragment implements View.OnClickLi
 
     @Override
     public void onClick(View v) {
-        ((GameActivity)getActivity()).startGame();
+        ((SimpleActivity)getActivity()).startGame();
     }
 }

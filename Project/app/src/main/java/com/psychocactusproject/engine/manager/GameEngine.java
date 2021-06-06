@@ -3,7 +3,7 @@ package com.psychocactusproject.engine.manager;
 import android.content.Context;
 
 import com.psychocactusproject.android.DebugHelper;
-import com.psychocactusproject.android.GameActivity;
+import com.psychocactusproject.android.SimpleActivity;
 import com.psychocactusproject.engine.screens.LoadingScreen;
 import com.psychocactusproject.engine.util.GameClock;
 import com.psychocactusproject.graphics.interfaces.DebugDrawable;
@@ -32,7 +32,7 @@ public class GameEngine {
     private final HashMap<GAME_LAYERS, List<Drawable>> drawablesByLayer;
     private List<List<Drawable>> drawableLayersOrdered;
     private InputController inputController;
-    private final GameActivity activity;
+    private final SimpleActivity activity;
     private final SurfaceGameView surfaceGameView;
     private final int deviceWidth;
     private final int deviceHeight;
@@ -58,7 +58,7 @@ public class GameEngine {
     public static boolean DEBUGGING = false;
     public static boolean verboseDebugging = false;
 
-    public GameEngine(GameActivity activity, SurfaceGameView surfaceGameView) {
+    public GameEngine(SimpleActivity activity, SurfaceGameView surfaceGameView) {
         //
         this.activity = activity;
         this.surfaceGameView = surfaceGameView;
@@ -360,7 +360,7 @@ public class GameEngine {
         return this.surfaceGameView.getContext();
     }
 
-    public GameActivity getGameActivity() {
+    public SimpleActivity getSimpleActivity() {
         return this.activity;
     }
 

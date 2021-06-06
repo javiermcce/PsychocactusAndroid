@@ -89,7 +89,7 @@ public class DebugHelper {
                 e.printStackTrace();
             }
             GameEngine.getInstance().resumeGame();
-            // GameEngine.getInstance().getGameActivity().getFragment().pauseGameAndShowPauseDialog();
+            // GameEngine.getInstance().getSimpleActivity().getFragment().pauseGameAndShowPauseDialog();
         });
     }
 

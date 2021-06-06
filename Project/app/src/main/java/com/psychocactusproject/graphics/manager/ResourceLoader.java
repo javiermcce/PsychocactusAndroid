@@ -12,7 +12,7 @@ import android.view.ContextThemeWrapper;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.android.GameActivity;
+import com.psychocactusproject.android.SimpleActivity;
 
 public class ResourceLoader {
 
@@ -26,24 +26,24 @@ public class ResourceLoader {
         return instance;
     }
 
-    public static void initializeResourceLoader(GameActivity activity) {
+    public static void initializeResourceLoader(SimpleActivity activity) {
         instance = new ResourceLoader(activity);
     }
 
     public final static int backgroundColor = Color.argb(180, 25, 25, 40);
 
-    private final GameActivity activity;
+    private final SimpleActivity activity;
     private final Options options = new Options();
     private final Typeface typeface;
 
-    private ResourceLoader(GameActivity activity) {
+    private ResourceLoader(SimpleActivity activity) {
         this.options.inScaled = false;
         this.activity = activity;
         this.typeface = ResourcesCompat.getFont(
                 this.activity.getWindow().getContext(), R.font.truetypefont);
     }
 
-    public static GameActivity getGameActivity() {
+    public static SimpleActivity getSimpleActivity() {
         return getInstance().activity;
     }
 
