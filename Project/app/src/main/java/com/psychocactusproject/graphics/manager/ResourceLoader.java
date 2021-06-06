@@ -1,5 +1,6 @@
 package com.psychocactusproject.graphics.manager;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -12,7 +13,6 @@ import android.view.ContextThemeWrapper;
 import androidx.core.content.res.ResourcesCompat;
 
 import com.psychocactusproject.R;
-import com.psychocactusproject.android.GameActivity;
 
 public class ResourceLoader {
 
@@ -26,24 +26,24 @@ public class ResourceLoader {
         return instance;
     }
 
-    public static void initializeResourceLoader(GameActivity activity) {
+    public static void initializeResourceLoader(Activity activity) {
         instance = new ResourceLoader(activity);
     }
 
     public final static int backgroundColor = Color.argb(180, 25, 25, 40);
 
-    private final GameActivity activity;
+    private final Activity activity;
     private final Options options = new Options();
     private final Typeface typeface;
 
-    private ResourceLoader(GameActivity activity) {
+    private ResourceLoader(Activity activity) {
         this.options.inScaled = false;
         this.activity = activity;
         this.typeface = ResourcesCompat.getFont(
                 this.activity.getWindow().getContext(), R.font.truetypefont);
     }
 
-    public static GameActivity getGameActivity() {
+    public static Activity getGameActivity() {
         return getInstance().activity;
     }
 

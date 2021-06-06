@@ -51,7 +51,8 @@ public class LoadingScreen implements Scene {
         this.loadingConstructed = false;
         GameClock.scheduleTask(2500, () -> {
             // Faltaría usar nextScene para dirigir la actividad
-            GameEngine.getInstance().openMainMenu();
+            // GameEngine.getInstance().openMainMenu();
+            // SOLO PUEDO PERMITIRME ARRANCAR LA TASK CUANDO HAYA SIDO CREADO GAME ENGINE
         });
     }
 

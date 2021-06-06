@@ -37,7 +37,7 @@ public class TouchInputController extends InputController implements View.OnKeyL
 
 
     public TouchInputController(GameEngine gameEngine, View view) {
-        view.findViewById(R.id.gameView).setOnTouchListener(this);
+        view.findViewById(R.id.simpleGameView).setOnTouchListener(this);
         this.xCoordinate = 0;
         this.yCoordinate = 0;
         this.pressing = false;

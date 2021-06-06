@@ -38,9 +38,9 @@ public class GameFragment extends GameBaseFragment implements View.OnClickListen
                 // Es obtenida la instancia de activity, y su conversión al tipo del proyecto
                 GameActivity gameActivity = (GameActivity) getActivity();
                 // Controlador principal de la impresión de los gráficos
-                SurfaceGameView surfaceGameView = getView().findViewById(R.id.gameView);
+                SurfaceGameView surfaceGameView = getView().findViewById(R.id.simpleGameView);
                 // El motor es creado con la actividad y la vista
-                gameEngine = new GameEngine(gameActivity, surfaceGameView);
+                // gameEngine = new GameEngine(gameActivity, surfaceGameView);
                 // El gestor de controles es vinculado al motor
                 gameEngine.setInputController(new TouchInputController(gameEngine, getView()));
                 // Arranca el juego

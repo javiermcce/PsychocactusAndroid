@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:layout_width="1280px"
+    android:layout_height="720px"
+    android:orientation="horizontal"
 
     tools:context=".android.GameFragment">
     <!--
@@ -14,7 +14,7 @@
     android:paddingEnd="@dimen/activity_horizontal_margin"-->
 
     <com.psychocactusproject.graphics.views.SurfaceGameView
-        android:id="@+id/gameView"
+        android:id="@+id/gameView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
     <!--
