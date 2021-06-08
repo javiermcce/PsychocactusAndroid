@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
 
-public class SimpleFragment extends GameBaseFragment implements View.OnClickListener {
+public class SimpleFragment extends GameBaseFragment implements View.OnClickListener, View.OnApplyWindowInsetsListener {
 
     private GameEngine gameEngine;
 
@@ -45,13 +45,15 @@ public class SimpleFragment extends GameBaseFragment implements View.OnClickList
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         // Arranca el motor de juego a través de un listener cuando la vista ya haya sido creada
-        final ViewTreeObserver observer = view.getViewTreeObserver();
+        ViewTreeObserver observer = view.getViewTreeObserver();
+        final View createdView = view;
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 // Tan pronto como se acceda al código del listener, se borra la escucha
-                if (observer.isAlive()) {
-                    observer.removeOnGlobalLayoutListener(this);
+                ViewTreeObserver currentObserver = createdView.getViewTreeObserver();
+                if (currentObserver.isAlive()) {
+                    currentObserver.removeOnGlobalLayoutListener(this);
                 }
                 // getActivity().getWindow().getDecorView().getWindowInsetsController().hide(WindowInsets.Type.statusBars());
 
@@ -151,5 +153,10 @@ public class SimpleFragment extends GameBaseFragment implements View.OnClickList
             button.setText(R.string.resume);
         }
         */
+    }
+
+    @Override
+    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+        return v.onApplyWindowInsets(insets);
     }
 }

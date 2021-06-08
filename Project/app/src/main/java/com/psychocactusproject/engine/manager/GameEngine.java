@@ -45,10 +45,10 @@ public class GameEngine {
     // Scenes
     private SCENES pendingSceneChange;
 
-    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU, LOADING}
+    public enum SCENES { INITIAL_SCREEN, DIALOG, GAME, PAUSE_MENU, LOADING }
     public enum BLACK_STRIPE_TYPES { FALSE, TOP_BOTTOM, LEFT_RIGHT }
     public enum GAME_LAYERS { BACKGROUND, OBJECTS, CHARACTERS, FRONT, USER_INTERFACE, DEBUG }
-    private SCENES currentScene = SCENES.GAME;
+    private SCENES currentScene = SCENES.LOADING;
 
     // Resources
     private final GameLogic gameLogic;
@@ -74,8 +74,8 @@ public class GameEngine {
         this.debugDrawables = new ArrayList<>();
         this.surfaceGameView.setGameEntities(this.gameDrawables, this.debugDrawables);
         //
-        this.deviceWidth = surfaceGameView.getWidth();
-        this.deviceHeight = surfaceGameView.getHeight();
+        this.deviceWidth = activity.getWindow().getDecorView().getWidth();
+        this.deviceHeight = activity.getWindow().getDecorView().getHeight();
         this.engineClock = new GameClock(1, 1);
         this.gameLogic = GameLogic.initialize(this);
         this.debugHelper = new DebugHelper(this);

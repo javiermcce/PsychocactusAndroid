@@ -4,25 +4,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowInsets;
 
 import com.psychocactusproject.R;
 import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 import static androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
 
-public class SimpleActivity extends AppCompatActivity {
+public class SimpleActivity extends AppCompatActivity implements View.OnApplyWindowInsetsListener {
 
     private static final String TAG_FRAGMENT = "content";
     private DebugHelper debugHelper;
 
     @Override
+    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
+        return v.onApplyWindowInsets(insets);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //
-        setContentView(R.layout.activity_game);
         // Es inicializada la clase que centraliza la gestión de los recursos externos
         ResourceLoader.initializeResourceLoader(this);
         //
@@ -66,11 +71,18 @@ public class SimpleActivity extends AppCompatActivity {
                     | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }*/
 
-
-        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(this.getWindow(), this.getWindow().getDecorView());
-        insetsControllerCompat.setSystemBarsBehavior(BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        insetsControllerCompat.hide(WindowInsetsCompat.Type.statusBars());
+        if (hasFocus) {
+            WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(this.getWindow(), this.getWindow().getDecorView());
+            insetsControllerCompat.hide(WindowInsetsCompat.Type.statusBars());
+            insetsControllerCompat.hide(WindowInsetsCompat.Type.navigationBars());
+            insetsControllerCompat.setSystemBarsBehavior(BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+            /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.getWindow().getDecorView().onApplyWindowInsets(this.getWindow().getDecorView().getRootWindowInsets());
+            } */
+        }
     }
+
+
 
     public void setDebugHelper(DebugHelper helper) {
         this.debugHelper = helper;
@@ -110,7 +122,7 @@ public class SimpleActivity extends AppCompatActivity {
         return false;
     }
 
-    public GameFragment getFragment() {
-        return (GameFragment) this.getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
+    public SimpleFragment getFragment() {
+        return (SimpleFragment) this.getSupportFragmentManager().findFragmentByTag(TAG_FRAGMENT);
     }
 }
