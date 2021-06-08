@@ -394,7 +394,6 @@ public class GameEngine {
         this.getSurfaceGameView().onSceneChange(oldScene, scene);
         switch (oldScene) {
             case GAME:
-
                 // la idea es que al final del fragmento ejecutable correspondiente, siempre se
                 // acuda a este método para hacer efectivo el cambio de escena
                 break;

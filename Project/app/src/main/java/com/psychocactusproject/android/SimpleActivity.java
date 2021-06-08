@@ -15,28 +15,37 @@ import com.psychocactusproject.graphics.manager.ResourceLoader;
 
 import static androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
 
-public class SimpleActivity extends AppCompatActivity implements View.OnApplyWindowInsetsListener {
+public class SimpleActivity extends AppCompatActivity {
 
     private static final String TAG_FRAGMENT = "content";
     private DebugHelper debugHelper;
-
-    @Override
-    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-        return v.onApplyWindowInsets(insets);
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // Es inicializada la clase que centraliza la gestión de los recursos externos
         ResourceLoader.initializeResourceLoader(this);
-        //
+        // Es declarado el layout vinculado a esta clase
         setContentView(R.layout.simple_activity);
+        // Es ajustada la ventana para ocultar elementos de Android que ocupan espacio
+        this.hideAndroidWindowElements();
+        // La actividad y su fragmento arrancan, inicializando el resto de componentes
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, SimpleFragment.fragmentInstance())
                     .commitNow();
         }
+    }
+
+    /**
+     * Ajusta la ventana de Android para ocultar los elementos de navegación
+     */
+    public void hideAndroidWindowElements() {
+        WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(
+                this.getWindow(), this.getWindow().getDecorView());
+        insetsControllerCompat.hide(WindowInsetsCompat.Type.statusBars());
+        insetsControllerCompat.hide(WindowInsetsCompat.Type.navigationBars());
+        insetsControllerCompat.setSystemBarsBehavior(BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
     }
 
     public void startGame() {
@@ -60,29 +69,10 @@ public class SimpleActivity extends AppCompatActivity implements View.OnApplyWin
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        /*
         if (hasFocus) {
-            View decorView = getWindow().getDecorView();
-            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_FULLSCREEN
-                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }*/
-
-        if (hasFocus) {
-            WindowInsetsControllerCompat insetsControllerCompat = new WindowInsetsControllerCompat(this.getWindow(), this.getWindow().getDecorView());
-            insetsControllerCompat.hide(WindowInsetsCompat.Type.statusBars());
-            insetsControllerCompat.hide(WindowInsetsCompat.Type.navigationBars());
-            insetsControllerCompat.setSystemBarsBehavior(BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-            /* if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                this.getWindow().getDecorView().onApplyWindowInsets(this.getWindow().getDecorView().getRootWindowInsets());
-            } */
+            this.hideAndroidWindowElements();
         }
     }
-
-
 
     public void setDebugHelper(DebugHelper helper) {
         this.debugHelper = helper;

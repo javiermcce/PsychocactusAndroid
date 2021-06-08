@@ -40,6 +40,7 @@ public class LoadingScreen implements Scene {
         this.rotatingFaceMatrix = new Matrix();
         // esto es necesario porque al principio, cuando aún no ha rotado, puede
         // aparecer en el lugar incorrecto
+        // HARIA FALTA REFACTORIZAR PARA HACERLO ELEGANTE
         this.rotatingFaceMatrix.postTranslate(
                 GameEngine.RESOLUTION_X - 160, GameEngine.RESOLUTION_Y - 150);
         this.basicMatrix = new Matrix();
@@ -49,10 +50,6 @@ public class LoadingScreen implements Scene {
         this.loadingPaint.setColor(Color.WHITE);
         this.selectedRandomFace = -1;
         this.loadingConstructed = false;
-        GameClock.scheduleTask(2500, () -> {
-            // Faltaría usar nextScene para dirigir la actividad
-            // GameEngine.getInstance().openMainMenu();
-        });
     }
 
     @Override
@@ -116,7 +113,13 @@ public class LoadingScreen implements Scene {
 
     @Override
     public void onSceneChange(SCENES oldScene) {
-
+        // Si estamos en LOADING, y cambiamos a LOADING, es que el juego arranca
+        if (oldScene == SCENES.LOADING) {
+            GameClock.scheduleTask(2500, () -> {
+                // Faltaría usar nextScene para dirigir la actividad
+                GameEngine.getInstance().openMainMenu();
+            });
+        }
     }
 
     @Override

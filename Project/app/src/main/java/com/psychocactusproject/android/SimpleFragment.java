@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 
 import static androidx.core.view.WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE;
 
-public class SimpleFragment extends GameBaseFragment implements View.OnClickListener, View.OnApplyWindowInsetsListener {
+public class SimpleFragment extends GameBaseFragment implements View.OnClickListener {
 
     private GameEngine gameEngine;
 
@@ -78,15 +78,13 @@ public class SimpleFragment extends GameBaseFragment implements View.OnClickList
     @Override
     public void onClick(View v) {
         System.out.println("test");
-        /* if (v.getId() == R.id.button_play_pause) {
-            pauseGameAndShowPauseDialog();
-        } */
     }
 
 
 
     @Override
     public void onPause() {
+        // REVISAR POLÍTICAS Y BOTONES ANDROID
         super.onPause();
         if (gameEngine.isRunning() && !gameEngine.isPaused()){
             pauseGameAndShowPauseDialog();
@@ -95,12 +93,14 @@ public class SimpleFragment extends GameBaseFragment implements View.OnClickList
 
     @Override
     public void onDestroy() {
+        // REVISAR POLÍTICAS Y BOTONES ANDROID
         super.onDestroy();
         gameEngine.stopGameApp();
     }
 
     @Override
     public boolean onBackPressed() {
+        // REVISAR POLÍTICAS Y BOTONES ANDROID
         if (gameEngine.isRunning() && !gameEngine.isPaused()) {
             pauseGameAndShowPauseDialog();
             return true;
@@ -109,54 +109,7 @@ public class SimpleFragment extends GameBaseFragment implements View.OnClickList
     }
 
     private void pauseGameAndShowPauseDialog() {
+        // REVISAR POLÍTICAS Y BOTONES ANDROID
         gameEngine.pauseGame();
-        /*
-        new AlertDialog.Builder(getActivity())
-                .setTitle(R.string.pause_dialog_title)
-                .setMessage(R.string.pause_dialog_message)
-                .setPositiveButton(R.string.resume, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        gameEngine.resumeGame();
-                    }
-                })
-                .setNegativeButton(R.string.stop, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        gameEngine.stopGame();
-                        ((SimpleActivity)getActivity()).navigateBack();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        gameEngine.resumeGame();
-                    }
-                })
-                .create()
-                .show();
-        */
-
-    }
-
-    private void playOrPause() {
-        /*
-        Button button = (Button) getView().findViewById(R.id.button_play_pause);
-        if (gameEngine.isPaused()) {
-            gameEngine.resumeGame();
-            button.setText(R.string.pause);
-        }
-        else {
-            gameEngine.pauseGame();
-            button.setText(R.string.resume);
-        }
-        */
-    }
-
-    @Override
-    public WindowInsets onApplyWindowInsets(View v, WindowInsets insets) {
-        return v.onApplyWindowInsets(insets);
     }
 }
